@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer";
 import { Cursor } from "@/components/Cursor";
 import { products, fmtCOP, type Product } from "@/lib/products";
 import { useCart } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlist";
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
@@ -50,7 +51,8 @@ function StandardProductPage({ product }: { product: Product }) {
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
-  const [wishlisted, setWishlisted] = useState(false);
+  const { toggle, has } = useWishlist();
+  const wishlisted = has(product.slug);
 
   function handleAddToCart() {
     add({
@@ -73,7 +75,7 @@ function StandardProductPage({ product }: { product: Product }) {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16 mt-8">
           <Gallery images={product.images} active={activeImage} onSelect={setActiveImage} />
           <div className="flex flex-col">
-            <DropWishlist drop={product.drop} wishlisted={wishlisted} onWishlist={() => setWishlisted((v) => !v)} />
+            <DropWishlist drop={product.drop} wishlisted={wishlisted} onWishlist={() => toggle(product.slug)} />
             <h1 className="font-display text-[clamp(2.4rem,5vw,4rem)] uppercase leading-[0.9] text-cream mb-6">
               {product.name}
             </h1>
@@ -184,7 +186,7 @@ function ConjuntoProductPage({ product }: { product: Product }) {
           <Gallery images={activeImages} active={Math.min(activeImage, activeImages.length - 1)} onSelect={setActiveImage} />
 
           <div className="flex flex-col">
-            <DropWishlist drop={product.drop} wishlisted={wishlisted} onWishlist={() => setWishlisted((v) => !v)} />
+            <DropWishlist drop={product.drop} wishlisted={wishlisted} onWishlist={() => toggle(product.slug)} />
             <h1 className="font-display text-[clamp(2.4rem,5vw,4rem)] uppercase leading-[0.9] text-cream mb-6">
               {activeName}
             </h1>
@@ -321,14 +323,26 @@ function ConjuntoProductPage({ product }: { product: Product }) {
 
 /* ─── Shared sub-components ─────────────────────────────────── */
 
+const CATEGORY_HANDLE: Record<string, string> = {
+  Camisetas: "camisetas",
+  Gorras: "gorras",
+  Busos: "hombre",
+  Conjuntos: "hombre",
+  Pantalonetas: "hombre",
+  Pantalones: "hombre",
+};
+
 function Breadcrumb({ category, name }: { category: string; name: string }) {
+  const handle = CATEGORY_HANDLE[category] ?? "nuevo";
   return (
     <nav className="flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-cream/40">
       <Link to="/" className="hover:text-cream transition-colors">Inicio</Link>
       <span>/</span>
-      <span className="hover:text-cream transition-colors cursor-pointer">{category}</span>
+      <Link to="/collections/$handle" params={{ handle }} className="hover:text-cream transition-colors">
+        {category}
+      </Link>
       <span>/</span>
-      <span className="text-cream">{name}</span>
+      <span className="text-cream/80 truncate max-w-[16rem]">{name}</span>
     </nav>
   );
 }
@@ -402,9 +416,9 @@ function SizePicker({ sizes, selected, onSelect }: { sizes: string[]; selected: 
     <div className="mb-6">
       <div className="flex items-center justify-between mb-3">
         <p className="text-[10px] uppercase tracking-[0.3em] text-cream/50">Talla</p>
-        <button className="text-[10px] uppercase tracking-[0.22em] text-cream/50 hover:text-acid transition-colors flex items-center gap-1">
+        <Link to="/guia-de-tallas" className="text-[10px] uppercase tracking-[0.22em] text-cream/50 hover:text-acid transition-colors flex items-center gap-1">
           Guía de tallas <ArrowRight size={10} strokeWidth={1.5} />
-        </button>
+        </Link>
       </div>
       <div className="flex flex-wrap gap-2">
         {sizes.map((size) => (

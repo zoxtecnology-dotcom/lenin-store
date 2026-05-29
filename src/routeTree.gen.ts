@@ -9,20 +9,98 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as TiendasRouteImport } from './routes/tiendas'
+import { Route as TerminosRouteImport } from './routes/terminos'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as PrensaRouteImport } from './routes/prensa'
+import { Route as PacksRouteImport } from './routes/packs'
 import { Route as HistoriaRouteImport } from './routes/historia'
+import { Route as GuiaDeTallasRouteImport } from './routes/guia-de-tallas'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as EnviosRouteImport } from './routes/envios'
 import { Route as DropsRouteImport } from './routes/drops'
+import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as ContactoRouteImport } from './routes/contacto'
+import { Route as CambiosDevolucionesRouteImport } from './routes/cambios-devoluciones'
+import { Route as AvisoRouteImport } from './routes/aviso'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsSlugRouteImport } from './routes/products/$slug'
 import { Route as CollectionsHandleRouteImport } from './routes/collections/$handle'
 
+const WishlistRoute = WishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TiendasRoute = TiendasRouteImport.update({
+  id: '/tiendas',
+  path: '/tiendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TerminosRoute = TerminosRouteImport.update({
+  id: '/terminos',
+  path: '/terminos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrensaRoute = PrensaRouteImport.update({
+  id: '/prensa',
+  path: '/prensa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PacksRoute = PacksRouteImport.update({
+  id: '/packs',
+  path: '/packs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoriaRoute = HistoriaRouteImport.update({
   id: '/historia',
   path: '/historia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuiaDeTallasRoute = GuiaDeTallasRouteImport.update({
+  id: '/guia-de-tallas',
+  path: '/guia-de-tallas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnviosRoute = EnviosRouteImport.update({
+  id: '/envios',
+  path: '/envios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DropsRoute = DropsRouteImport.update({
   id: '/drops',
   path: '/drops',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactoRoute = ContactoRouteImport.update({
+  id: '/contacto',
+  path: '/contacto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CambiosDevolucionesRoute = CambiosDevolucionesRouteImport.update({
+  id: '/cambios-devoluciones',
+  path: '/cambios-devoluciones',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AvisoRoute = AvisoRouteImport.update({
+  id: '/aviso',
+  path: '/aviso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,23 +121,62 @@ const CollectionsHandleRoute = CollectionsHandleRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aviso': typeof AvisoRoute
+  '/cambios-devoluciones': typeof CambiosDevolucionesRoute
+  '/contacto': typeof ContactoRoute
+  '/cookies': typeof CookiesRoute
   '/drops': typeof DropsRoute
+  '/envios': typeof EnviosRoute
+  '/faq': typeof FaqRoute
+  '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
+  '/packs': typeof PacksRoute
+  '/prensa': typeof PrensaRoute
+  '/privacidad': typeof PrivacidadRoute
+  '/terminos': typeof TerminosRoute
+  '/tiendas': typeof TiendasRoute
+  '/wishlist': typeof WishlistRoute
   '/collections/$handle': typeof CollectionsHandleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aviso': typeof AvisoRoute
+  '/cambios-devoluciones': typeof CambiosDevolucionesRoute
+  '/contacto': typeof ContactoRoute
+  '/cookies': typeof CookiesRoute
   '/drops': typeof DropsRoute
+  '/envios': typeof EnviosRoute
+  '/faq': typeof FaqRoute
+  '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
+  '/packs': typeof PacksRoute
+  '/prensa': typeof PrensaRoute
+  '/privacidad': typeof PrivacidadRoute
+  '/terminos': typeof TerminosRoute
+  '/tiendas': typeof TiendasRoute
+  '/wishlist': typeof WishlistRoute
   '/collections/$handle': typeof CollectionsHandleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/aviso': typeof AvisoRoute
+  '/cambios-devoluciones': typeof CambiosDevolucionesRoute
+  '/contacto': typeof ContactoRoute
+  '/cookies': typeof CookiesRoute
   '/drops': typeof DropsRoute
+  '/envios': typeof EnviosRoute
+  '/faq': typeof FaqRoute
+  '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
+  '/packs': typeof PacksRoute
+  '/prensa': typeof PrensaRoute
+  '/privacidad': typeof PrivacidadRoute
+  '/terminos': typeof TerminosRoute
+  '/tiendas': typeof TiendasRoute
+  '/wishlist': typeof WishlistRoute
   '/collections/$handle': typeof CollectionsHandleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
@@ -67,31 +184,130 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/aviso'
+    | '/cambios-devoluciones'
+    | '/contacto'
+    | '/cookies'
     | '/drops'
+    | '/envios'
+    | '/faq'
+    | '/guia-de-tallas'
     | '/historia'
+    | '/packs'
+    | '/prensa'
+    | '/privacidad'
+    | '/terminos'
+    | '/tiendas'
+    | '/wishlist'
     | '/collections/$handle'
     | '/products/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/drops' | '/historia' | '/collections/$handle' | '/products/$slug'
+  to:
+    | '/'
+    | '/aviso'
+    | '/cambios-devoluciones'
+    | '/contacto'
+    | '/cookies'
+    | '/drops'
+    | '/envios'
+    | '/faq'
+    | '/guia-de-tallas'
+    | '/historia'
+    | '/packs'
+    | '/prensa'
+    | '/privacidad'
+    | '/terminos'
+    | '/tiendas'
+    | '/wishlist'
+    | '/collections/$handle'
+    | '/products/$slug'
   id:
     | '__root__'
     | '/'
+    | '/aviso'
+    | '/cambios-devoluciones'
+    | '/contacto'
+    | '/cookies'
     | '/drops'
+    | '/envios'
+    | '/faq'
+    | '/guia-de-tallas'
     | '/historia'
+    | '/packs'
+    | '/prensa'
+    | '/privacidad'
+    | '/terminos'
+    | '/tiendas'
+    | '/wishlist'
     | '/collections/$handle'
     | '/products/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AvisoRoute: typeof AvisoRoute
+  CambiosDevolucionesRoute: typeof CambiosDevolucionesRoute
+  ContactoRoute: typeof ContactoRoute
+  CookiesRoute: typeof CookiesRoute
   DropsRoute: typeof DropsRoute
+  EnviosRoute: typeof EnviosRoute
+  FaqRoute: typeof FaqRoute
+  GuiaDeTallasRoute: typeof GuiaDeTallasRoute
   HistoriaRoute: typeof HistoriaRoute
+  PacksRoute: typeof PacksRoute
+  PrensaRoute: typeof PrensaRoute
+  PrivacidadRoute: typeof PrivacidadRoute
+  TerminosRoute: typeof TerminosRoute
+  TiendasRoute: typeof TiendasRoute
+  WishlistRoute: typeof WishlistRoute
   CollectionsHandleRoute: typeof CollectionsHandleRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wishlist': {
+      id: '/wishlist'
+      path: '/wishlist'
+      fullPath: '/wishlist'
+      preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tiendas': {
+      id: '/tiendas'
+      path: '/tiendas'
+      fullPath: '/tiendas'
+      preLoaderRoute: typeof TiendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terminos': {
+      id: '/terminos'
+      path: '/terminos'
+      fullPath: '/terminos'
+      preLoaderRoute: typeof TerminosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prensa': {
+      id: '/prensa'
+      path: '/prensa'
+      fullPath: '/prensa'
+      preLoaderRoute: typeof PrensaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/packs': {
+      id: '/packs'
+      path: '/packs'
+      fullPath: '/packs'
+      preLoaderRoute: typeof PacksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/historia': {
       id: '/historia'
       path: '/historia'
@@ -99,11 +315,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HistoriaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guia-de-tallas': {
+      id: '/guia-de-tallas'
+      path: '/guia-de-tallas'
+      fullPath: '/guia-de-tallas'
+      preLoaderRoute: typeof GuiaDeTallasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/envios': {
+      id: '/envios'
+      path: '/envios'
+      fullPath: '/envios'
+      preLoaderRoute: typeof EnviosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/drops': {
       id: '/drops'
       path: '/drops'
       fullPath: '/drops'
       preLoaderRoute: typeof DropsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contacto': {
+      id: '/contacto'
+      path: '/contacto'
+      fullPath: '/contacto'
+      preLoaderRoute: typeof ContactoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cambios-devoluciones': {
+      id: '/cambios-devoluciones'
+      path: '/cambios-devoluciones'
+      fullPath: '/cambios-devoluciones'
+      preLoaderRoute: typeof CambiosDevolucionesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aviso': {
+      id: '/aviso'
+      path: '/aviso'
+      fullPath: '/aviso'
+      preLoaderRoute: typeof AvisoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -132,8 +397,21 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AvisoRoute: AvisoRoute,
+  CambiosDevolucionesRoute: CambiosDevolucionesRoute,
+  ContactoRoute: ContactoRoute,
+  CookiesRoute: CookiesRoute,
   DropsRoute: DropsRoute,
+  EnviosRoute: EnviosRoute,
+  FaqRoute: FaqRoute,
+  GuiaDeTallasRoute: GuiaDeTallasRoute,
   HistoriaRoute: HistoriaRoute,
+  PacksRoute: PacksRoute,
+  PrensaRoute: PrensaRoute,
+  PrivacidadRoute: PrivacidadRoute,
+  TerminosRoute: TerminosRoute,
+  TiendasRoute: TiendasRoute,
+  WishlistRoute: WishlistRoute,
   CollectionsHandleRoute: CollectionsHandleRoute,
   ProductsSlugRoute: ProductsSlugRoute,
 }

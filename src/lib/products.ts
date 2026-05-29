@@ -39,6 +39,7 @@ export interface Product {
   details: string;
   colors: ProductColor[];
   sizes: string[];
+  stock?: number;
   type?: "standard" | "conjunto";
   conjunto?: ConjuntoData;
 }
@@ -65,6 +66,7 @@ export const products: Product[] = [
       { name: "Negro Carbón", swatch: "#1a1a1a" },
     ],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    stock: 3,
   },
   {
     slug: "camiseta-essentials",
@@ -120,6 +122,7 @@ export const products: Product[] = [
       { name: "Acid Black", swatch: "#2a2a2a" },
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
+    stock: 2,
   },
   {
     slug: "conjunto-angoscia",
@@ -139,6 +142,7 @@ export const products: Product[] = [
       { name: "Grafito Oscuro", swatch: "#2e2e2e" },
     ],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    stock: 4,
     type: "conjunto",
     conjunto: {
       topName: "Buso Angoscia",

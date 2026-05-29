@@ -5,7 +5,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Cursor } from "@/components/Cursor";
 import { Reveal } from "@/components/Reveal";
-import { products, fmtCOP } from "@/lib/products";
+import { products } from "@/lib/products";
+import { ProductCard } from "@/components/ProductCard";
 import hero from "@/assets/hero.jpg";
 import look1 from "@/assets/look1.jpg";
 import look2 from "@/assets/look2.jpg";
@@ -133,25 +134,7 @@ function DropsPage() {
           {/* Product preview */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 mb-12">
             {drop01Products.map((p, i) => (
-              <Reveal key={p.slug} delay={i * 80}>
-                <Link to="/products/$slug" params={{ slug: p.slug }} className="group block">
-                  <div className="relative aspect-[4/5] overflow-hidden bg-bone">
-                    {p.tag && (
-                      <span className={`absolute left-3 top-3 z-10 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.2em] ${p.tag.startsWith("-") ? "bg-acid text-ink" : "bg-ink text-cream"}`}>
-                        {p.tag}
-                      </span>
-                    )}
-                    <img src={p.front} alt={p.name} loading="lazy"
-                      className="card-img card-img-front absolute inset-0 h-full w-full object-cover" />
-                    <img src={p.back} alt="" aria-hidden loading="lazy"
-                      className="card-img card-img-back absolute inset-0 h-full w-full object-cover opacity-0" />
-                  </div>
-                  <div className="mt-3 flex items-start justify-between gap-2">
-                    <h3 className="text-[11px] uppercase tracking-[0.18em] text-cream">{p.name}</h3>
-                    <span className="shrink-0 text-[11px] tabular-nums text-cream/60">{fmtCOP(p.price)}</span>
-                  </div>
-                </Link>
-              </Reveal>
+              <ProductCard key={p.slug} product={p} delay={i * 80} />
             ))}
           </div>
 

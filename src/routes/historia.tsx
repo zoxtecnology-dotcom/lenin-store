@@ -211,18 +211,6 @@ function HistoriaPage() {
         </div>
       </section>
 
-      {/* WORDMARK final */}
-      <div className="bg-background overflow-hidden border-t border-border">
-        <div className="mx-auto max-w-[1500px] px-5 md:px-10">
-          <div aria-hidden className="-mb-4 mt-8 overflow-hidden">
-            <p className="text-outline font-display select-none uppercase leading-[0.8] tracking-[-0.04em]"
-              style={{ fontSize: "clamp(5rem, 22vw, 22rem)" }}>
-              AI<span className="font-serif-it not-italic md:italic">A</span>HN
-            </p>
-          </div>
-        </div>
-      </div>
-
       <Footer />
     </main>
   );

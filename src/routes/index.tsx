@@ -1,11 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRef } from "react";
 import { Reveal } from "@/components/Reveal";
 import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
-import { products, fmtCOP } from "@/lib/products";
+import { products } from "@/lib/products";
+import { ProductCard } from "@/components/ProductCard";
 import hero from "@/assets/hero.jpg";
+import p1 from "@/assets/p1.jpg";
+import p2 from "@/assets/p2.jpg";
 import catHombre from "@/assets/cat-hombre.jpg";
 import catAcc from "@/assets/cat-acc.jpg";
 import look1 from "@/assets/look1.jpg";
@@ -48,7 +52,7 @@ function Index() {
         />
         <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/55 via-background/20 to-background/90" />
 
-        <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-[1500px] flex-col justify-between px-5 pt-12 pb-10 md:px-10 md:pt-20 md:pb-14">
+        <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-[1500px] flex-col justify-between px-5 pt-28 pb-10 md:px-10 md:pt-36 md:pb-14">
           <div>
             <p className="rise mb-6 text-[11px] uppercase tracking-[0.32em] text-cream/70" style={{ animationDelay: "0.1s" }}>
               SS26 — Drop 01
@@ -108,62 +112,7 @@ function Index() {
       </section>
 
       {/* FEATURED DROP */}
-      <section id="drop" className="relative bg-background py-20 md:py-28">
-        <div className="mx-auto max-w-[1500px] px-5 md:px-10">
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-6 md:mb-16">
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.3em] text-acid">Drop 01 · 12 piezas</p>
-              <h2 className="mt-3 font-display text-[clamp(3rem,8vw,7rem)] uppercase leading-[0.85]">
-                Lo nuevo<br />
-                <span className="font-serif-it normal-case text-cream/70">esta semana</span>
-              </h2>
-            </div>
-            <Link to="/collections/$handle" params={{ handle: "hombre" }} className="link-underline text-[11px] uppercase tracking-[0.28em] text-cream/80 hover:text-cream">
-              Ver todo →
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-4 md:gap-x-6">
-            {products.map((p, i) => (
-              <Reveal key={p.slug} delay={i * 80}>
-                <Link to="/products/$slug" params={{ slug: p.slug }} className="group block">
-                  <div className="relative aspect-[4/5] overflow-hidden bg-bone">
-                    {p.tag && (
-                      <span className={`absolute left-3 top-3 z-10 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.2em] ${
-                        p.tag === "-30%" ? "bg-acid text-ink" : "bg-ink text-cream"
-                      }`}>
-                        {p.tag}
-                      </span>
-                    )}
-                    <img
-                      src={p.front}
-                      alt={p.name}
-                      loading="lazy"
-                      width={1024}
-                      height={1280}
-                      className="card-img card-img-front absolute inset-0 h-full w-full object-cover"
-                    />
-                    <img
-                      src={p.back}
-                      alt=""
-                      aria-hidden
-                      loading="lazy"
-                      width={1024}
-                      height={1280}
-                      className="card-img card-img-back absolute inset-0 h-full w-full object-cover opacity-0"
-                    />
-                  </div>
-                  <div className="mt-4 flex items-start justify-between gap-3">
-                    <h3 className="text-xs uppercase tracking-[0.18em] text-cream">{p.name}</h3>
-                    <span className="shrink-0 text-xs tabular-nums text-cream/70">{fmtCOP(p.price)}</span>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
-
-          </div>
-        </div>
-      </section>
+      <FeaturedDrop />
 
       {/* CATEGORY SPLIT */}
       <section className="relative bg-background py-16 md:py-24">
@@ -194,6 +143,40 @@ function Index() {
               </Link>
             </Reveal>
           ))}
+        </div>
+      </section>
+
+      {/* PACKS */}
+      <section className="border-t border-border bg-background">
+        <div className="mx-auto max-w-[1500px] px-5 md:px-10">
+          <div className="grid md:grid-cols-2">
+            <div className="grid grid-cols-3 gap-px bg-border">
+              {[p1, p2, look1].map((img, i) => (
+                <div key={i} className="aspect-square overflow-hidden">
+                  <img src={img} alt="" className="h-full w-full object-cover hover:scale-105 transition-transform duration-[1.5s]" />
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col justify-center px-8 py-16 md:px-14 md:py-20 border-t md:border-t-0 md:border-l border-border">
+              <Reveal>
+                <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-6">— Packs Drop 01</p>
+                <h2 className="font-display text-[clamp(2.8rem,6vw,5.5rem)] uppercase leading-[0.88] text-cream mb-6">
+                  Más look,<br />mejor precio.
+                </h2>
+                <p className="text-sm leading-relaxed text-cream/55 mb-10 max-w-sm">
+                  Combina prendas del Drop 01 y ahorra hasta un 15%. Cuatro packs armados,
+                  uno solo al carrito.
+                </p>
+                <Link
+                  to="/packs"
+                  className="group inline-flex items-center gap-3 bg-acid text-ink px-8 py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:opacity-90 transition-opacity w-fit"
+                >
+                  Ver packs
+                  <ArrowRight size={14} strokeWidth={1.5} className="transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Reveal>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -315,5 +298,58 @@ function Index() {
 
       <Footer />
     </main>
+  );
+}
+
+function FeaturedDrop() {
+  const ref = useRef<HTMLDivElement>(null);
+  const CARD_W = 320;
+
+  function scroll(dir: "left" | "right") {
+    ref.current?.scrollBy({ left: dir === "right" ? CARD_W : -CARD_W, behavior: "smooth" });
+  }
+
+  return (
+    <section id="drop" className="relative bg-background py-20 md:py-28">
+      <div className="mx-auto max-w-[1500px] px-5 md:px-10">
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-6 md:mb-16">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.3em] text-acid">Drop 01 · 12 piezas</p>
+            <h2 className="mt-3 font-display text-[clamp(3rem,8vw,7rem)] uppercase leading-[0.85]">
+              Lo nuevo<br />
+              <span className="font-serif-it normal-case text-cream/70">esta semana</span>
+            </h2>
+          </div>
+          <Link to="/collections/$handle" params={{ handle: "hombre" }}
+            className="link-underline text-[11px] uppercase tracking-[0.28em] text-cream/80 hover:text-cream">
+            Ver todo →
+          </Link>
+        </div>
+      </div>
+
+      {/* Carousel */}
+      <div className="mx-auto max-w-[1500px] px-5 md:px-10">
+        <div className="relative">
+          <button onClick={() => scroll("left")}
+            className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 hidden md:flex w-10 h-10 bg-background border border-border items-center justify-center text-cream/60 hover:text-cream hover:border-cream/40 transition-colors">
+            <ChevronLeft size={18} strokeWidth={1.5} />
+          </button>
+
+          <div ref={ref}
+            className="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none">
+            {products.slice(0, 6).map((p, i) => (
+              <div key={p.slug} className="snap-start shrink-0 w-[72vw] sm:w-[44vw] md:w-[260px] lg:w-[280px]">
+                <ProductCard product={p} delay={i * 60} />
+              </div>
+            ))}
+          </div>
+
+          <button onClick={() => scroll("right")}
+            className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden md:flex w-10 h-10 bg-background border border-border items-center justify-center text-cream/60 hover:text-cream hover:border-cream/40 transition-colors">
+            <ChevronRight size={18} strokeWidth={1.5} />
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }

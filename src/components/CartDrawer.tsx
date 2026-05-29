@@ -177,20 +177,6 @@ export function CartDrawer() {
               Ir a pagar <ArrowRight size={14} strokeWidth={1.5} />
             </button>
 
-            <a
-              href={buildWhatsAppLink(items, total)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 border border-[#25D366] text-[#25D366] py-3 text-[11px] uppercase tracking-[0.3em] font-medium hover:bg-[#25D366] hover:text-ink transition-colors duration-300"
-            >
-              <MessageCircle size={14} strokeWidth={1.5} />
-              Pedir por WhatsApp
-            </a>
-
-            <button onClick={() => setOpen(false)}
-              className="w-full text-center text-[10px] uppercase tracking-[0.3em] text-cream/50 hover:text-cream transition-colors py-1">
-              Ver carrito completo
-            </button>
           </div>
         )}
       </SheetContent>

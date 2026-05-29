@@ -8,7 +8,8 @@ import { FilterDrawer, type Filters, DEFAULT_FILTERS, PRICE_MAX } from "@/compon
 import { Cursor } from "@/components/Cursor";
 import { Reveal } from "@/components/Reveal";
 import { getCollection } from "@/lib/collections";
-import { products, fmtCOP } from "@/lib/products";
+import { products } from "@/lib/products";
+import { ProductCard } from "@/components/ProductCard";
 
 const searchSchema = z.object({
   talla: z.string().optional(),
@@ -158,7 +159,12 @@ function CollectionPage() {
             className="flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-cream/70 hover:text-cream transition-colors"
           >
             <SlidersHorizontal size={14} strokeWidth={1.5} />
-            Filtrar {activeFilterCount > 0 && <span className="text-acid">({activeFilterCount})</span>}
+            Filtrar
+            {activeFilterCount > 0 && (
+              <span className="w-5 h-5 bg-acid text-ink text-[10px] font-bold flex items-center justify-center leading-none">
+                {activeFilterCount}
+              </span>
+            )}
           </button>
 
           <div className="relative">
@@ -205,36 +211,7 @@ function CollectionPage() {
         ) : (
           <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-4 md:gap-x-5">
             {visible.map((p, i) => (
-              <Reveal key={p.slug} delay={i * 40}>
-                <Link to="/products/$slug" params={{ slug: p.slug }} className="group block">
-                  <div className="relative aspect-[4/5] overflow-hidden bg-bone">
-                    {p.tag && (
-                      <span className={`absolute left-3 top-3 z-10 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.2em] ${
-                        p.tag.startsWith("-") ? "bg-acid text-ink" : "bg-ink text-cream"
-                      }`}>
-                        {p.tag}
-                      </span>
-                    )}
-                    <img
-                      src={p.front}
-                      alt={p.name}
-                      loading="lazy"
-                      className="card-img card-img-front absolute inset-0 h-full w-full object-cover"
-                    />
-                    <img
-                      src={p.back}
-                      alt=""
-                      aria-hidden
-                      loading="lazy"
-                      className="card-img card-img-back absolute inset-0 h-full w-full object-cover opacity-0"
-                    />
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-[11px] uppercase tracking-[0.18em] text-cream leading-snug">{p.name}</h3>
-                    <p className="mt-1 text-[11px] tabular-nums text-cream/60">{fmtCOP(p.price)}</p>
-                  </div>
-                </Link>
-              </Reveal>
+              <ProductCard key={p.slug} product={p} delay={i * 40} />
             ))}
           </div>
         )}

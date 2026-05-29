@@ -11,25 +11,37 @@ import {
 import appCss from "../styles.css?url";
 import { CartProvider } from "@/lib/cart";
 import { CartDrawer } from "@/components/CartDrawer";
+import { WhatsappWidget } from "@/components/WhatsappWidget";
+import { WishlistProvider } from "@/lib/wishlist";
 
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Página no encontrada</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Esta página no existe o fue movida.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Volver al inicio
-          </Link>
-        </div>
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-5 text-center">
+      <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-6">— Error 404</p>
+      <h1
+        className="font-display uppercase leading-[0.85] text-cream"
+        style={{ fontSize: "clamp(5rem, 20vw, 16rem)" }}
+      >
+        404
+      </h1>
+      <p className="mt-6 font-serif-i text-xl text-cream/50 mb-10">
+        Esta página no existe o fue movida.
+      </p>
+      <div className="flex flex-wrap gap-3 justify-center">
+        <Link
+          to="/"
+          className="bg-acid text-ink px-8 py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:opacity-90 transition-opacity"
+        >
+          Volver al inicio
+        </Link>
+        <Link
+          to="/collections/$handle"
+          params={{ handle: "nuevo" }}
+          className="border border-border text-cream px-8 py-4 text-[11px] uppercase tracking-[0.3em] hover:border-cream/40 transition-colors"
+        >
+          Ver colección
+        </Link>
       </div>
     </div>
   );
@@ -116,11 +128,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        <CartDrawer />
-      </CartProvider>
+      <WishlistProvider>
+        <CartProvider>
+          <Outlet />
+          <CartDrawer />
+          <WhatsappWidget />
+        </CartProvider>
+      </WishlistProvider>
     </QueryClientProvider>
   );
 }

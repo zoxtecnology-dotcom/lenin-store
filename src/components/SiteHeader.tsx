@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Search, ShoppingBag, User, ChevronDown, X, Menu, ArrowRight } from "lucide-react";
+import { Search, ShoppingBag, User, ChevronDown, X, Menu, ArrowRight, Heart } from "lucide-react";
 import { useRef, useState } from "react";
+import { useWishlist } from "@/lib/wishlist";
 import { useCart } from "@/lib/cart";
 import { megaCategories } from "@/lib/collections";
 import { SearchModal } from "@/components/SearchModal";
@@ -20,6 +21,7 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ transparentTop }: SiteHeaderProps) {
   const { count, setOpen } = useCart();
+  const { items: wishlistItems } = useWishlist();
   const { location } = useRouterState();
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -37,6 +39,42 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
   function scheduleMegaClose() {
     closeTimer.current = setTimeout(() => setMegaOpen(false), 180);
   }
+
+  // Shared nav items used in both desktop rows
+  const navItems = (
+    <>
+      <NavLink to="/collections/$handle" params={{ handle: "nuevo" }} active={isActive("/collections/nuevo")}>Nuevo</NavLink>
+
+      <div className="relative" onMouseEnter={openMega} onMouseLeave={scheduleMegaClose}>
+        <Link
+          to="/collections/$handle"
+          params={{ handle: "hombre" }}
+          className={cn(
+            "relative flex items-center gap-1 transition-colors group",
+            isActive("/collections/hombre") || megaOpen ? "text-cream" : "text-cream/70 hover:text-cream"
+          )}
+        >
+          HOMBRE
+          <ChevronDown
+            size={11}
+            strokeWidth={1.5}
+            className={cn("transition-transform duration-200", megaOpen && "rotate-180")}
+          />
+          <span className={cn(
+            "absolute -bottom-px left-0 h-px bg-cream transition-transform duration-300 origin-left",
+            isActive("/collections/hombre") ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+          )} style={{ width: "calc(100% - 16px)" }} />
+        </Link>
+      </div>
+
+      <NavLink to="/collections/$handle" params={{ handle: "camisetas" }} active={isActive("/collections/camisetas")}>Camisetas</NavLink>
+      <NavLink to="/collections/$handle" params={{ handle: "gorras" }} active={isActive("/collections/gorras")}>Gorras</NavLink>
+      <NavLink to="/collections/$handle" params={{ handle: "mas-vendidos" }} active={isActive("/collections/mas-vendidos")}>Más Vendidos</NavLink>
+      <NavLink to="/collections/$handle" params={{ handle: "hot-sale" }} active={isActive("/collections/hot-sale")} highlight>Hot Sale</NavLink>
+      <NavLink to="/drops" active={isActive("/drops")}>Drops</NavLink>
+      <NavLink to="/historia" active={isActive("/historia")}>Historia</NavLink>
+    </>
+  );
 
   return (
     <>
@@ -62,62 +100,37 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
           "border-b border-border transition-colors duration-300",
           transparentTop && !megaOpen ? "bg-background/80 backdrop-blur-sm" : "bg-background"
         )}>
-          <div className="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-4 md:px-10">
+          {/* Grid: Logo | Nav (wrappable) | Icons */}
+          <div className="mx-auto hidden md:grid max-w-[1500px] grid-cols-[auto_1fr_auto] items-start gap-x-8 px-10 py-4">
 
             {/* Logo */}
-            <Link to="/" className="shrink-0 z-10">
+            <Link to="/" className="shrink-0 pt-0.5">
               <span className="block bg-acid px-2 py-0.5 font-display text-2xl font-black uppercase leading-none tracking-tight text-ink">
                 AI<span className="font-serif-it not-italic">A</span>HN
               </span>
             </Link>
 
-            {/* Desktop nav */}
-            <nav className="hidden md:flex items-center gap-8 text-[11px] uppercase tracking-[0.28em]">
-              <NavLink to="/collections/$handle" params={{ handle: "nuevo" }} active={isActive("/collections/nuevo")}>Nuevo</NavLink>
-
-              {/* HOMBRE with mega menu trigger */}
-              <div
-                className="relative"
-                onMouseEnter={openMega}
-                onMouseLeave={scheduleMegaClose}
-              >
-                <Link
-                  to="/collections/$handle"
-                  params={{ handle: "hombre" }}
-                  className={cn(
-                    "relative flex items-center gap-1 transition-colors group",
-                    isActive("/collections/hombre") || megaOpen ? "text-cream" : "text-cream/70 hover:text-cream"
-                  )}
-                >
-                  HOMBRE
-                  <ChevronDown
-                    size={11}
-                    strokeWidth={1.5}
-                    className={cn("transition-transform duration-200", megaOpen && "rotate-180")}
-                  />
-                  <span className={cn(
-                    "absolute -bottom-px left-0 h-px bg-cream transition-transform duration-300 origin-left",
-                    isActive("/collections/hombre") ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                  )} style={{ width: "calc(100% - 16px)" }} />
-                </Link>
-              </div>
-
-              <NavLink to="/collections/$handle" params={{ handle: "camisetas" }} active={isActive("/collections/camisetas")}>Camisetas</NavLink>
-              <NavLink to="/collections/$handle" params={{ handle: "gorras" }} active={isActive("/collections/gorras")}>Gorras</NavLink>
-              <NavLink to="/collections/$handle" params={{ handle: "mas-vendidos" }} active={isActive("/collections/mas-vendidos")}>Más Vendidos</NavLink>
-              <NavLink to="/collections/$handle" params={{ handle: "hot-sale" }} active={isActive("/collections/hot-sale")} highlight>Hot Sale</NavLink>
-              <NavLink to="/drops" active={isActive("/drops")}>Drops</NavLink>
-              <NavLink to="/historia" active={isActive("/historia")}>Historia</NavLink>
+            {/* Nav — wraps to second row automatically */}
+            <nav className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[11px] uppercase tracking-[0.28em] pt-1">
+              {navItems}
             </nav>
 
-            {/* Utility icons */}
-            <div className="flex items-center gap-5 text-cream">
-              <button onClick={() => setSearchOpen(true)} aria-label="Buscar" className="hover:text-acid transition-colors hidden md:block">
+            {/* Icons */}
+            <div className="flex items-center gap-5 text-cream pt-0.5">
+              <button onClick={() => setSearchOpen(true)} aria-label="Buscar" className="hover:text-acid transition-colors">
                 <Search size={18} strokeWidth={1.5} />
               </button>
-              <button aria-label="Mi cuenta" className="hover:text-acid transition-colors hidden md:block">
+              <button aria-label="Mi cuenta" className="hover:text-acid transition-colors">
                 <User size={18} strokeWidth={1.5} />
               </button>
+              <Link to="/wishlist" aria-label="Guardados" className="relative hover:text-acid transition-colors">
+                <Heart size={18} strokeWidth={1.5} />
+                {wishlistItems.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-acid text-ink text-[9px] font-bold flex items-center justify-center leading-none">
+                    {wishlistItems.length}
+                  </span>
+                )}
+              </Link>
               <button
                 onClick={() => setOpen(true)}
                 aria-label={`Carrito, ${count} artículos`}
@@ -126,19 +139,41 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
                 <ShoppingBag size={18} strokeWidth={1.5} />
                 <span className="text-[11px] tracking-widest">({count})</span>
               </button>
-              {/* Hamburger (mobile) */}
+            </div>
+          </div>
+
+          {/* Mobile row (< md): logo + cart + hamburger */}
+          <div className="md:hidden flex items-center justify-between px-5 py-4">
+            <Link to="/" className="shrink-0">
+              <span className="block bg-acid px-2 py-0.5 font-display text-2xl font-black uppercase leading-none tracking-tight text-ink">
+                AI<span className="font-serif-it not-italic">A</span>HN
+              </span>
+            </Link>
+            <div className="flex items-center gap-4 text-cream">
+              <Link to="/wishlist" aria-label="Guardados" className="relative hover:text-acid transition-colors">
+                <Heart size={18} strokeWidth={1.5} />
+                {wishlistItems.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-acid text-ink text-[9px] font-bold flex items-center justify-center leading-none">
+                    {wishlistItems.length}
+                  </span>
+                )}
+              </Link>
               <button
-                onClick={() => setMobileOpen(true)}
-                aria-label="Abrir menú"
-                className="md:hidden hover:text-acid transition-colors"
+                onClick={() => setOpen(true)}
+                aria-label={`Carrito, ${count} artículos`}
+                className="hover:text-acid transition-colors flex items-center gap-1"
               >
+                <ShoppingBag size={18} strokeWidth={1.5} />
+                <span className="text-[11px] tracking-widest">({count})</span>
+              </button>
+              <button onClick={() => setMobileOpen(true)} aria-label="Abrir menú" className="hover:text-acid transition-colors">
                 <Menu size={20} strokeWidth={1.5} />
               </button>
             </div>
           </div>
         </header>
 
-        {/* Mega menu — text only */}
+        {/* Mega menu */}
         <div
           className={cn(
             "w-full bg-background border-b border-border overflow-hidden transition-all duration-200 ease-out",
@@ -151,7 +186,7 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
             <div className="flex flex-col gap-1">
               <Link
                 to="/collections/$handle"
-                params={{ handle: "camisetas" }}
+                params={{ handle: "hombre" }}
                 onClick={() => setMegaOpen(false)}
                 className="group flex items-center justify-between py-2 border-b border-border/40 text-[11px] uppercase tracking-[0.28em] text-acid hover:text-acid transition-colors"
               >
@@ -177,7 +212,7 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
 
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
 
-      {/* Mobile full-screen menu */}
+      {/* Mobile full-screen menu — only below md */}
       <div className={cn(
         "fixed inset-0 z-[100] bg-background flex flex-col transition-transform duration-400 ease-out md:hidden",
         mobileOpen ? "translate-x-0" : "translate-x-full"
@@ -256,7 +291,7 @@ function NavLink({ to, params, active, highlight, children }: { to: string; para
       to={to}
       params={params}
       className={cn(
-        "relative group transition-colors",
+        "relative group transition-colors shrink-0",
         highlight ? "text-acid hover:text-acid/80" : active ? "text-cream" : "text-cream/70 hover:text-cream"
       )}
     >
