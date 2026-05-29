@@ -5,7 +5,8 @@ import { Reveal } from "@/components/Reveal";
 import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
-import { products } from "@/lib/products";
+import { products, fmtCOP } from "@/lib/products";
+import { PACKS } from "@/lib/packs";
 import { ProductCard } from "@/components/ProductCard";
 import hero from "@/assets/hero.jpg";
 import p1 from "@/assets/p1.jpg";
@@ -69,17 +70,17 @@ function Index() {
             </h1>
           </div>
 
-          <div className="rise flex flex-col items-start justify-between gap-6 md:flex-row md:items-end" style={{ animationDelay: "0.95s" }}>
+          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end" style={{ opacity: 0, animation: "fadeIn 0.8s ease-out 0.95s forwards" }}>
             <div className="max-w-xs text-[11px] uppercase tracking-[0.28em] text-cream/70">
               <p>Drop 01</p>
               <p className="mt-1">AIAHN Essentials — Otoño 26</p>
             </div>
-            <a href="#drop" className="group flex items-center gap-3 text-cream">
+            <Link to="/drops" className="group flex items-center gap-3 text-cream">
               <span className="link-underline font-display text-xl uppercase tracking-wider md:text-2xl">
                 Explorar colección
               </span>
               <ArrowRight size={22} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-2" />
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -118,7 +119,7 @@ function Index() {
       <section className="relative bg-background py-16 md:py-24">
         <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-3 px-5 md:grid-cols-2 md:gap-4 md:px-6">
           {[
-            { label: "Hombre", handle: "camisetas", img: catHombre, cta: "Ver colección" },
+            { label: "Hombre", handle: "hombre", img: catHombre, cta: "Ver colección" },
             { label: "Gorras", handle: "gorras", img: catAcc, cta: "Ver colección" },
           ].map((c, i) => (
             <Reveal key={c.label} delay={i * 120}>
@@ -147,38 +148,7 @@ function Index() {
       </section>
 
       {/* PACKS */}
-      <section className="border-t border-border bg-background">
-        <div className="mx-auto max-w-[1500px] px-5 md:px-10">
-          <div className="grid md:grid-cols-2">
-            <div className="grid grid-cols-3 gap-px bg-border">
-              {[p1, p2, look1].map((img, i) => (
-                <div key={i} className="aspect-square overflow-hidden">
-                  <img src={img} alt="" className="h-full w-full object-cover hover:scale-105 transition-transform duration-[1.5s]" />
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-col justify-center px-8 py-16 md:px-14 md:py-20 border-t md:border-t-0 md:border-l border-border">
-              <Reveal>
-                <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-6">— Packs Drop 01</p>
-                <h2 className="font-display text-[clamp(2.8rem,6vw,5.5rem)] uppercase leading-[0.88] text-cream mb-6">
-                  Más look,<br />mejor precio.
-                </h2>
-                <p className="text-sm leading-relaxed text-cream/55 mb-10 max-w-sm">
-                  Combina prendas del Drop 01 y ahorra hasta un 15%. Cuatro packs armados,
-                  uno solo al carrito.
-                </p>
-                <Link
-                  to="/packs"
-                  className="group inline-flex items-center gap-3 bg-acid text-ink px-8 py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:opacity-90 transition-opacity w-fit"
-                >
-                  Ver packs
-                  <ArrowRight size={14} strokeWidth={1.5} className="transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Reveal>
-            </div>
-          </div>
-        </div>
-      </section>
+      <PacksStrip />
 
       {/* LOOKBOOK */}
       <section className="relative bg-background py-24 md:py-36">
@@ -320,7 +290,7 @@ function FeaturedDrop() {
               <span className="font-serif-it normal-case text-cream/70">esta semana</span>
             </h2>
           </div>
-          <Link to="/collections/$handle" params={{ handle: "hombre" }}
+          <Link to="/collections/$handle" params={{ handle: "nuevo" }}
             className="link-underline text-[11px] uppercase tracking-[0.28em] text-cream/80 hover:text-cream">
             Ver todo →
           </Link>
@@ -342,6 +312,83 @@ function FeaturedDrop() {
                 <ProductCard product={p} delay={i * 60} />
               </div>
             ))}
+          </div>
+
+          <button onClick={() => scroll("right")}
+            className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 hidden md:flex w-10 h-10 bg-background border border-border items-center justify-center text-cream/60 hover:text-cream hover:border-cream/40 transition-colors">
+            <ChevronRight size={18} strokeWidth={1.5} />
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+function PacksStrip() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  function scroll(dir: "left" | "right") {
+    ref.current?.scrollBy({ left: dir === "right" ? 320 : -320, behavior: "smooth" });
+  }
+
+  return (
+    <section className="border-t border-border bg-background py-20 md:py-28">
+      <div className="mx-auto max-w-[1500px] px-5 md:px-10">
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-6 md:mb-16">
+          <Reveal>
+            <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-4">— Packs Drop 01</p>
+            <h2 className="font-display text-[clamp(2.8rem,6vw,5.5rem)] uppercase leading-[0.88] text-cream">
+              Más look,<br />mejor precio.
+            </h2>
+          </Reveal>
+          <Link to="/packs"
+            className="group inline-flex items-center gap-3 bg-acid text-ink px-8 py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:opacity-90 transition-opacity">
+            Ver packs
+            <ArrowRight size={14} strokeWidth={1.5} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-[1500px] px-5 md:px-10">
+        <div className="relative">
+          <button onClick={() => scroll("left")}
+            className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 hidden md:flex w-10 h-10 bg-background border border-border items-center justify-center text-cream/60 hover:text-cream hover:border-cream/40 transition-colors">
+            <ChevronLeft size={18} strokeWidth={1.5} />
+          </button>
+
+          <div ref={ref} className="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none">
+            {PACKS.map((pack, i) => {
+              const original = pack.items.reduce((sum, { product }) => sum + product.price, 0);
+              const final = Math.round(original * (1 - pack.discount / 100));
+              return (
+                <Reveal key={pack.id} delay={i * 60}>
+                  <div className="snap-start shrink-0 w-[72vw] sm:w-[44vw] md:w-[280px] lg:w-[300px]">
+                    <Link to="/packs/$id" params={{ id: pack.id }} className="group block border border-border hover:border-cream/30 transition-colors">
+                      <div className="relative h-52 flex gap-px bg-border overflow-hidden">
+                        <span className="absolute top-2.5 right-2.5 z-10 bg-acid text-ink text-[9px] uppercase tracking-[0.15em] px-1.5 py-0.5 font-medium">
+                          -{pack.discount}%
+                        </span>
+                        {pack.items.map(({ product }) => (
+                          <div key={product.slug} className="flex-1 overflow-hidden bg-bone">
+                            <img src={product.front} alt={product.name}
+                              className="h-full w-full object-cover object-top group-hover:scale-105 transition-transform duration-700" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="p-4">
+                        <p className="text-[9px] uppercase tracking-[0.25em] text-acid mb-1">{pack.tag}</p>
+                        <p className="font-display text-base uppercase text-cream mb-3">{pack.name}</p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-cream">{fmtCOP(final)}</p>
+                          <p className="text-[10px] text-acid">-{fmtCOP(original - final)}</p>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                </Reveal>
+              );
+            })}
           </div>
 
           <button onClick={() => scroll("right")}

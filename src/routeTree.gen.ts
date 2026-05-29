@@ -25,7 +25,9 @@ import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as CambiosDevolucionesRouteImport } from './routes/cambios-devoluciones'
 import { Route as AvisoRouteImport } from './routes/aviso'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PacksIndexRouteImport } from './routes/packs/index'
 import { Route as ProductsSlugRouteImport } from './routes/products/$slug'
+import { Route as PacksIdRouteImport } from './routes/packs/$id'
 import { Route as CollectionsHandleRouteImport } from './routes/collections/$handle'
 
 const WishlistRoute = WishlistRouteImport.update({
@@ -108,10 +110,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PacksIndexRoute = PacksIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PacksRoute,
+} as any)
 const ProductsSlugRoute = ProductsSlugRouteImport.update({
   id: '/products/$slug',
   path: '/products/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PacksIdRoute = PacksIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => PacksRoute,
 } as any)
 const CollectionsHandleRoute = CollectionsHandleRouteImport.update({
   id: '/collections/$handle',
@@ -130,14 +142,16 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
-  '/packs': typeof PacksRoute
+  '/packs': typeof PacksRouteWithChildren
   '/prensa': typeof PrensaRoute
   '/privacidad': typeof PrivacidadRoute
   '/terminos': typeof TerminosRoute
   '/tiendas': typeof TiendasRoute
   '/wishlist': typeof WishlistRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
+  '/packs/': typeof PacksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,14 +164,15 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
-  '/packs': typeof PacksRoute
   '/prensa': typeof PrensaRoute
   '/privacidad': typeof PrivacidadRoute
   '/terminos': typeof TerminosRoute
   '/tiendas': typeof TiendasRoute
   '/wishlist': typeof WishlistRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
+  '/packs': typeof PacksIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -171,14 +186,16 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
-  '/packs': typeof PacksRoute
+  '/packs': typeof PacksRouteWithChildren
   '/prensa': typeof PrensaRoute
   '/privacidad': typeof PrivacidadRoute
   '/terminos': typeof TerminosRoute
   '/tiendas': typeof TiendasRoute
   '/wishlist': typeof WishlistRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
+  '/packs/': typeof PacksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -200,7 +217,9 @@ export interface FileRouteTypes {
     | '/tiendas'
     | '/wishlist'
     | '/collections/$handle'
+    | '/packs/$id'
     | '/products/$slug'
+    | '/packs/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -213,14 +232,15 @@ export interface FileRouteTypes {
     | '/faq'
     | '/guia-de-tallas'
     | '/historia'
-    | '/packs'
     | '/prensa'
     | '/privacidad'
     | '/terminos'
     | '/tiendas'
     | '/wishlist'
     | '/collections/$handle'
+    | '/packs/$id'
     | '/products/$slug'
+    | '/packs'
   id:
     | '__root__'
     | '/'
@@ -240,7 +260,9 @@ export interface FileRouteTypes {
     | '/tiendas'
     | '/wishlist'
     | '/collections/$handle'
+    | '/packs/$id'
     | '/products/$slug'
+    | '/packs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -254,7 +276,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   GuiaDeTallasRoute: typeof GuiaDeTallasRoute
   HistoriaRoute: typeof HistoriaRoute
-  PacksRoute: typeof PacksRoute
+  PacksRoute: typeof PacksRouteWithChildren
   PrensaRoute: typeof PrensaRoute
   PrivacidadRoute: typeof PrivacidadRoute
   TerminosRoute: typeof TerminosRoute
@@ -378,12 +400,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/packs/': {
+      id: '/packs/'
+      path: '/'
+      fullPath: '/packs/'
+      preLoaderRoute: typeof PacksIndexRouteImport
+      parentRoute: typeof PacksRoute
+    }
     '/products/$slug': {
       id: '/products/$slug'
       path: '/products/$slug'
       fullPath: '/products/$slug'
       preLoaderRoute: typeof ProductsSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/packs/$id': {
+      id: '/packs/$id'
+      path: '/$id'
+      fullPath: '/packs/$id'
+      preLoaderRoute: typeof PacksIdRouteImport
+      parentRoute: typeof PacksRoute
     }
     '/collections/$handle': {
       id: '/collections/$handle'
@@ -394,6 +430,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface PacksRouteChildren {
+  PacksIdRoute: typeof PacksIdRoute
+  PacksIndexRoute: typeof PacksIndexRoute
+}
+
+const PacksRouteChildren: PacksRouteChildren = {
+  PacksIdRoute: PacksIdRoute,
+  PacksIndexRoute: PacksIndexRoute,
+}
+
+const PacksRouteWithChildren = PacksRoute._addFileChildren(PacksRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -406,7 +454,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   GuiaDeTallasRoute: GuiaDeTallasRoute,
   HistoriaRoute: HistoriaRoute,
-  PacksRoute: PacksRoute,
+  PacksRoute: PacksRouteWithChildren,
   PrensaRoute: PrensaRoute,
   PrivacidadRoute: PrivacidadRoute,
   TerminosRoute: TerminosRoute,
