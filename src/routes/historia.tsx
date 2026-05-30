@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
-import { Cursor } from "@/components/Cursor";
 import { Reveal } from "@/components/Reveal";
 import hero from "@/assets/hero.jpg";
 import look1 from "@/assets/look1.jpg";
@@ -23,7 +22,6 @@ export const Route = createFileRoute("/historia")({
 function HistoriaPage() {
   return (
     <main className="bg-background text-foreground min-h-screen">
-      <Cursor />
       <SiteHeader />
 
       {/* OPENING — full bleed wordmark */}

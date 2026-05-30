@@ -3,6 +3,7 @@ import { Search, ShoppingBag, User, ChevronDown, X, Menu, ArrowRight, Heart } fr
 import { useRef, useState } from "react";
 import { useWishlist } from "@/lib/wishlist";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
 import { megaCategories } from "@/lib/collections";
 import { SearchModal } from "@/components/SearchModal";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,8 @@ interface SiteHeaderProps {
 export function SiteHeader({ transparentTop }: SiteHeaderProps) {
   const { count, setOpen } = useCart();
   const { items: wishlistItems } = useWishlist();
+  const { user, isAdmin } = useAuth();
+  const accountHref = !user ? "/login" : isAdmin ? "/admin" : "/cuenta";
   const { location } = useRouterState();
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -78,7 +81,7 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-50">
+      <div id="site-header" className="fixed top-0 left-0 right-0 z-50">
         {/* Announcement bar */}
         <div className="bg-acid text-ink overflow-hidden py-2">
           <div className="flex whitespace-nowrap animate-marquee">
@@ -120,9 +123,16 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
               <button onClick={() => setSearchOpen(true)} aria-label="Buscar" className="hover:text-acid transition-colors">
                 <Search size={18} strokeWidth={1.5} />
               </button>
-              <button aria-label="Mi cuenta" className="hover:text-acid transition-colors">
+              <Link
+                to={accountHref}
+                aria-label="Mi cuenta"
+                className="relative hover:text-acid transition-colors"
+              >
                 <User size={18} strokeWidth={1.5} />
-              </button>
+                {user && (
+                  <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${isAdmin ? "bg-acid" : "bg-cream/60"}`} />
+                )}
+              </Link>
               <Link to="/wishlist" aria-label="Guardados" className="relative hover:text-acid transition-colors">
                 <Heart size={18} strokeWidth={1.5} />
                 {wishlistItems.length > 0 && (
@@ -274,7 +284,16 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
             <button onClick={() => { setMobileOpen(false); setSearchOpen(true); }} className="hover:text-acid transition-colors">
               <Search size={18} strokeWidth={1.5} />
             </button>
-            <button className="hover:text-acid transition-colors"><User size={18} strokeWidth={1.5} /></button>
+            <Link
+              to={accountHref}
+              onClick={() => setMobileOpen(false)}
+              className="relative hover:text-acid transition-colors"
+            >
+              <User size={18} strokeWidth={1.5} />
+              {user && (
+                <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${isAdmin ? "bg-acid" : "bg-cream/60"}`} />
+              )}
+            </Link>
           </div>
           <p className="text-[10px] uppercase tracking-[0.3em] text-cream/30">
             Streetwear masculino · Medellín, Colombia

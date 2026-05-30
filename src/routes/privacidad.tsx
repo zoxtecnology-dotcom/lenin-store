@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
-import { Cursor } from "@/components/Cursor";
 import { Reveal } from "@/components/Reveal";
 import { BRAND, EMAIL, pageTitle } from "@/lib/brand";
 
@@ -51,7 +50,6 @@ const SECTIONS = [
 function PrivacidadPage() {
   return (
     <main className="bg-background text-foreground min-h-screen">
-      <Cursor />
       <SiteHeader />
 
       <section className="pt-36 pb-20 md:pt-48 md:pb-28 border-b border-border">

@@ -2,20 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import { Reveal } from "@/components/Reveal";
-import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
-import { products, fmtCOP } from "@/lib/products";
-import { PACKS } from "@/lib/packs";
+import { fmtCOP } from "@/lib/products";
+import { fetchProductsNewest, fetchPacks, fetchDrops, fetchCollections } from "@/lib/catalog";
+import { imgUrl } from "@/lib/cloudinary";
 import { ProductCard } from "@/components/ProductCard";
-import hero from "@/assets/hero.jpg";
-import p1 from "@/assets/p1.jpg";
-import p2 from "@/assets/p2.jpg";
-import catHombre from "@/assets/cat-hombre.jpg";
-import catAcc from "@/assets/cat-acc.jpg";
-import look1 from "@/assets/look1.jpg";
-import look2 from "@/assets/look2.jpg";
-import look3 from "@/assets/look3.jpg";
 
 
 export const Route = createFileRoute("/")({
@@ -26,25 +18,36 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "AIAHN STORE — Drop 01" },
       { property: "og:description", content: "Ropa hecha por amor, vestida con actitud. Drop 01 disponible ahora." },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: hero },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: hero },
     ],
   }),
+  loader: async () => {
+    const [products, packs, drops, collections] = await Promise.all([
+      fetchProductsNewest(10), // carrusel: los 10 más nuevos
+      fetchPacks(),
+      fetchDrops(),
+      fetchCollections(),
+    ]);
+    return { products, packs, drops, collections };
+  },
   component: Index,
 });
 
 function Index() {
+  const { products, packs, drops, collections } = Route.useLoaderData();
+  const drop01 = drops[0];
+  const heroImg = drop01?.editorialImages[0] ?? imgUrl("aiahn/seed/hero");
+  const col = (handle: string) => collections.find((c) => c.handle === handle);
+
   return (
     <main className="bg-background text-foreground selection:bg-acid selection:text-ink">
-      <Cursor />
       <SiteHeader transparentTop />
 
 
       {/* HERO */}
       <section className="relative grain min-h-[92vh] w-full overflow-hidden">
         <img
-          src={hero}
+          src={heroImg}
           alt="Modelo con hoodie oversize negro en escena urbana oscura"
           fetchPriority="high"
           width={1536}
@@ -54,7 +57,7 @@ function Index() {
         <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/55 via-background/20 to-background/90" />
 
         <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-[1500px] flex-col justify-between px-5 pt-28 pb-10 md:px-10 md:pt-36 md:pb-14">
-          <div>
+          <div className="pointer-events-none">
             <p className="rise mb-6 text-[11px] uppercase tracking-[0.32em] text-cream/70" style={{ animationDelay: "0.1s" }}>
               SS26 — Drop 01
             </p>
@@ -70,7 +73,7 @@ function Index() {
             </h1>
           </div>
 
-          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end" style={{ opacity: 0, animation: "fadeIn 0.8s ease-out 0.95s forwards" }}>
+          <div className="relative z-20 flex flex-col gap-6 md:flex-row md:items-end md:justify-between" style={{ opacity: 0, animation: "fadeIn 0.8s ease-out 0.95s forwards" }}>
             <div className="max-w-xs text-[11px] uppercase tracking-[0.28em] text-cream/70">
               <p>Drop 01</p>
               <p className="mt-1">AIAHN Essentials — Otoño 26</p>
@@ -113,14 +116,14 @@ function Index() {
       </section>
 
       {/* FEATURED DROP */}
-      <FeaturedDrop />
+      <FeaturedDrop products={products} />
 
       {/* CATEGORY SPLIT */}
       <section className="relative bg-background py-16 md:py-24">
         <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-3 px-5 md:grid-cols-2 md:gap-4 md:px-6">
           {[
-            { label: "Hombre", handle: "hombre", img: catHombre, cta: "Ver colección" },
-            { label: "Gorras", handle: "gorras", img: catAcc, cta: "Ver colección" },
+            { label: "Hombre", handle: "hombre", img: col("hombre")?.image ?? imgUrl("aiahn/seed/cat-hombre"), cta: "Ver colección" },
+            { label: "Gorras", handle: "gorras", img: col("gorras")?.image ?? imgUrl("aiahn/seed/cat-acc"), cta: "Ver colección" },
           ].map((c, i) => (
             <Reveal key={c.label} delay={i * 120}>
               <Link to="/collections/$handle" params={{ handle: c.handle }} className="group relative block aspect-[3/4] md:aspect-[4/5] overflow-hidden">
@@ -148,14 +151,14 @@ function Index() {
       </section>
 
       {/* PACKS */}
-      <PacksStrip />
+      <PacksStrip packs={packs} />
 
       {/* LOOKBOOK */}
       <section className="relative bg-background py-24 md:py-36">
         <div className="mx-auto max-w-[1500px] px-5 md:px-10">
           <div className="mb-14 flex items-end justify-between">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.3em] text-acid">Editorial</p>
+              <p className="text-[11px] uppercase tracking-[0.3em] text-acid">— Editorial</p>
               <h2 className="mt-3 font-display text-[clamp(3rem,8vw,7rem)] uppercase leading-[0.85]">
                 Lookbook<br />
                 <span className="font-serif-it normal-case text-cream/70">drop 01</span>
@@ -171,7 +174,7 @@ function Index() {
           <div className="grid grid-cols-12 gap-3 md:gap-5">
             <Reveal className="col-span-12 md:col-span-5">
               <figure>
-                <img src={look1} alt="Retrato con capucha" loading="lazy" width={1024} height={1280} className="aspect-[4/5] w-full object-cover" />
+                <img src={drop01?.editorialImages[0] ?? ""} alt="Retrato con capucha" loading="lazy" width={1024} height={1280} className="aspect-[4/5] w-full object-cover" />
                 <figcaption className="mt-3 text-[10px] uppercase tracking-[0.25em] text-cream/50">
                   01 — Esencial / Capucha negra
                 </figcaption>
@@ -179,7 +182,7 @@ function Index() {
             </Reveal>
             <Reveal className="col-span-12 md:col-span-7 md:pt-24" delay={100}>
               <figure>
-                <img src={look2} alt="Dos modelos en calle nocturna" loading="lazy" width={1536} height={1024} className="aspect-[3/2] w-full object-cover" />
+                <img src={drop01?.editorialImages[1] ?? ""} alt="Dos modelos en calle nocturna" loading="lazy" width={1536} height={1024} className="aspect-[3/2] w-full object-cover" />
                 <figcaption className="mt-3 text-[10px] uppercase tracking-[0.25em] text-cream/50">
                   02 — Calle / Doble retrato
                 </figcaption>
@@ -187,7 +190,7 @@ function Index() {
             </Reveal>
             <Reveal className="col-span-8 md:col-span-4 md:col-start-3" delay={50}>
               <figure>
-                <img src={look3} alt="Detalle de bolsillo" loading="lazy" width={1024} height={1280} className="aspect-[4/5] w-full object-cover" />
+                <img src={drop01?.editorialImages[2] ?? ""} alt="Detalle de bolsillo" loading="lazy" width={1024} height={1280} className="aspect-[4/5] w-full object-cover" />
                 <figcaption className="mt-3 text-[10px] uppercase tracking-[0.25em] text-cream/50">
                   03 — Detalle / Bolsillo
                 </figcaption>
@@ -228,7 +231,7 @@ function Index() {
       <section className="relative bg-background py-28 md:py-40">
         <div className="mx-auto max-w-[1100px] px-5 md:px-10">
           <Reveal>
-            <p className="text-[11px] uppercase tracking-[0.3em] text-acid">— 001 / Newsletter</p>
+            <p className="text-[11px] uppercase tracking-[0.3em] text-acid">— Newsletter</p>
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-6 font-display text-[clamp(2.5rem,7vw,6rem)] uppercase leading-[0.9]">
@@ -271,7 +274,7 @@ function Index() {
   );
 }
 
-function FeaturedDrop() {
+function FeaturedDrop({ products }: { products: import("@/lib/products").Product[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const CARD_W = 320;
 
@@ -284,7 +287,7 @@ function FeaturedDrop() {
       <div className="mx-auto max-w-[1500px] px-5 md:px-10">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-6 md:mb-16">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.3em] text-acid">Drop 01 · 12 piezas</p>
+            <p className="text-[11px] uppercase tracking-[0.3em] text-acid">— Disponible ahora</p>
             <h2 className="mt-3 font-display text-[clamp(3rem,8vw,7rem)] uppercase leading-[0.85]">
               Lo nuevo<br />
               <span className="font-serif-it normal-case text-cream/70">esta semana</span>
@@ -309,7 +312,7 @@ function FeaturedDrop() {
             className="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none">
             {products.slice(0, 6).map((p, i) => (
               <div key={p.slug} className="snap-start shrink-0 w-[72vw] sm:w-[44vw] md:w-[260px] lg:w-[280px]">
-                <ProductCard product={p} delay={i * 60} />
+                <ProductCard product={p} delay={i * 60} noTouchSwipe />
               </div>
             ))}
           </div>
@@ -325,7 +328,7 @@ function FeaturedDrop() {
 }
 
 
-function PacksStrip() {
+function PacksStrip({ packs }: { packs: import("@/lib/catalog").PackData[] }) {
   const ref = useRef<HTMLDivElement>(null);
 
   function scroll(dir: "left" | "right") {
@@ -337,7 +340,7 @@ function PacksStrip() {
       <div className="mx-auto max-w-[1500px] px-5 md:px-10">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-6 md:mb-16">
           <Reveal>
-            <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-4">— Packs Drop 01</p>
+            <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-4">— Packs</p>
             <h2 className="font-display text-[clamp(2.8rem,6vw,5.5rem)] uppercase leading-[0.88] text-cream">
               Más look,<br />mejor precio.
             </h2>
@@ -358,13 +361,13 @@ function PacksStrip() {
           </button>
 
           <div ref={ref} className="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none">
-            {PACKS.map((pack, i) => {
+            {packs.map((pack, i) => {
               const original = pack.items.reduce((sum, { product }) => sum + product.price, 0);
               const final = Math.round(original * (1 - pack.discount / 100));
               return (
                 <Reveal key={pack.id} delay={i * 60}>
                   <div className="snap-start shrink-0 w-[72vw] sm:w-[44vw] md:w-[280px] lg:w-[300px]">
-                    <Link to="/packs/$id" params={{ id: pack.id }} className="group block border border-border hover:border-cream/30 transition-colors">
+                    <Link to="/packs/$id" params={{ id: pack.slug }} className="group block border border-border hover:border-cream/30 transition-colors">
                       <div className="relative h-52 flex gap-px bg-border overflow-hidden">
                         <span className="absolute top-2.5 right-2.5 z-10 bg-acid text-ink text-[9px] uppercase tracking-[0.15em] px-1.5 py-0.5 font-medium">
                           -{pack.discount}%

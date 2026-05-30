@@ -21,25 +21,33 @@ export interface ConjuntoData {
   fullImages: string[];
 }
 
+export interface ProductVariant {
+  color_name: string;
+  size: string;
+  piece: string | null;
+  stock: number;
+}
+
 export interface Product {
   slug: string;
   name: string;
   price: number;
+  compareAtPrice?: number;       // precio original (tachado), si hay descuento
   front: string;
   back: string;
   images: string[];
-  tag?: string;
   isNew?: boolean;
   isBestSeller?: boolean;
-  isOnSale?: boolean;
+  isOnSale?: boolean;            // calculado: compareAtPrice > price
   drop: string;
   category: string;
   shortDescription: string;
   description: string;
   details: string;
   colors: ProductColor[];
-  sizes: string[];
-  stock?: number;
+  sizes: string[];               // todas las tallas del producto
+  variants: ProductVariant[];    // stock por color+talla (para deshabilitar agotados)
+  stock?: number;                // stock total (suma de variantes)
   type?: "standard" | "conjunto";
   conjunto?: ConjuntoData;
 }

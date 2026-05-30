@@ -3,29 +3,26 @@ import { useState } from "react";
 import { ArrowLeft, Check, Package, ArrowRight } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
-import { Cursor } from "@/components/Cursor";
 import { Reveal } from "@/components/Reveal";
 import { useCart } from "@/lib/cart";
 import { fmtCOP } from "@/lib/products";
-import { getPackById, PACKS } from "@/lib/packs";
+import { fetchPackBySlug } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/packs/$id")({
-  head: ({ params }) => {
-    const pack = getPackById(params.id);
-    return {
-      meta: [
-        { title: pack ? `${pack.name} — AIAHN STORE` : "Pack — AIAHN STORE" },
-      ],
-    };
+  head: ({ loaderData }) => ({
+    meta: [{ title: loaderData?.pack ? `${loaderData.pack.name} — AIAHN STORE` : "Pack — AIAHN STORE" }],
+  }),
+  loader: async ({ params }) => {
+    const pack = await fetchPackBySlug(params.id);
+    if (!pack) throw notFound();
+    return { pack };
   },
   component: PackDetailPage,
 });
 
 function PackDetailPage() {
-  const { id } = Route.useParams();
-  const pack = getPackById(id);
-  if (!pack) throw notFound();
+  const { pack } = Route.useLoaderData();
 
   const { add, setOpen } = useCart();
   const [sizes, setSizes] = useState<Record<string, string>>({});
@@ -60,7 +57,6 @@ function PackDetailPage() {
 
   return (
     <main className="bg-background text-foreground min-h-screen">
-      <Cursor />
       <SiteHeader />
 
       <div className="mx-auto max-w-[1500px] px-5 pt-28 pb-20 md:px-10 md:pt-36">

@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
-import { Cursor } from "@/components/Cursor";
 import { Reveal } from "@/components/Reveal";
 import { fmtCOP } from "@/lib/products";
-import { PACKS, type Pack } from "@/lib/packs";
+import { fetchPacks, type PackData } from "@/lib/catalog";
 import { pageTitle } from "@/lib/brand";
 
 export const Route = createFileRoute("/packs/")({
@@ -14,10 +13,11 @@ export const Route = createFileRoute("/packs/")({
       { name: "description", content: "Packs AIAHN — combina prendas y ahorra. Más look, mejor precio." },
     ],
   }),
+  loader: async () => ({ packs: await fetchPacks() }),
   component: PacksPage,
 });
 
-function PackCard({ pack }: { pack: Pack }) {
+function PackCard({ pack }: { pack: PackData }) {
   const original = pack.items.reduce((s, i) => s + i.product.price, 0);
   const final = Math.round(original * (1 - pack.discount / 100));
 
@@ -61,7 +61,6 @@ function PackCard({ pack }: { pack: Pack }) {
 function PacksPage() {
   return (
     <main className="bg-background text-foreground min-h-screen">
-      <Cursor />
       <SiteHeader />
 
       <section className="pt-36 pb-20 md:pt-48 md:pb-28 border-b border-border">
@@ -85,7 +84,7 @@ function PacksPage() {
       <section className="py-20 md:py-28">
         <div className="mx-auto max-w-[1500px] px-5 md:px-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {PACKS.map((pack, i) => (
+            {Route.useLoaderData().packs.map((pack, i) => (
               <Reveal key={pack.id} delay={i * 80}>
                 <PackCard pack={pack} />
               </Reveal>

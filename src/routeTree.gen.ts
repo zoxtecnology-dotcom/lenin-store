@@ -15,20 +15,39 @@ import { Route as TerminosRouteImport } from './routes/terminos'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as PrensaRouteImport } from './routes/prensa'
 import { Route as PacksRouteImport } from './routes/packs'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as HistoriaRouteImport } from './routes/historia'
 import { Route as GuiaDeTallasRouteImport } from './routes/guia-de-tallas'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EnviosRouteImport } from './routes/envios'
 import { Route as DropsRouteImport } from './routes/drops'
+import { Route as CuentaRouteImport } from './routes/cuenta'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as CambiosDevolucionesRouteImport } from './routes/cambios-devoluciones'
 import { Route as AvisoRouteImport } from './routes/aviso'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PacksIndexRouteImport } from './routes/packs/index'
+import { Route as DropsIndexRouteImport } from './routes/drops/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ProductsSlugRouteImport } from './routes/products/$slug'
 import { Route as PacksIdRouteImport } from './routes/packs/$id'
+import { Route as DropsIdRouteImport } from './routes/drops/$id'
 import { Route as CollectionsHandleRouteImport } from './routes/collections/$handle'
+import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as AdminConfiguracionRouteImport } from './routes/admin/configuracion'
+import { Route as AdminProductosIndexRouteImport } from './routes/admin/productos/index'
+import { Route as AdminPedidosIndexRouteImport } from './routes/admin/pedidos/index'
+import { Route as AdminPacksIndexRouteImport } from './routes/admin/packs/index'
+import { Route as AdminDropsIndexRouteImport } from './routes/admin/drops/index'
+import { Route as AdminProductosNuevoRouteImport } from './routes/admin/productos/nuevo'
+import { Route as AdminProductosIdRouteImport } from './routes/admin/productos/$id'
+import { Route as AdminPedidosIdRouteImport } from './routes/admin/pedidos/$id'
+import { Route as AdminPacksNuevoRouteImport } from './routes/admin/packs/nuevo'
+import { Route as AdminPacksIdRouteImport } from './routes/admin/packs/$id'
+import { Route as AdminDropsNuevoRouteImport } from './routes/admin/drops/nuevo'
+import { Route as AdminDropsIdRouteImport } from './routes/admin/drops/$id'
 
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
@@ -60,6 +79,11 @@ const PacksRoute = PacksRouteImport.update({
   path: '/packs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoriaRoute = HistoriaRouteImport.update({
   id: '/historia',
   path: '/historia',
@@ -85,6 +109,11 @@ const DropsRoute = DropsRouteImport.update({
   path: '/drops',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CuentaRoute = CuentaRouteImport.update({
+  id: '/cuenta',
+  path: '/cuenta',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CookiesRoute = CookiesRouteImport.update({
   id: '/cookies',
   path: '/cookies',
@@ -105,6 +134,11 @@ const AvisoRoute = AvisoRouteImport.update({
   path: '/aviso',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -114,6 +148,16 @@ const PacksIndexRoute = PacksIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PacksRoute,
+} as any)
+const DropsIndexRoute = DropsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DropsRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ProductsSlugRoute = ProductsSlugRouteImport.update({
   id: '/products/$slug',
@@ -125,33 +169,122 @@ const PacksIdRoute = PacksIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => PacksRoute,
 } as any)
+const DropsIdRoute = DropsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => DropsRoute,
+} as any)
 const CollectionsHandleRoute = CollectionsHandleRouteImport.update({
   id: '/collections/$handle',
   path: '/collections/$handle',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminConfiguracionRoute = AdminConfiguracionRouteImport.update({
+  id: '/configuracion',
+  path: '/configuracion',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProductosIndexRoute = AdminProductosIndexRouteImport.update({
+  id: '/productos/',
+  path: '/productos/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPedidosIndexRoute = AdminPedidosIndexRouteImport.update({
+  id: '/pedidos/',
+  path: '/pedidos/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPacksIndexRoute = AdminPacksIndexRouteImport.update({
+  id: '/packs/',
+  path: '/packs/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDropsIndexRoute = AdminDropsIndexRouteImport.update({
+  id: '/drops/',
+  path: '/drops/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProductosNuevoRoute = AdminProductosNuevoRouteImport.update({
+  id: '/productos/nuevo',
+  path: '/productos/nuevo',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProductosIdRoute = AdminProductosIdRouteImport.update({
+  id: '/productos/$id',
+  path: '/productos/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPedidosIdRoute = AdminPedidosIdRouteImport.update({
+  id: '/pedidos/$id',
+  path: '/pedidos/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPacksNuevoRoute = AdminPacksNuevoRouteImport.update({
+  id: '/packs/nuevo',
+  path: '/packs/nuevo',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPacksIdRoute = AdminPacksIdRouteImport.update({
+  id: '/packs/$id',
+  path: '/packs/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDropsNuevoRoute = AdminDropsNuevoRouteImport.update({
+  id: '/drops/nuevo',
+  path: '/drops/nuevo',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDropsIdRoute = AdminDropsIdRouteImport.update({
+  id: '/drops/$id',
+  path: '/drops/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/aviso': typeof AvisoRoute
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
-  '/drops': typeof DropsRoute
+  '/cuenta': typeof CuentaRoute
+  '/drops': typeof DropsRouteWithChildren
   '/envios': typeof EnviosRoute
   '/faq': typeof FaqRoute
   '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
+  '/login': typeof LoginRoute
   '/packs': typeof PacksRouteWithChildren
   '/prensa': typeof PrensaRoute
   '/privacidad': typeof PrivacidadRoute
   '/terminos': typeof TerminosRoute
   '/tiendas': typeof TiendasRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/configuracion': typeof AdminConfiguracionRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/drops/$id': typeof DropsIdRoute
   '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/drops/': typeof DropsIndexRoute
   '/packs/': typeof PacksIndexRoute
+  '/admin/drops/$id': typeof AdminDropsIdRoute
+  '/admin/drops/nuevo': typeof AdminDropsNuevoRoute
+  '/admin/packs/$id': typeof AdminPacksIdRoute
+  '/admin/packs/nuevo': typeof AdminPacksNuevoRoute
+  '/admin/pedidos/$id': typeof AdminPedidosIdRoute
+  '/admin/productos/$id': typeof AdminProductosIdRoute
+  '/admin/productos/nuevo': typeof AdminProductosNuevoRoute
+  '/admin/drops/': typeof AdminDropsIndexRoute
+  '/admin/packs/': typeof AdminPacksIndexRoute
+  '/admin/pedidos/': typeof AdminPedidosIndexRoute
+  '/admin/productos/': typeof AdminProductosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -159,67 +292,122 @@ export interface FileRoutesByTo {
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
-  '/drops': typeof DropsRoute
+  '/cuenta': typeof CuentaRoute
   '/envios': typeof EnviosRoute
   '/faq': typeof FaqRoute
   '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
+  '/login': typeof LoginRoute
   '/prensa': typeof PrensaRoute
   '/privacidad': typeof PrivacidadRoute
   '/terminos': typeof TerminosRoute
   '/tiendas': typeof TiendasRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/configuracion': typeof AdminConfiguracionRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/drops/$id': typeof DropsIdRoute
   '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
+  '/admin': typeof AdminIndexRoute
+  '/drops': typeof DropsIndexRoute
   '/packs': typeof PacksIndexRoute
+  '/admin/drops/$id': typeof AdminDropsIdRoute
+  '/admin/drops/nuevo': typeof AdminDropsNuevoRoute
+  '/admin/packs/$id': typeof AdminPacksIdRoute
+  '/admin/packs/nuevo': typeof AdminPacksNuevoRoute
+  '/admin/pedidos/$id': typeof AdminPedidosIdRoute
+  '/admin/productos/$id': typeof AdminProductosIdRoute
+  '/admin/productos/nuevo': typeof AdminProductosNuevoRoute
+  '/admin/drops': typeof AdminDropsIndexRoute
+  '/admin/packs': typeof AdminPacksIndexRoute
+  '/admin/pedidos': typeof AdminPedidosIndexRoute
+  '/admin/productos': typeof AdminProductosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/aviso': typeof AvisoRoute
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
-  '/drops': typeof DropsRoute
+  '/cuenta': typeof CuentaRoute
+  '/drops': typeof DropsRouteWithChildren
   '/envios': typeof EnviosRoute
   '/faq': typeof FaqRoute
   '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
+  '/login': typeof LoginRoute
   '/packs': typeof PacksRouteWithChildren
   '/prensa': typeof PrensaRoute
   '/privacidad': typeof PrivacidadRoute
   '/terminos': typeof TerminosRoute
   '/tiendas': typeof TiendasRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/configuracion': typeof AdminConfiguracionRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/drops/$id': typeof DropsIdRoute
   '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/drops/': typeof DropsIndexRoute
   '/packs/': typeof PacksIndexRoute
+  '/admin/drops/$id': typeof AdminDropsIdRoute
+  '/admin/drops/nuevo': typeof AdminDropsNuevoRoute
+  '/admin/packs/$id': typeof AdminPacksIdRoute
+  '/admin/packs/nuevo': typeof AdminPacksNuevoRoute
+  '/admin/pedidos/$id': typeof AdminPedidosIdRoute
+  '/admin/productos/$id': typeof AdminProductosIdRoute
+  '/admin/productos/nuevo': typeof AdminProductosNuevoRoute
+  '/admin/drops/': typeof AdminDropsIndexRoute
+  '/admin/packs/': typeof AdminPacksIndexRoute
+  '/admin/pedidos/': typeof AdminPedidosIndexRoute
+  '/admin/productos/': typeof AdminProductosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/aviso'
     | '/cambios-devoluciones'
     | '/contacto'
     | '/cookies'
+    | '/cuenta'
     | '/drops'
     | '/envios'
     | '/faq'
     | '/guia-de-tallas'
     | '/historia'
+    | '/login'
     | '/packs'
     | '/prensa'
     | '/privacidad'
     | '/terminos'
     | '/tiendas'
     | '/wishlist'
+    | '/admin/configuracion'
+    | '/auth/callback'
     | '/collections/$handle'
+    | '/drops/$id'
     | '/packs/$id'
     | '/products/$slug'
+    | '/admin/'
+    | '/drops/'
     | '/packs/'
+    | '/admin/drops/$id'
+    | '/admin/drops/nuevo'
+    | '/admin/packs/$id'
+    | '/admin/packs/nuevo'
+    | '/admin/pedidos/$id'
+    | '/admin/productos/$id'
+    | '/admin/productos/nuevo'
+    | '/admin/drops/'
+    | '/admin/packs/'
+    | '/admin/pedidos/'
+    | '/admin/productos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -227,61 +415,101 @@ export interface FileRouteTypes {
     | '/cambios-devoluciones'
     | '/contacto'
     | '/cookies'
-    | '/drops'
+    | '/cuenta'
     | '/envios'
     | '/faq'
     | '/guia-de-tallas'
     | '/historia'
+    | '/login'
     | '/prensa'
     | '/privacidad'
     | '/terminos'
     | '/tiendas'
     | '/wishlist'
+    | '/admin/configuracion'
+    | '/auth/callback'
     | '/collections/$handle'
+    | '/drops/$id'
     | '/packs/$id'
     | '/products/$slug'
+    | '/admin'
+    | '/drops'
     | '/packs'
+    | '/admin/drops/$id'
+    | '/admin/drops/nuevo'
+    | '/admin/packs/$id'
+    | '/admin/packs/nuevo'
+    | '/admin/pedidos/$id'
+    | '/admin/productos/$id'
+    | '/admin/productos/nuevo'
+    | '/admin/drops'
+    | '/admin/packs'
+    | '/admin/pedidos'
+    | '/admin/productos'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/aviso'
     | '/cambios-devoluciones'
     | '/contacto'
     | '/cookies'
+    | '/cuenta'
     | '/drops'
     | '/envios'
     | '/faq'
     | '/guia-de-tallas'
     | '/historia'
+    | '/login'
     | '/packs'
     | '/prensa'
     | '/privacidad'
     | '/terminos'
     | '/tiendas'
     | '/wishlist'
+    | '/admin/configuracion'
+    | '/auth/callback'
     | '/collections/$handle'
+    | '/drops/$id'
     | '/packs/$id'
     | '/products/$slug'
+    | '/admin/'
+    | '/drops/'
     | '/packs/'
+    | '/admin/drops/$id'
+    | '/admin/drops/nuevo'
+    | '/admin/packs/$id'
+    | '/admin/packs/nuevo'
+    | '/admin/pedidos/$id'
+    | '/admin/productos/$id'
+    | '/admin/productos/nuevo'
+    | '/admin/drops/'
+    | '/admin/packs/'
+    | '/admin/pedidos/'
+    | '/admin/productos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AvisoRoute: typeof AvisoRoute
   CambiosDevolucionesRoute: typeof CambiosDevolucionesRoute
   ContactoRoute: typeof ContactoRoute
   CookiesRoute: typeof CookiesRoute
-  DropsRoute: typeof DropsRoute
+  CuentaRoute: typeof CuentaRoute
+  DropsRoute: typeof DropsRouteWithChildren
   EnviosRoute: typeof EnviosRoute
   FaqRoute: typeof FaqRoute
   GuiaDeTallasRoute: typeof GuiaDeTallasRoute
   HistoriaRoute: typeof HistoriaRoute
+  LoginRoute: typeof LoginRoute
   PacksRoute: typeof PacksRouteWithChildren
   PrensaRoute: typeof PrensaRoute
   PrivacidadRoute: typeof PrivacidadRoute
   TerminosRoute: typeof TerminosRoute
   TiendasRoute: typeof TiendasRoute
   WishlistRoute: typeof WishlistRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   CollectionsHandleRoute: typeof CollectionsHandleRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
 }
@@ -330,6 +558,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PacksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/historia': {
       id: '/historia'
       path: '/historia'
@@ -365,6 +600,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DropsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cuenta': {
+      id: '/cuenta'
+      path: '/cuenta'
+      fullPath: '/cuenta'
+      preLoaderRoute: typeof CuentaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cookies': {
       id: '/cookies'
       path: '/cookies'
@@ -393,6 +635,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AvisoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -406,6 +655,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/packs/'
       preLoaderRoute: typeof PacksIndexRouteImport
       parentRoute: typeof PacksRoute
+    }
+    '/drops/': {
+      id: '/drops/'
+      path: '/'
+      fullPath: '/drops/'
+      preLoaderRoute: typeof DropsIndexRouteImport
+      parentRoute: typeof DropsRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/products/$slug': {
       id: '/products/$slug'
@@ -421,6 +684,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PacksIdRouteImport
       parentRoute: typeof PacksRoute
     }
+    '/drops/$id': {
+      id: '/drops/$id'
+      path: '/$id'
+      fullPath: '/drops/$id'
+      preLoaderRoute: typeof DropsIdRouteImport
+      parentRoute: typeof DropsRoute
+    }
     '/collections/$handle': {
       id: '/collections/$handle'
       path: '/collections/$handle'
@@ -428,8 +698,145 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CollectionsHandleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/configuracion': {
+      id: '/admin/configuracion'
+      path: '/configuracion'
+      fullPath: '/admin/configuracion'
+      preLoaderRoute: typeof AdminConfiguracionRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/productos/': {
+      id: '/admin/productos/'
+      path: '/productos'
+      fullPath: '/admin/productos/'
+      preLoaderRoute: typeof AdminProductosIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/pedidos/': {
+      id: '/admin/pedidos/'
+      path: '/pedidos'
+      fullPath: '/admin/pedidos/'
+      preLoaderRoute: typeof AdminPedidosIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/packs/': {
+      id: '/admin/packs/'
+      path: '/packs'
+      fullPath: '/admin/packs/'
+      preLoaderRoute: typeof AdminPacksIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/drops/': {
+      id: '/admin/drops/'
+      path: '/drops'
+      fullPath: '/admin/drops/'
+      preLoaderRoute: typeof AdminDropsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/productos/nuevo': {
+      id: '/admin/productos/nuevo'
+      path: '/productos/nuevo'
+      fullPath: '/admin/productos/nuevo'
+      preLoaderRoute: typeof AdminProductosNuevoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/productos/$id': {
+      id: '/admin/productos/$id'
+      path: '/productos/$id'
+      fullPath: '/admin/productos/$id'
+      preLoaderRoute: typeof AdminProductosIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/pedidos/$id': {
+      id: '/admin/pedidos/$id'
+      path: '/pedidos/$id'
+      fullPath: '/admin/pedidos/$id'
+      preLoaderRoute: typeof AdminPedidosIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/packs/nuevo': {
+      id: '/admin/packs/nuevo'
+      path: '/packs/nuevo'
+      fullPath: '/admin/packs/nuevo'
+      preLoaderRoute: typeof AdminPacksNuevoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/packs/$id': {
+      id: '/admin/packs/$id'
+      path: '/packs/$id'
+      fullPath: '/admin/packs/$id'
+      preLoaderRoute: typeof AdminPacksIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/drops/nuevo': {
+      id: '/admin/drops/nuevo'
+      path: '/drops/nuevo'
+      fullPath: '/admin/drops/nuevo'
+      preLoaderRoute: typeof AdminDropsNuevoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/drops/$id': {
+      id: '/admin/drops/$id'
+      path: '/drops/$id'
+      fullPath: '/admin/drops/$id'
+      preLoaderRoute: typeof AdminDropsIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminConfiguracionRoute: typeof AdminConfiguracionRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminDropsIdRoute: typeof AdminDropsIdRoute
+  AdminDropsNuevoRoute: typeof AdminDropsNuevoRoute
+  AdminPacksIdRoute: typeof AdminPacksIdRoute
+  AdminPacksNuevoRoute: typeof AdminPacksNuevoRoute
+  AdminPedidosIdRoute: typeof AdminPedidosIdRoute
+  AdminProductosIdRoute: typeof AdminProductosIdRoute
+  AdminProductosNuevoRoute: typeof AdminProductosNuevoRoute
+  AdminDropsIndexRoute: typeof AdminDropsIndexRoute
+  AdminPacksIndexRoute: typeof AdminPacksIndexRoute
+  AdminPedidosIndexRoute: typeof AdminPedidosIndexRoute
+  AdminProductosIndexRoute: typeof AdminProductosIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminConfiguracionRoute: AdminConfiguracionRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminDropsIdRoute: AdminDropsIdRoute,
+  AdminDropsNuevoRoute: AdminDropsNuevoRoute,
+  AdminPacksIdRoute: AdminPacksIdRoute,
+  AdminPacksNuevoRoute: AdminPacksNuevoRoute,
+  AdminPedidosIdRoute: AdminPedidosIdRoute,
+  AdminProductosIdRoute: AdminProductosIdRoute,
+  AdminProductosNuevoRoute: AdminProductosNuevoRoute,
+  AdminDropsIndexRoute: AdminDropsIndexRoute,
+  AdminPacksIndexRoute: AdminPacksIndexRoute,
+  AdminPedidosIndexRoute: AdminPedidosIndexRoute,
+  AdminProductosIndexRoute: AdminProductosIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface DropsRouteChildren {
+  DropsIdRoute: typeof DropsIdRoute
+  DropsIndexRoute: typeof DropsIndexRoute
+}
+
+const DropsRouteChildren: DropsRouteChildren = {
+  DropsIdRoute: DropsIdRoute,
+  DropsIndexRoute: DropsIndexRoute,
+}
+
+const DropsRouteWithChildren = DropsRoute._addFileChildren(DropsRouteChildren)
 
 interface PacksRouteChildren {
   PacksIdRoute: typeof PacksIdRoute
@@ -445,21 +852,25 @@ const PacksRouteWithChildren = PacksRoute._addFileChildren(PacksRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AvisoRoute: AvisoRoute,
   CambiosDevolucionesRoute: CambiosDevolucionesRoute,
   ContactoRoute: ContactoRoute,
   CookiesRoute: CookiesRoute,
-  DropsRoute: DropsRoute,
+  CuentaRoute: CuentaRoute,
+  DropsRoute: DropsRouteWithChildren,
   EnviosRoute: EnviosRoute,
   FaqRoute: FaqRoute,
   GuiaDeTallasRoute: GuiaDeTallasRoute,
   HistoriaRoute: HistoriaRoute,
+  LoginRoute: LoginRoute,
   PacksRoute: PacksRouteWithChildren,
   PrensaRoute: PrensaRoute,
   PrivacidadRoute: PrivacidadRoute,
   TerminosRoute: TerminosRoute,
   TiendasRoute: TiendasRoute,
   WishlistRoute: WishlistRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   CollectionsHandleRoute: CollectionsHandleRoute,
   ProductsSlugRoute: ProductsSlugRoute,
 }

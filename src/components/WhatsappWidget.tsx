@@ -28,13 +28,11 @@ export function WhatsappWidget() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
+    <div className="fixed bottom-24 right-4 md:bottom-8 md:right-6 z-40 flex flex-col items-end gap-3">
 
-      {/* Chat window */}
-      <div className={cn(
-        "w-[22rem] bg-background border border-border overflow-hidden transition-all duration-300 origin-bottom-right",
-        open ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
-      )}>
+      {/* Chat window — solo existe en el DOM cuando está abierto */}
+      {open && (
+      <div className="w-[calc(100vw-2rem)] max-w-[22rem] bg-background border border-border overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-bottom-right">
         {/* Header */}
         <div className="bg-acid px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -83,6 +81,7 @@ export function WhatsappWidget() {
           </button>
         </div>
       </div>
+      )}
 
       {/* Floating button */}
       <button

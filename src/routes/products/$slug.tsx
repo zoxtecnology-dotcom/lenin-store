@@ -6,8 +6,8 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
-import { Cursor } from "@/components/Cursor";
-import { products, fmtCOP, type Product } from "@/lib/products";
+import { fmtCOP, type Product } from "@/lib/products";
+import { fetchProductBySlug, fetchProducts } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import {
@@ -15,21 +15,21 @@ import {
 } from "@/components/ui/accordion";
 
 export const Route = createFileRoute("/products/$slug")({
-  head: ({ params }) => {
-    const product = products.find((p) => p.slug === params.slug);
-    return {
-      meta: product
-        ? [
-            { title: `${product.name} — AIAHN STORE` },
-            { name: "description", content: product.shortDescription },
-          ]
-        : [{ title: "Producto no encontrado — AIAHN STORE" }],
-    };
-  },
-  loader: ({ params }) => {
-    const product = products.find((p) => p.slug === params.slug);
+  head: ({ loaderData }) => ({
+    meta: loaderData?.product
+      ? [
+          { title: `${loaderData.product.name} — AIAHN STORE` },
+          { name: "description", content: loaderData.product.shortDescription },
+        ]
+      : [{ title: "Producto no encontrado — AIAHN STORE" }],
+  }),
+  loader: async ({ params }) => {
+    const [product, allProducts] = await Promise.all([
+      fetchProductBySlug(params.slug),
+      fetchProducts(),
+    ]);
     if (!product) throw notFound();
-    return { product };
+    return { product, allProducts };
   },
   component: ProductPage,
 });
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/products/$slug")({
 type ComboOption = "completo" | "top" | "bottom";
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
+  const { product } = Route.useLoaderData() as { product: Product; allProducts: Product[] };
   const isConjunto = product.type === "conjunto" && !!product.conjunto;
 
   return isConjunto ? <ConjuntoProductPage product={product} /> : <StandardProductPage product={product} />;
@@ -68,7 +68,6 @@ function StandardProductPage({ product }: { product: Product }) {
 
   return (
     <main className="bg-background text-foreground min-h-screen">
-      <Cursor />
       <SiteHeader />
       <div className="mx-auto max-w-[1500px] px-5 pt-28 pb-20 md:px-10 md:pt-32">
         <Breadcrumb category={product.category} name={product.name} />
@@ -79,14 +78,26 @@ function StandardProductPage({ product }: { product: Product }) {
             <h1 className="font-display text-[clamp(2.4rem,5vw,4rem)] uppercase leading-[0.9] text-cream mb-6">
               {product.name}
             </h1>
-            <PriceBlock price={product.price} />
+            <PriceBlock price={product.price} compareAtPrice={product.compareAtPrice} />
             <p className="text-sm leading-relaxed text-cream/70 mb-8">{product.shortDescription}</p>
 
             {product.colors.length > 1 && (
-              <ColorPicker colors={product.colors} selected={selectedColor} onSelect={setSelectedColor} />
+              <ColorPicker
+                colors={product.colors}
+                selected={selectedColor}
+                onSelect={setSelectedColor}
+                variants={product.variants ?? []}
+                sizes={product.sizes}
+              />
             )}
 
-            <SizePicker sizes={product.sizes} selected={selectedSize} onSelect={setSelectedSize} />
+            <SizePicker
+              sizes={product.sizes}
+              selected={selectedSize}
+              onSelect={setSelectedSize}
+              variants={product.variants ?? []}
+              selectedColor={product.colors[selectedColor]?.name ?? ""}
+            />
 
             <QtyPicker qty={qty} onChange={setQty} />
 
@@ -177,7 +188,6 @@ function ConjuntoProductPage({ product }: { product: Product }) {
 
   return (
     <main className="bg-background text-foreground min-h-screen">
-      <Cursor />
       <SiteHeader />
       <div className="mx-auto max-w-[1500px] px-5 pt-28 pb-20 md:px-10 md:pt-32">
         <Breadcrumb category={product.category} name={product.name} />
@@ -379,11 +389,23 @@ function DropWishlist({ drop, wishlisted, onWishlist }: { drop: string; wishlist
   );
 }
 
-function PriceBlock({ price }: { price: number }) {
+function PriceBlock({ price, compareAtPrice }: { price: number; compareAtPrice?: number }) {
+  const discountPct = compareAtPrice && compareAtPrice > price
+    ? Math.round((1 - price / compareAtPrice) * 100)
+    : null;
+
   return (
     <>
-      <div className="mb-2">
+      <div className="mb-2 flex items-baseline gap-3">
         <span className="font-display text-3xl text-cream">{fmtCOP(price)}</span>
+        {compareAtPrice && (
+          <span className="text-lg text-cream/30 line-through">{fmtCOP(compareAtPrice)}</span>
+        )}
+        {discountPct && (
+          <span className="bg-acid text-ink text-[10px] px-2 py-0.5 uppercase tracking-[0.15em] font-medium">
+            -{discountPct}%
+          </span>
+        )}
       </div>
       <p className="text-[10px] uppercase tracking-[0.22em] text-cream/40 mb-5">
         6 cuotas de {fmtCOP(Math.round(price / 6))} con Addi / Sistecredito
@@ -392,7 +414,20 @@ function PriceBlock({ price }: { price: number }) {
   );
 }
 
-function ColorPicker({ colors, selected, onSelect }: { colors: { name: string; swatch: string }[]; selected: number; onSelect: (i: number) => void }) {
+function ColorPicker({ colors, selected, onSelect, variants, sizes }: {
+  colors: { name: string; swatch: string }[];
+  selected: number;
+  onSelect: (i: number) => void;
+  variants: import("@/lib/products").ProductVariant[];
+  sizes: string[];
+}) {
+  function colorStock(colorName: string) {
+    if (!variants.length) return 99;
+    return sizes.reduce((sum, s) =>
+      sum + variants.filter((v) => v.color_name === colorName && v.size === s && v.piece === null)
+        .reduce((a, v) => a + v.stock, 0), 0);
+  }
+
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-3">
@@ -400,18 +435,36 @@ function ColorPicker({ colors, selected, onSelect }: { colors: { name: string; s
         <p className="text-[10px] uppercase tracking-[0.22em] text-cream">{colors[selected].name}</p>
       </div>
       <div className="flex gap-2">
-        {colors.map((color, i) => (
-          <button key={i} onClick={() => onSelect(i)} aria-label={color.name}
-            className={`w-8 h-8 border-2 transition-all ${selected === i ? "border-cream scale-110" : "border-transparent"}`}
-            style={{ backgroundColor: color.swatch }}
-          />
-        ))}
+        {colors.map((color, i) => {
+          const stock = colorStock(color.name);
+          return (
+            <button key={i} onClick={() => stock > 0 && onSelect(i)}
+              aria-label={`${color.name}${stock === 0 ? " — agotado" : ""}`}
+              disabled={stock === 0}
+              className={`w-8 h-8 border-2 transition-all ${selected === i ? "border-cream scale-110" : "border-transparent"} ${stock === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
+              style={{ backgroundColor: color.swatch }}
+            />
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function SizePicker({ sizes, selected, onSelect }: { sizes: string[]; selected: string | null; onSelect: (s: string) => void }) {
+function SizePicker({ sizes, selected, onSelect, variants, selectedColor }: {
+  sizes: string[];
+  selected: string | null;
+  onSelect: (s: string) => void;
+  variants: import("@/lib/products").ProductVariant[];
+  selectedColor: string;
+}) {
+  function sizeStock(size: string) {
+    if (!variants.length) return 99;
+    return variants
+      .filter((v) => v.color_name === selectedColor && v.size === size && v.piece === null)
+      .reduce((sum, v) => sum + v.stock, 0);
+  }
+
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-3">
@@ -421,13 +474,27 @@ function SizePicker({ sizes, selected, onSelect }: { sizes: string[]; selected: 
         </Link>
       </div>
       <div className="flex flex-wrap gap-2">
-        {sizes.map((size) => (
-          <button key={size} onClick={() => onSelect(size)}
-            className={`min-w-[44px] px-3 py-2 text-[10px] uppercase tracking-[0.2em] border transition-all ${
-              selected === size ? "bg-cream text-ink border-cream" : "text-cream/60 border-border hover:border-cream hover:text-cream"
-            }`}
-          >{size}</button>
-        ))}
+        {sizes.map((size) => {
+          const stock = sizeStock(size);
+          const out = stock === 0;
+          return (
+            <button key={size} onClick={() => !out && onSelect(size)}
+              disabled={out}
+              className={`min-w-[44px] px-3 py-2 text-[10px] uppercase tracking-[0.2em] border transition-all relative ${
+                selected === size ? "bg-cream text-ink border-cream"
+                  : out ? "text-cream/20 border-border/30 cursor-not-allowed line-through"
+                  : "text-cream/60 border-border hover:border-cream hover:text-cream"
+              }`}
+            >
+              {size}
+              {!out && stock <= 3 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-acid text-ink text-[8px] w-4 h-4 flex items-center justify-center font-bold">
+                  {stock}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -517,7 +584,8 @@ function ProductAccordion({ product }: { product: Product }) {
 }
 
 function RelatedProducts({ currentSlug, category }: { currentSlug: string; category: string }) {
-  const related = getRelated(currentSlug, category);
+  const { allProducts } = Route.useLoaderData() as { product: Product; allProducts: Product[] };
+  const related = getRelated(currentSlug, category, allProducts);
   if (!related.length) return null;
   return (
     <section className="bg-background py-16 md:py-24">
@@ -550,9 +618,9 @@ function RelatedProducts({ currentSlug, category }: { currentSlug: string; categ
   );
 }
 
-function getRelated(currentSlug: string, category: string, limit = 3) {
-  const sameCategory = products.filter((p) => p.slug !== currentSlug && p.category === category);
+function getRelated(currentSlug: string, category: string, allProducts: Product[], limit = 3) {
+  const sameCategory = allProducts.filter((p) => p.slug !== currentSlug && p.category === category);
   if (sameCategory.length >= limit) return sameCategory.slice(0, limit);
-  const others = products.filter((p) => p.slug !== currentSlug && p.category !== category);
+  const others = allProducts.filter((p) => p.slug !== currentSlug && p.category !== category);
   return [...sameCategory, ...others].slice(0, limit);
 }

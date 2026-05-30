@@ -2,10 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
-import { Cursor } from "@/components/Cursor";
 import { Reveal } from "@/components/Reveal";
 import { useWishlist } from "@/lib/wishlist";
-import { products } from "@/lib/products";
+import { fetchProducts } from "@/lib/catalog";
 import { ProductCard } from "@/components/ProductCard";
 import { pageTitle } from "@/lib/brand";
 
@@ -13,16 +12,17 @@ export const Route = createFileRoute("/wishlist")({
   head: () => ({
     meta: [{ title: pageTitle("Guardados") }],
   }),
+  loader: async () => ({ products: await fetchProducts() }),
   component: WishlistPage,
 });
 
 function WishlistPage() {
-  const { items, toggle } = useWishlist();
+  const { products } = Route.useLoaderData();
+  const { items } = useWishlist();
   const saved = products.filter((p) => items.includes(p.slug));
 
   return (
     <main className="bg-background text-foreground min-h-screen">
-      <Cursor />
       <SiteHeader />
 
       <section className="pt-36 pb-20 md:pt-48 md:pb-28 border-b border-border">

@@ -7,12 +7,14 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
 import { CartProvider } from "@/lib/cart";
 import { CartDrawer } from "@/components/CartDrawer";
 import { WhatsappWidget } from "@/components/WhatsappWidget";
 import { WishlistProvider } from "@/lib/wishlist";
+import { AuthProvider } from "@/lib/auth";
 
 
 function NotFoundComponent() {
@@ -126,15 +128,33 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  // Mide el header y publica --header-h como variable CSS global
+  // Todos los sticky/offset lo leen de aquí — nunca píxeles hardcodeados
+  useEffect(() => {
+    function measureHeader() {
+      const el = document.getElementById("site-header");
+      if (el) {
+        document.documentElement.style.setProperty("--header-h", `${el.offsetHeight}px`);
+      }
+    }
+    measureHeader();
+    const observer = new ResizeObserver(measureHeader);
+    const el = document.getElementById("site-header");
+    if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <WishlistProvider>
-        <CartProvider>
-          <Outlet />
-          <CartDrawer />
-          <WhatsappWidget />
-        </CartProvider>
-      </WishlistProvider>
+      <AuthProvider>
+        <WishlistProvider>
+          <CartProvider>
+            <Outlet />
+            <CartDrawer />
+            <WhatsappWidget />
+          </CartProvider>
+        </WishlistProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
