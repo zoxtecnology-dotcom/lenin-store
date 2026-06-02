@@ -144,22 +144,14 @@ export const createMPPreference = createServerFn({ method: "POST" })
       items: mpItems,
       payer: {
         email: data.email,
-        name: data.address.full_name,
-        phone: { number: data.address.phone },
-        address: {
-          street_name: data.address.address,
-          zip_code: data.address.postal_code || "",
-        },
       },
       back_urls: {
         success: `${siteUrl}/pedido-confirmado?status=success&order=${order.id}`,
         failure: `${siteUrl}/pedido-confirmado?status=failure&order=${order.id}`,
         pending: `${siteUrl}/pedido-confirmado?status=pending&order=${order.id}`,
       },
-      auto_return: "approved",
       external_reference: order.id,
       notification_url: `${siteUrl}/api/mp/webhook`,
-      statement_descriptor: "AIAHN STORE",
     };
 
     const preferenceData = await createMPPreferenceAPI(mpAccessToken, preferenceBody);
