@@ -6,9 +6,6 @@ import { Reveal } from "@/components/Reveal";
 import { pageTitle } from "@/lib/brand";
 import { getOrderStatus } from "@/lib/api/mercadopago.functions";
 import { fmtCOP } from "@/lib/products";
-import { useCart } from "@/lib/cart";
-import { useWishlist } from "@/lib/wishlist";
-import { supabase } from "@/lib/supabase";
 import { CheckCircle, XCircle, Clock, Package, ArrowRight, Loader2 } from "lucide-react";
 import { z } from "zod";
 
@@ -35,8 +32,6 @@ type SearchParams = {
 
 function CheckoutResultPage() {
   const search = useSearch({ from: "/checkout/resultado" }) as SearchParams;
-  const { clear: clearCart } = useCart();
-  const { removeMany: removeFromWishlist } = useWishlist();
   const clearedRef = useRef(false);
   const [order, setOrder] = useState<{
     id: string;
@@ -47,43 +42,21 @@ function CheckoutResultPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Limpiar carrito y wishlist cuando el pago sea exitoso
+  // Limpiar carrito cuando el pago sea exitoso (solo en cliente)
   useEffect(() => {
-    // MercadoPago puede enviar status=success O collection_status=approved
     const isSuccess = 
       search.status === "success" || 
       search.collection_status === "approved" ||
       order?.status === "paid";
       
-    if (isSuccess && !clearedRef.current) {
+    if (isSuccess && !clearedRef.current && typeof window !== 'undefined') {
       clearedRef.current = true;
-      clearCart();
-      
-      // Eliminar productos comprados de la wishlist
-      async function removeFromWishlistBySlug() {
-        if (!order?.items) return;
-        
-        const slugs = order.items
-          .map((item) => item.slug)
-          .filter((slug): slug is string => !!slug);
-        
-        if (slugs.length === 0) return;
-        
-        // Buscar product_ids por slug
-        const { data: products } = await supabase
-          .from("products")
-          .select("id")
-          .in("slug", slugs);
-        
-        if (products && products.length > 0) {
-          const productIds = products.map((p) => p.id);
-          removeFromWishlist(productIds);
-        }
-      }
-      
-      removeFromWishlistBySlug();
+      // Limpiar carrito del localStorage directamente
+      localStorage.removeItem("aiahn-cart");
+      // Disparar evento para actualizar el UI
+      window.dispatchEvent(new Event("storage"));
     }
-  }, [search.status, order?.status, order?.items, clearCart, removeFromWishlist]);
+  }, [search.status, search.collection_status, order?.status]);
 
   useEffect(() => {
     async function fetchOrder() {

@@ -127,7 +127,8 @@ export const createMPPreference = createServerFn({ method: "POST" })
     }
 
     // Obtener la URL base del sitio
-    const siteUrl = process.env.SITE_URL || "https://aiahn.store";
+    const siteUrl = process.env.SITE_URL || import.meta.env.VITE_SITE_URL || "https://lenin-store.vercel.app";
+    console.log("MercadoPago siteUrl:", siteUrl);
 
     // 2. Crear preferencia de pago en MercadoPago
     const mpItems = data.items.map((item) => ({
@@ -155,7 +156,7 @@ export const createMPPreference = createServerFn({ method: "POST" })
         failure: `${siteUrl}/checkout/resultado?status=failure&order=${order.id}`,
         pending: `${siteUrl}/checkout/resultado?status=pending&order=${order.id}`,
       },
-      auto_return: "approved",
+      auto_return: "all",
       external_reference: order.id,
       notification_url: `${siteUrl}/api/mp/webhook`,
       statement_descriptor: "AIAHN STORE",
