@@ -1,7 +1,11 @@
 // Tipos manuales para Vercel Functions (evitar importar @vercel/node que tiene problemas ESM)
 interface VercelRequest {
   method?: string;
-  body: Record<string, unknown>;
+  body: {
+    type?: string;
+    data?: { id?: string };
+    [key: string]: unknown;
+  };
 }
 
 interface VercelResponse {
