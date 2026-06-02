@@ -24,7 +24,7 @@ interface Order {
     name: string;
     size: string;
     color: string;
-    quantity: number;
+    qty: number;
     price: number;
     image?: string;
   }>;
@@ -178,10 +178,10 @@ function MisPedidosPage() {
                             <div className="flex-1 min-w-0">
                               <p className="text-sm text-cream truncate">{item.name}</p>
                               <p className="text-[10px] text-cream/40 mt-1">
-                                {item.size} / {item.color} × {item.quantity}
+                                {item.size} / {item.color} × {item.qty}
                               </p>
                             </div>
-                            <p className="text-sm text-cream/60">{fmtCOP(item.price * item.quantity)}</p>
+                            <p className="text-sm text-cream/60">{fmtCOP(item.price * item.qty)}</p>
                           </div>
                         ))}
                       </div>
