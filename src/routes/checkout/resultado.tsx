@@ -7,13 +7,9 @@ import { pageTitle } from "@/lib/brand";
 import { getOrderStatus } from "@/lib/api/mercadopago.functions";
 import { fmtCOP } from "@/lib/products";
 import { CheckCircle, XCircle, Clock, Package, ArrowRight, Loader2 } from "lucide-react";
-import { z } from "zod";
-
-// Schema permisivo para aceptar todos los parámetros de MercadoPago
-const searchSchema = z.record(z.string().optional());
 
 export const Route = createFileRoute("/checkout/resultado")({
-  validateSearch: (search) => searchSchema.parse(search),
+  validateSearch: (search) => search as Record<string, string>,
   head: () => ({
     meta: [{ title: pageTitle("Resultado del pago") }],
   }),
