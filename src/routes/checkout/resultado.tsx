@@ -12,13 +12,21 @@ import { supabase } from "@/lib/supabase";
 import { CheckCircle, XCircle, Clock, Package, ArrowRight, Loader2 } from "lucide-react";
 import { z } from "zod";
 
+// Schema permisivo para aceptar todos los parámetros de MercadoPago
 const searchSchema = z.object({
-  status: z.enum(["success", "failure", "pending"]).optional(),
+  status: z.string().optional(),
   order: z.string().optional(),
   payment_id: z.string().optional(),
   collection_id: z.string().optional(),
   collection_status: z.string().optional(),
-});
+  external_reference: z.string().optional(),
+  payment_type: z.string().optional(),
+  merchant_order_id: z.string().optional(),
+  preference_id: z.string().optional(),
+  site_id: z.string().optional(),
+  processing_mode: z.string().optional(),
+  merchant_account_id: z.string().optional(),
+}).catchall(z.string().optional());
 
 export const Route = createFileRoute("/checkout/resultado")({
   validateSearch: searchSchema,
@@ -44,7 +52,12 @@ function CheckoutResultPage() {
 
   // Limpiar carrito y wishlist cuando el pago sea exitoso
   useEffect(() => {
-    const isSuccess = search.status === "success" || order?.status === "paid";
+    // MercadoPago puede enviar status=success O collection_status=approved
+    const isSuccess = 
+      search.status === "success" || 
+      search.collection_status === "approved" ||
+      order?.status === "paid";
+      
     if (isSuccess && !clearedRef.current) {
       clearedRef.current = true;
       clearCart();
@@ -77,13 +90,16 @@ function CheckoutResultPage() {
 
   useEffect(() => {
     async function fetchOrder() {
-      if (!search.order) {
+      // Usar order o external_reference (MercadoPago envía external_reference)
+      const orderId = search.order || search.external_reference;
+      
+      if (!orderId) {
         setLoading(false);
         return;
       }
 
       try {
-        const data = await getOrderStatus({ data: { orderId: search.order } });
+        const data = await getOrderStatus({ data: { orderId } });
         setOrder(data);
       } catch (err) {
         console.error("Error obteniendo orden:", err);
@@ -95,10 +111,11 @@ function CheckoutResultPage() {
     fetchOrder();
 
     // Poll cada 5 segundos si el estado es pending
+    const orderId = search.order || search.external_reference;
     const interval = setInterval(async () => {
-      if (search.order && (search.status === "pending" || order?.status === "pending")) {
+      if (orderId && (search.status === "pending" || order?.status === "pending")) {
         try {
-          const data = await getOrderStatus({ data: { orderId: search.order } });
+          const data = await getOrderStatus({ data: { orderId } });
           setOrder(data);
           if (data.status === "paid" || data.status === "failed") {
             clearInterval(interval);
@@ -110,9 +127,27 @@ function CheckoutResultPage() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [search.order, search.status]);
+  }, [search.order, search.external_reference, search.status]);
 
-  const status = order?.status ?? search.status ?? "pending";
+  // Mapear collection_status de MercadoPago a nuestro status
+  const getDisplayStatus = () => {
+    if (order?.status === "paid") return "paid";
+    if (order?.status === "failed") return "failed";
+    if (order?.status === "cancelled") return "cancelled";
+    
+    // Mapear collection_status de MercadoPago
+    if (search.collection_status === "approved") return "success";
+    if (search.collection_status === "rejected") return "failure";
+    if (search.collection_status === "pending" || search.collection_status === "in_process") return "pending";
+    
+    // Usar status de la URL
+    if (search.status === "success") return "success";
+    if (search.status === "failure") return "failure";
+    
+    return order?.status ?? "pending";
+  };
+  
+  const status = getDisplayStatus();
 
   const statusConfig = {
     success: {
