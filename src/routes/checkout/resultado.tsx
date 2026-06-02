@@ -13,31 +13,28 @@ import { CheckCircle, XCircle, Clock, Package, ArrowRight, Loader2 } from "lucid
 import { z } from "zod";
 
 // Schema permisivo para aceptar todos los parámetros de MercadoPago
-const searchSchema = z.object({
-  status: z.string().optional(),
-  order: z.string().optional(),
-  payment_id: z.string().optional(),
-  collection_id: z.string().optional(),
-  collection_status: z.string().optional(),
-  external_reference: z.string().optional(),
-  payment_type: z.string().optional(),
-  merchant_order_id: z.string().optional(),
-  preference_id: z.string().optional(),
-  site_id: z.string().optional(),
-  processing_mode: z.string().optional(),
-  merchant_account_id: z.string().optional(),
-}).catchall(z.string().optional());
+const searchSchema = z.record(z.string().optional());
 
 export const Route = createFileRoute("/checkout/resultado")({
-  validateSearch: searchSchema,
+  validateSearch: (search) => searchSchema.parse(search),
   head: () => ({
     meta: [{ title: pageTitle("Resultado del pago") }],
   }),
   component: CheckoutResultPage,
 });
 
+type SearchParams = {
+  status?: string;
+  order?: string;
+  payment_id?: string;
+  collection_id?: string;
+  collection_status?: string;
+  external_reference?: string;
+  [key: string]: string | undefined;
+};
+
 function CheckoutResultPage() {
-  const search = useSearch({ from: "/checkout/resultado" });
+  const search = useSearch({ from: "/checkout/resultado" }) as SearchParams;
   const { clear: clearCart } = useCart();
   const { removeMany: removeFromWishlist } = useWishlist();
   const clearedRef = useRef(false);
