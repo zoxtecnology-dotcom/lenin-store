@@ -62,7 +62,7 @@ function StandardProductPage({ product, settings }: { product: Product; settings
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const { toggle, has } = useWishlist();
-  const wishlisted = has(product.slug);
+  const wishlisted = has(product.id);
 
   function handleAddToCart() {
     add({
@@ -84,7 +84,7 @@ function StandardProductPage({ product, settings }: { product: Product; settings
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16 mt-8">
           <Gallery images={product.images} active={activeImage} onSelect={setActiveImage} />
           <div className="flex flex-col">
-            <DropWishlist drop={product.drop} wishlisted={wishlisted} onWishlist={() => toggle(product.slug)} />
+            <DropWishlist drop={product.drop} wishlisted={wishlisted} onWishlist={() => toggle(product.id)} />
             <h1 className="font-display text-[clamp(2.4rem,5vw,4rem)] uppercase leading-[0.9] text-cream mb-6">
               {product.name}
             </h1>
@@ -141,7 +141,8 @@ function ConjuntoProductPage({ product, settings }: { product: Product; settings
   const [topSize, setTopSize] = useState<string | null>(null);
   const [bottomSize, setBottomSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState(0);
-  const [wishlisted, setWishlisted] = useState(false);
+  const { toggle, has } = useWishlist();
+  const wishlisted = has(product.id);
   const [guideOpen, setGuideOpen] = useState(false);
   const [guideCategory, setGuideCategory] = useState<string>("camiseta");
 
@@ -221,7 +222,7 @@ function ConjuntoProductPage({ product, settings }: { product: Product; settings
           <Gallery images={activeImages} active={Math.min(activeImage, activeImages.length - 1)} onSelect={setActiveImage} />
 
           <div className="flex flex-col">
-            <DropWishlist drop={product.drop} wishlisted={wishlisted} onWishlist={() => toggle(product.slug)} />
+            <DropWishlist drop={product.drop} wishlisted={wishlisted} onWishlist={() => toggle(product.id)} />
             <h1 className="font-display text-[clamp(2.4rem,5vw,4rem)] uppercase leading-[0.9] text-cream mb-6">
               {activeName}
             </h1>

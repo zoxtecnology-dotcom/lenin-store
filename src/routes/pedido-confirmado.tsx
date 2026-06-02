@@ -92,31 +92,39 @@ function CheckoutResultPage() {
             console.log("Purchased slugs:", purchasedSlugs);
             
             if (purchasedSlugs.length > 0 && isSuccess) {
-              // Remove from localStorage wishlist
+              // Get product UUIDs from slugs
+              const { data: products } = await supabase
+                .from("products")
+                .select("id, slug")
+                .in("slug", purchasedSlugs);
+              
+              const purchasedIds = products?.map(p => p.id) || [];
+              console.log("Purchased product IDs:", purchasedIds);
+              
+              // Remove from localStorage wishlist (now uses IDs, not slugs)
               try {
                 const localWishlist = JSON.parse(localStorage.getItem("aiahn-wishlist") || "[]") as string[];
                 console.log("Local wishlist before:", localWishlist);
-                const filtered = localWishlist.filter(id => !purchasedSlugs.includes(id));
+                const filtered = localWishlist.filter(id => !purchasedIds.includes(id));
                 console.log("Local wishlist after:", filtered);
                 localStorage.setItem("aiahn-wishlist", JSON.stringify(filtered));
                 window.dispatchEvent(new Event("storage"));
               } catch {}
               
-              // Remove from DB wishlist for logged in user
+              // Remove from DB wishlist for logged in user (uses UUIDs)
               const { data: { user } } = await supabase.auth.getUser();
-              if (user) {
-                console.log("Removing purchased items from wishlist:", purchasedSlugs);
-                // Delete each item individually to avoid .in() issues
-                for (const slug of purchasedSlugs) {
+              if (user && purchasedIds.length > 0) {
+                console.log("Removing purchased items from DB wishlist:", purchasedIds);
+                for (const productId of purchasedIds) {
                   const { error } = await supabase
                     .from("wishlist")
                     .delete()
                     .eq("user_id", user.id)
-                    .eq("product_id", slug);
+                    .eq("product_id", productId);
                   if (error) {
-                    console.error("Error deleting wishlist item:", slug, error);
+                    console.error("Error deleting wishlist item:", productId, error);
                   } else {
-                    console.log("Deleted from wishlist:", slug);
+                    console.log("Deleted from wishlist:", productId);
                   }
                 }
               }
