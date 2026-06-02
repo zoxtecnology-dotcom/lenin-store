@@ -58,12 +58,28 @@ function CheckoutResultPage() {
     // Determine status from URL
     const collectionStatus = urlParams.get("collection_status");
     const urlStatus = urlParams.get("status");
+    
+    const isSuccess = collectionStatus === "approved" || urlStatus === "success";
 
-    if (collectionStatus === "approved" || urlStatus === "success") {
+    if (isSuccess) {
       setStatus("success");
       localStorage.removeItem("aiahn-cart");
       localStorage.removeItem("aiahn-wishlist");
       window.dispatchEvent(new Event("storage"));
+      
+      // Clear wishlist from DB for logged in user
+      supabase.auth.getUser().then(async ({ data: { user } }) => {
+        if (user) {
+          console.log("Clearing wishlist for user:", user.id);
+          const { error } = await supabase
+            .from("wishlist")
+            .delete()
+            .eq("user_id", user.id);
+          if (error) {
+            console.error("Error clearing wishlist:", error);
+          }
+        }
+      });
     } else if (collectionStatus === "rejected") {
       setStatus("failed");
     }
@@ -81,17 +97,6 @@ function CheckoutResultPage() {
             if (data.status === "paid") setStatus("success");
             if (data.status === "failed" || data.status === "cancelled")
               setStatus("failed");
-            
-            // Clear wishlist from DB if payment was successful
-            const isSuccess = data.status === "paid" || 
-              collectionStatus === "approved" || 
-              urlStatus === "success";
-            if (isSuccess && data.user_id) {
-              await supabase
-                .from("wishlist")
-                .delete()
-                .eq("user_id", data.user_id);
-            }
           }
           setLoading(false);
         });
