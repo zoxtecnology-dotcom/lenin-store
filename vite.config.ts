@@ -21,5 +21,9 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       tsconfigPaths(),
     ],
+    // Forzar que estos paquetes se incluyan en el bundle SSR (no como externos)
+    ssr: {
+      noExternal: ["tslib", "react-remove-scroll", "react-remove-scroll-bar"],
+    },
   };
 });
