@@ -13,6 +13,10 @@
       "src": "/assets/(.*)"
     },
     {
+      "src": "/api/mp/webhook",
+      "dest": "/api/mp/webhook"
+    },
+    {
       "handle": "filesystem"
     },
     {

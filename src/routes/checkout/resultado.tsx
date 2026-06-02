@@ -1,11 +1,14 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
 import { pageTitle } from "@/lib/brand";
 import { getOrderStatus } from "@/lib/api/mercadopago.functions";
 import { fmtCOP } from "@/lib/products";
+import { useCart } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlist";
+import { supabase } from "@/lib/supabase";
 import { CheckCircle, XCircle, Clock, Package, ArrowRight, Loader2 } from "lucide-react";
 import { z } from "zod";
 
@@ -27,13 +30,50 @@ export const Route = createFileRoute("/checkout/resultado")({
 
 function CheckoutResultPage() {
   const search = useSearch({ from: "/checkout/resultado" });
+  const { clear: clearCart } = useCart();
+  const { removeMany: removeFromWishlist } = useWishlist();
+  const clearedRef = useRef(false);
   const [order, setOrder] = useState<{
     id: string;
     status: string;
     total: number;
     email: string;
+    items?: Array<{ slug?: string }>;
   } | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Limpiar carrito y wishlist cuando el pago sea exitoso
+  useEffect(() => {
+    const isSuccess = search.status === "success" || order?.status === "paid";
+    if (isSuccess && !clearedRef.current) {
+      clearedRef.current = true;
+      clearCart();
+      
+      // Eliminar productos comprados de la wishlist
+      async function removeFromWishlistBySlug() {
+        if (!order?.items) return;
+        
+        const slugs = order.items
+          .map((item) => item.slug)
+          .filter((slug): slug is string => !!slug);
+        
+        if (slugs.length === 0) return;
+        
+        // Buscar product_ids por slug
+        const { data: products } = await supabase
+          .from("products")
+          .select("id")
+          .in("slug", slugs);
+        
+        if (products && products.length > 0) {
+          const productIds = products.map((p) => p.id);
+          removeFromWishlist(productIds);
+        }
+      }
+      
+      removeFromWishlistBySlug();
+    }
+  }, [search.status, order?.status, order?.items, clearCart, removeFromWishlist]);
 
   useEffect(() => {
     async function fetchOrder() {

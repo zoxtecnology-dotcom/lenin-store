@@ -38,10 +38,13 @@ interface Order {
 
 const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: string }> = {
   pending: { label: "Pendiente", icon: Clock, color: "text-yellow-400" },
+  paid: { label: "Pagado", icon: CheckCircle, color: "text-green-400" },
   confirmed: { label: "Confirmado", icon: CheckCircle, color: "text-blue-400" },
   shipped: { label: "Enviado", icon: Truck, color: "text-acid" },
   delivered: { label: "Entregado", icon: CheckCircle, color: "text-green-400" },
   cancelled: { label: "Cancelado", icon: XCircle, color: "text-red-400" },
+  failed: { label: "Fallido", icon: XCircle, color: "text-red-400" },
+  refunded: { label: "Reembolsado", icon: XCircle, color: "text-orange-400" },
 };
 
 function MisPedidosPage() {

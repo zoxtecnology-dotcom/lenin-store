@@ -6,6 +6,7 @@ interface WishlistCtx {
   items: string[]; // product IDs
   toggle: (productId: string) => void;
   has: (productId: string) => boolean;
+  removeMany: (productIds: string[]) => void;
   loading: boolean;
 }
 
@@ -90,8 +91,25 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
   const has = useCallback((productId: string) => items.includes(productId), [items]);
 
+  const removeMany = useCallback(async (productIds: string[]) => {
+    if (productIds.length === 0) return;
+    
+    const toRemove = productIds.filter((id) => items.includes(id));
+    if (toRemove.length === 0) return;
+
+    setItems((prev) => prev.filter((id) => !toRemove.includes(id)));
+    
+    if (user) {
+      await supabase
+        .from("wishlist")
+        .delete()
+        .eq("user_id", user.id)
+        .in("product_id", toRemove);
+    }
+  }, [items, user]);
+
   return (
-    <WishlistContext.Provider value={{ items, toggle, has, loading }}>
+    <WishlistContext.Provider value={{ items, toggle, has, removeMany, loading }}>
       {children}
     </WishlistContext.Provider>
   );
