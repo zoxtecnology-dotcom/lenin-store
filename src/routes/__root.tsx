@@ -15,6 +15,7 @@ import { CartDrawer } from "@/components/CartDrawer";
 import { WhatsappWidget } from "@/components/WhatsappWidget";
 import { WishlistProvider } from "@/lib/wishlist";
 import { AuthProvider } from "@/lib/auth";
+import { SettingsProvider } from "@/lib/settings";
 
 
 function NotFoundComponent() {
@@ -146,15 +147,17 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <WishlistProvider>
-          <CartProvider>
-            <Outlet />
-            <CartDrawer />
-            <WhatsappWidget />
-          </CartProvider>
-        </WishlistProvider>
-      </AuthProvider>
+      <SettingsProvider>
+        <AuthProvider>
+          <WishlistProvider>
+            <CartProvider>
+              <Outlet />
+              <CartDrawer />
+              <WhatsappWidget />
+            </CartProvider>
+          </WishlistProvider>
+        </AuthProvider>
+      </SettingsProvider>
     </QueryClientProvider>
   );
 }

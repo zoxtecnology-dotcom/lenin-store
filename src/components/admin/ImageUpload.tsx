@@ -130,8 +130,8 @@ export function ImageUpload({ images, onChange, showRoles = true }: Props) {
               >
                 <X size={12} strokeWidth={2} className="text-cream" />
               </button>
-              {showRoles && (
-                <div className="p-2">
+              <div className="p-2 space-y-1.5">
+                {showRoles && (
                   <select
                     value={img.role}
                     onChange={(e) => updateRole(idx, e.target.value as UploadedImage["role"])}
@@ -141,8 +141,15 @@ export function ImageUpload({ images, onChange, showRoles = true }: Props) {
                       <option key={r.value} value={r.value}>{r.label}</option>
                     ))}
                   </select>
-                </div>
-              )}
+                )}
+                <input
+                  type="text"
+                  placeholder={showRoles ? "Alt text (accesibilidad)" : "Leyenda de la foto (opcional)"}
+                  value={img.alt_text ?? ""}
+                  onChange={(e) => onChange(images.map((im, i) => i === idx ? { ...im, alt_text: e.target.value } : im))}
+                  className="w-full bg-background border border-border text-cream text-[10px] px-2 py-1 placeholder:text-cream/20 focus:outline-none focus:border-cream/40"
+                />
+              </div>
             </div>
           ))}
         </div>

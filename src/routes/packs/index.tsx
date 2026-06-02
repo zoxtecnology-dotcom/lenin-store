@@ -22,7 +22,7 @@ function PackCard({ pack }: { pack: PackData }) {
   const final = Math.round(original * (1 - pack.discount / 100));
 
   return (
-    <Link to="/packs/$id" params={{ id: pack.id }} className="group block border border-border hover:border-cream/30 transition-colors h-full flex flex-col">
+    <Link to="/packs/$id" params={{ id: pack.slug }} className="group block border border-border hover:border-cream/30 transition-colors h-full flex flex-col">
       <div className="relative h-64 flex gap-px bg-border overflow-hidden">
         <span className="absolute top-3 right-3 z-10 bg-acid text-ink text-[10px] uppercase tracking-[0.2em] px-2 py-1 font-medium">
           -{pack.discount}%
@@ -59,6 +59,8 @@ function PackCard({ pack }: { pack: PackData }) {
 }
 
 function PacksPage() {
+  const { packs } = Route.useLoaderData();
+
   return (
     <main className="bg-background text-foreground min-h-screen">
       <SiteHeader />
@@ -84,7 +86,7 @@ function PacksPage() {
       <section className="py-20 md:py-28">
         <div className="mx-auto max-w-[1500px] px-5 md:px-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Route.useLoaderData().packs.map((pack, i) => (
+            {packs.map((pack, i) => (
               <Reveal key={pack.id} delay={i * 80}>
                 <PackCard pack={pack} />
               </Reveal>

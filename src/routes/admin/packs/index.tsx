@@ -21,6 +21,8 @@ interface Pack {
 function AdminPacks() {
   const [packs, setPacks] = useState<Pack[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     supabase.from("packs")
@@ -28,6 +30,19 @@ function AdminPacks() {
       .order("position")
       .then(({ data }) => { setPacks(data ?? []); setLoading(false); });
   }, []);
+
+  const filtered = packs.filter((p) => {
+    if (filter === "published" && !p.published) return false;
+    if (filter === "draft" && p.published) return false;
+    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const counts = {
+    all: packs.length,
+    published: packs.filter((p) => p.published).length,
+    draft: packs.filter((p) => !p.published).length,
+  };
 
   async function toggle(id: string, current: boolean) {
     await supabase.from("packs").update({ published: !current }).eq("id", id);
@@ -53,16 +68,55 @@ function AdminPacks() {
         </Link>
       </div>
 
+      {/* Filtros */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <input
+            type="text"
+            placeholder="Buscar pack..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-transparent border border-border px-3 py-2 text-sm text-cream placeholder:text-cream/30 focus:border-acid focus:outline-none"
+          />
+          {search && (
+            <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-cream/30 hover:text-cream text-lg">×</button>
+          )}
+        </div>
+
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="bg-ink border border-border px-3 py-2 text-sm text-cream focus:border-acid focus:outline-none cursor-pointer"
+        >
+          <option value="all">Todos ({counts.all})</option>
+          <option value="published">✓ Publicados ({counts.published})</option>
+          <option value="draft">○ Borradores ({counts.draft})</option>
+        </select>
+
+        {(filter !== "all" || search) && (
+          <button
+            onClick={() => { setFilter("all"); setSearch(""); }}
+            className="text-[10px] uppercase tracking-[0.2em] text-cream/40 hover:text-acid transition-colors"
+          >
+            Limpiar
+          </button>
+        )}
+
+        <span className="text-[10px] text-cream/30 ml-auto">
+          {filtered.length} de {packs.length}
+        </span>
+      </div>
+
       {loading ? (
         <div className="space-y-2">{[...Array(3)].map((_, i) => <div key={i} className="h-16 bg-cream/5 animate-pulse" />)}</div>
-      ) : packs.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="border border-border p-12 text-center">
-          <p className="text-cream/40 text-sm mb-4">No hay packs todavía.</p>
-          <Link to="/admin/packs/nuevo" className="text-[11px] uppercase tracking-[0.3em] text-acid hover:underline">Crear el primero →</Link>
+          <p className="text-cream/40 text-sm mb-4">{packs.length === 0 ? "No hay packs todavía." : "No hay packs que coincidan."}</p>
+          {packs.length === 0 && <Link to="/admin/packs/nuevo" className="text-[11px] uppercase tracking-[0.3em] text-acid hover:underline">Crear el primero →</Link>}
         </div>
       ) : (
         <div className="border border-border divide-y divide-border">
-          {packs.map((pack) => {
+          {filtered.map((pack) => {
             const total = pack.pack_items.reduce((sum, i) => sum + i.product.price, 0);
             const discounted = Math.round(total * (1 - pack.discount / 100));
             return (

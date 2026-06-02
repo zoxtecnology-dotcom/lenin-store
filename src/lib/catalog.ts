@@ -35,6 +35,8 @@ interface ProductRow {
   bottom_name: string | null;
   top_price: number | null;
   bottom_price: number | null;
+  top_piece_type: string | null;
+  bottom_piece_type: string | null;
   drop_id: string | null;
   created_at: string;
   product_images: ImageRow[];
@@ -47,7 +49,7 @@ const PRODUCT_SELECT = `
   id, slug, name, price, compare_at_price,
   is_new, is_best_seller, is_on_sale,
   category, short_desc, description, details, type,
-  top_name, bottom_name, top_price, bottom_price, drop_id, created_at,
+  top_name, bottom_name, top_price, bottom_price, top_piece_type, bottom_piece_type, drop_id, created_at,
   product_images(cloudinary_id, role, position),
   product_colors(name, swatch, position),
   product_variants(color_name, size, piece, stock),
@@ -91,6 +93,7 @@ function rowToProduct(row: ProductRow): Product {
   const compareAtPrice = row.compare_at_price ?? undefined;
 
   const product: Product = {
+    id: row.id,
     slug: row.slug,
     name: row.name,
     price: row.price,
@@ -124,6 +127,8 @@ function rowToProduct(row: ProductRow): Product {
       bottomName: row.bottom_name ?? "",
       topPrice: row.top_price ?? 0,
       bottomPrice: row.bottom_price ?? 0,
+      topPieceType: row.top_piece_type ?? "camiseta",
+      bottomPieceType: row.bottom_piece_type ?? "pantalon",
       topImages: topImgs.length ? topImgs : product.images,
       bottomImages: bottomImgs.length ? bottomImgs : product.images,
       fullImages: fullImgs.length ? fullImgs : product.images,
@@ -134,11 +139,13 @@ function rowToProduct(row: ProductRow): Product {
 }
 
 // ─── Queries de productos ──────────────────────────────────────
+// Usa visible_products (view) que filtra:
+// - productos publicados
+// - Y si tienen drop, ese drop también debe estar publicado
 export async function fetchProducts(): Promise<Product[]> {
   const { data, error } = await supabase
-    .from("products")
+    .from("visible_products")
     .select(PRODUCT_SELECT)
-    .eq("published", true)
     .order("position");
 
   if (error) throw error;
@@ -147,10 +154,9 @@ export async function fetchProducts(): Promise<Product[]> {
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   const { data, error } = await supabase
-    .from("products")
+    .from("visible_products")
     .select(PRODUCT_SELECT)
     .eq("slug", slug)
-    .eq("published", true)
     .maybeSingle();
 
   if (error) throw error;
@@ -160,9 +166,8 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
 // Más nuevos primero (para carrusel home y colección "nuevo")
 export async function fetchProductsNewest(limit?: number): Promise<Product[]> {
   let query = supabase
-    .from("products")
+    .from("visible_products")
     .select(PRODUCT_SELECT)
-    .eq("published", true)
     .order("created_at", { ascending: false });
 
   if (limit) query = query.limit(limit);
@@ -175,9 +180,8 @@ export async function fetchProductsNewest(limit?: number): Promise<Product[]> {
 // is_new = true ordenados por más nuevos primero
 export async function fetchProductsIsNew(): Promise<Product[]> {
   const { data, error } = await supabase
-    .from("products")
+    .from("visible_products")
     .select(PRODUCT_SELECT)
-    .eq("published", true)
     .eq("is_new", true)
     .order("created_at", { ascending: false });
 
@@ -210,9 +214,8 @@ export async function fetchMostSoldProducts(): Promise<Product[]> {
   if (sorted.length === 0) return [];
 
   const { data, error } = await supabase
-    .from("products")
+    .from("visible_products")
     .select(PRODUCT_SELECT)
-    .eq("published", true)
     .in("id", sorted);
 
   if (error) throw error;
@@ -328,6 +331,8 @@ export interface DropData {
   editorialQuote: string;
   editorialBody: string;
   editorialImages: string[];
+  editorialCaptions: string[];  // alt_text de cada imagen (leyenda del lookbook)
+  discount: number;
 }
 
 interface DropRow {
@@ -339,7 +344,8 @@ interface DropRow {
   release_date: string | null;
   editorial_quote: string | null;
   editorial_body: string | null;
-  drop_images: { cloudinary_id: string; position: number }[];
+  discount: number | null;
+  drop_images: { cloudinary_id: string; alt_text: string | null; position: number }[];
 }
 
 function rowToDrop(row: DropRow): DropData {
@@ -355,10 +361,14 @@ function rowToDrop(row: DropRow): DropData {
     editorialImages: [...row.drop_images]
       .sort((a, b) => a.position - b.position)
       .map((i) => imgUrl(i.cloudinary_id, "w_1200,q_auto,f_auto")),
+    editorialCaptions: [...row.drop_images]
+      .sort((a, b) => a.position - b.position)
+      .map((i) => i.alt_text ?? ""),
+    discount: row.discount ?? 12,
   };
 }
 
-const DROP_SELECT = `id, slug, name, label, season, release_date,
+const DROP_SELECT = `id, slug, name, label, season, release_date, discount,
   editorial_quote, editorial_body, drop_images(cloudinary_id, position)`;
 
 export async function fetchDrops(): Promise<DropData[]> {
@@ -369,6 +379,19 @@ export async function fetchDrops(): Promise<DropData[]> {
     .order("position");
   if (error) throw error;
   return (data as DropRow[]).map(rowToDrop);
+}
+
+// Próximo drop sin publicar (para la sección "Próximamente")
+export async function fetchUpcomingDrop(): Promise<DropData | null> {
+  const { data, error } = await supabase
+    .from("drops")
+    .select(DROP_SELECT)
+    .eq("published", false)
+    .order("position")
+    .limit(1)
+    .maybeSingle();
+  if (error) return null;
+  return data ? rowToDrop(data as DropRow) : null;
 }
 
 export async function fetchDropBySlug(slug: string): Promise<DropData | null> {
@@ -385,10 +408,9 @@ export async function fetchDropBySlug(slug: string): Promise<DropData | null> {
 // Productos de un drop (por su label, ej: "Drop 01 — Essentials")
 export async function fetchProductsByDrop(dropId: string): Promise<Product[]> {
   const { data, error } = await supabase
-    .from("products")
+    .from("visible_products")
     .select(PRODUCT_SELECT)
     .eq("drop_id", dropId)
-    .eq("published", true)
     .order("position");
   if (error) throw error;
   return (data as ProductRow[]).map(rowToProduct);

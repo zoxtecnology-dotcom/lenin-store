@@ -59,7 +59,7 @@ function Index() {
         <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-[1500px] flex-col justify-between px-5 pt-28 pb-10 md:px-10 md:pt-36 md:pb-14">
           <div className="pointer-events-none">
             <p className="rise mb-6 text-[11px] uppercase tracking-[0.32em] text-cream/70" style={{ animationDelay: "0.1s" }}>
-              SS26 — Drop 01
+              {drop01 ? `${drop01.season} — ${drop01.name}` : ""}
             </p>
             <h1 className="font-display text-cream leading-[0.82] uppercase">
               <span className="rise block text-[clamp(3.6rem,12vw,11rem)]" style={{ animationDelay: "0.25s" }}>Hecho</span>
@@ -74,10 +74,12 @@ function Index() {
           </div>
 
           <div className="relative z-20 flex flex-col gap-6 md:flex-row md:items-end md:justify-between" style={{ opacity: 0, animation: "fadeIn 0.8s ease-out 0.95s forwards" }}>
-            <div className="max-w-xs text-[11px] uppercase tracking-[0.28em] text-cream/70">
-              <p>Drop 01</p>
-              <p className="mt-1">AIAHN Essentials — Otoño 26</p>
-            </div>
+            {drop01 && (
+              <div className="max-w-xs text-[11px] uppercase tracking-[0.28em] text-cream/70">
+                <p>{drop01.name}</p>
+                <p className="mt-1">{drop01.label} — {drop01.season}</p>
+              </div>
+            )}
             <Link to="/drops" className="group flex items-center gap-3 text-cream">
               <span className="link-underline font-display text-xl uppercase tracking-wider md:text-2xl">
                 Explorar colección
@@ -174,26 +176,32 @@ function Index() {
           <div className="grid grid-cols-12 gap-3 md:gap-5">
             <Reveal className="col-span-12 md:col-span-5">
               <figure>
-                <img src={drop01?.editorialImages[0] ?? ""} alt="Retrato con capucha" loading="lazy" width={1024} height={1280} className="aspect-[4/5] w-full object-cover" />
-                <figcaption className="mt-3 text-[10px] uppercase tracking-[0.25em] text-cream/50">
-                  01 — Esencial / Capucha negra
-                </figcaption>
+                <img src={drop01?.editorialImages[0] ?? ""} alt={drop01?.editorialCaptions[0] ?? ""} loading="lazy" width={1024} height={1280} className="aspect-[4/5] w-full object-cover" />
+                {drop01?.editorialCaptions[0] && (
+                  <figcaption className="mt-3 text-[10px] uppercase tracking-[0.25em] text-cream/50">
+                    {drop01.editorialCaptions[0]}
+                  </figcaption>
+                )}
               </figure>
             </Reveal>
             <Reveal className="col-span-12 md:col-span-7 md:pt-24" delay={100}>
               <figure>
-                <img src={drop01?.editorialImages[1] ?? ""} alt="Dos modelos en calle nocturna" loading="lazy" width={1536} height={1024} className="aspect-[3/2] w-full object-cover" />
-                <figcaption className="mt-3 text-[10px] uppercase tracking-[0.25em] text-cream/50">
-                  02 — Calle / Doble retrato
-                </figcaption>
+                <img src={drop01?.editorialImages[1] ?? ""} alt={drop01?.editorialCaptions[1] ?? ""} loading="lazy" width={1536} height={1024} className="aspect-[3/2] w-full object-cover" />
+                {drop01?.editorialCaptions[1] && (
+                  <figcaption className="mt-3 text-[10px] uppercase tracking-[0.25em] text-cream/50">
+                    {drop01.editorialCaptions[1]}
+                  </figcaption>
+                )}
               </figure>
             </Reveal>
             <Reveal className="col-span-8 md:col-span-4 md:col-start-3" delay={50}>
               <figure>
-                <img src={drop01?.editorialImages[2] ?? ""} alt="Detalle de bolsillo" loading="lazy" width={1024} height={1280} className="aspect-[4/5] w-full object-cover" />
-                <figcaption className="mt-3 text-[10px] uppercase tracking-[0.25em] text-cream/50">
-                  03 — Detalle / Bolsillo
-                </figcaption>
+                <img src={drop01?.editorialImages[2] ?? ""} alt={drop01?.editorialCaptions[2] ?? ""} loading="lazy" width={1024} height={1280} className="aspect-[4/5] w-full object-cover" />
+                {drop01?.editorialCaptions[2] && (
+                  <figcaption className="mt-3 text-[10px] uppercase tracking-[0.25em] text-cream/50">
+                    {drop01.editorialCaptions[2]}
+                  </figcaption>
+                )}
               </figure>
             </Reveal>
             <Reveal className="col-span-12 md:col-span-6 md:col-start-7 md:self-end" delay={150}>
@@ -367,8 +375,8 @@ function PacksStrip({ packs }: { packs: import("@/lib/catalog").PackData[] }) {
               return (
                 <Reveal key={pack.id} delay={i * 60}>
                   <div className="snap-start shrink-0 w-[72vw] sm:w-[44vw] md:w-[280px] lg:w-[300px]">
-                    <Link to="/packs/$id" params={{ id: pack.slug }} className="group block border border-border hover:border-cream/30 transition-colors">
-                      <div className="relative h-52 flex gap-px bg-border overflow-hidden">
+                    <Link to="/packs/$id" params={{ id: pack.slug }} className="group flex flex-col border border-border hover:border-cream/30 transition-colors" style={{ height: "340px" }}>
+                      <div className="relative h-52 flex gap-px bg-border overflow-hidden shrink-0">
                         <span className="absolute top-2.5 right-2.5 z-10 bg-acid text-ink text-[9px] uppercase tracking-[0.15em] px-1.5 py-0.5 font-medium">
                           -{pack.discount}%
                         </span>
@@ -379,10 +387,10 @@ function PacksStrip({ packs }: { packs: import("@/lib/catalog").PackData[] }) {
                           </div>
                         ))}
                       </div>
-                      <div className="p-4">
-                        <p className="text-[9px] uppercase tracking-[0.25em] text-acid mb-1">{pack.tag}</p>
+                      <div className="p-4 flex flex-col flex-1">
+                        {pack.tag && <p className="text-[9px] uppercase tracking-[0.25em] text-acid mb-1">{pack.tag}</p>}
                         <p className="font-display text-base uppercase text-cream mb-3">{pack.name}</p>
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mt-auto">
                           <p className="text-sm text-cream">{fmtCOP(final)}</p>
                           <p className="text-[10px] text-acid">-{fmtCOP(original - final)}</p>
                         </div>

@@ -3,10 +3,9 @@ import { useCart, type CartItem } from "@/lib/cart";
 import { fmtCOP } from "@/lib/products";
 import { Minus, Plus, Trash2, X, ArrowRight, ChevronDown, MessageCircle } from "lucide-react";
 import { useState } from "react";
+import { useSettings } from "@/lib/settings";
 
-const WHATSAPP_NUMBER = "573146309301";
-
-function buildWhatsAppLink(items: CartItem[], total: number) {
+function buildWhatsAppLink(items: CartItem[], total: number, whatsappUrl: string) {
   const lines = items.map((item) => {
     const base = `• ${item.name}${item.size ? ` — Talla ${item.size}` : ""}${item.color ? ` / ${item.color}` : ""} x${item.qty} = ${fmtCOP(item.price * item.qty)}`;
     if (item.pieces?.length) {
@@ -26,11 +25,12 @@ function buildWhatsAppLink(items: CartItem[], total: number) {
     "¿Pueden confirmarme disponibilidad y método de pago? Gracias 🙏",
   ].join("\n");
 
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  return `${whatsappUrl}?text=${encodeURIComponent(message)}`;
 }
 
 export function CartDrawer() {
   const { items, remove, updateQty, total, count, open, setOpen, freeShippingThreshold, amountToFreeShipping } = useCart();
+  const { whatsappUrl } = useSettings();
   const [couponOpen, setCouponOpen] = useState(false);
   const [coupon, setCoupon] = useState("");
 

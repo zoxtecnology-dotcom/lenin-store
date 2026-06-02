@@ -62,7 +62,7 @@ export const collections: Collection[] = [
   },
   {
     handle: "busos",
-    name: "Busos",
+    name: "Chaqueta / Busos",
     subtitle: "Peso, estructura y actitud en cada costura.",
     image: p1,
     category: "Busos",
@@ -99,7 +99,7 @@ export const collections: Collection[] = [
 
 export const megaCategories = [
   { handle: "camisetas", name: "Camisetas", image: p3 },
-  { handle: "busos", name: "Busos", image: p1 },
+  { handle: "busos", name: "Chaqueta / Busos", image: p1 },
   { handle: "conjuntos", name: "Conjuntos", image: look2 },
   { handle: "pantalonetas", name: "Pantalonetas", image: p4 },
   { handle: "pantalones", name: "Pantalones", image: p2 },

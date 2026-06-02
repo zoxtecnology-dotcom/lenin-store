@@ -26,6 +26,9 @@ interface Product {
 function AdminProductos() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [search, setSearch] = useState("");
 
   async function load() {
     const { data } = await supabase
@@ -37,6 +40,31 @@ function AdminProductos() {
   }
 
   useEffect(() => { load(); }, []);
+
+  // Obtener categorías únicas
+  const categories = [...new Set(products.map((p) => p.category))].sort();
+
+  // Filtrar productos
+  const filtered = products.filter((p) => {
+    if (filterCategory !== "all" && p.category !== filterCategory) return false;
+    if (filterStatus === "published" && !p.published) return false;
+    if (filterStatus === "draft" && p.published) return false;
+    if (filterStatus === "new" && !p.is_new) return false;
+    if (filterStatus === "sale" && !p.is_on_sale) return false;
+    if (filterStatus === "best" && !p.is_best_seller) return false;
+    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  // Contadores
+  const counts = {
+    all: products.length,
+    published: products.filter((p) => p.published).length,
+    draft: products.filter((p) => !p.published).length,
+    new: products.filter((p) => p.is_new).length,
+    sale: products.filter((p) => p.is_on_sale).length,
+    best: products.filter((p) => p.is_best_seller).length,
+  };
 
   async function togglePublished(id: string, current: boolean) {
     await supabase.from("products").update({ published: !current }).eq("id", id);
@@ -72,6 +100,64 @@ function AdminProductos() {
         </Link>
       </div>
 
+      {/* Filtros */}
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Búsqueda */}
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <input
+            type="text"
+            placeholder="Buscar producto..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-transparent border border-border px-3 py-2 text-sm text-cream placeholder:text-cream/30 focus:border-acid focus:outline-none"
+          />
+          {search && (
+            <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-cream/30 hover:text-cream text-lg">×</button>
+          )}
+        </div>
+
+        {/* Categoría */}
+        <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          className="bg-ink border border-border px-3 py-2 text-sm text-cream focus:border-acid focus:outline-none cursor-pointer"
+        >
+          <option value="all">Todas las categorías</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+
+        {/* Estado */}
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="bg-ink border border-border px-3 py-2 text-sm text-cream focus:border-acid focus:outline-none cursor-pointer"
+        >
+          <option value="all">Todos ({counts.all})</option>
+          <option value="published">✓ Publicados ({counts.published})</option>
+          <option value="draft">○ Borradores ({counts.draft})</option>
+          {counts.new > 0 && <option value="new">★ Nuevos ({counts.new})</option>}
+          {counts.sale > 0 && <option value="sale">% Ofertas ({counts.sale})</option>}
+          {counts.best > 0 && <option value="best">♥ Top ventas ({counts.best})</option>}
+        </select>
+
+        {/* Limpiar filtros */}
+        {(filterCategory !== "all" || filterStatus !== "all" || search) && (
+          <button
+            onClick={() => { setFilterCategory("all"); setFilterStatus("all"); setSearch(""); }}
+            className="text-[10px] uppercase tracking-[0.2em] text-cream/40 hover:text-acid transition-colors"
+          >
+            Limpiar
+          </button>
+        )}
+
+        {/* Contador de resultados */}
+        <span className="text-[10px] text-cream/30 ml-auto">
+          {filtered.length} de {products.length}
+        </span>
+      </div>
+
       {/* Tabla */}
       {loading ? (
         <div className="space-y-2">
@@ -79,16 +165,20 @@ function AdminProductos() {
             <div key={i} className="h-16 bg-cream/5 animate-pulse" />
           ))}
         </div>
-      ) : products.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="border border-border p-12 text-center">
-          <p className="text-cream/40 text-sm mb-4">No hay productos todavía.</p>
-          <Link to="/admin/productos/nuevo" className="text-[11px] uppercase tracking-[0.3em] text-acid hover:underline">
-            Crear el primero →
-          </Link>
+          <p className="text-cream/40 text-sm mb-4">
+            {products.length === 0 ? "No hay productos todavía." : "No hay productos que coincidan con los filtros."}
+          </p>
+          {products.length === 0 && (
+            <Link to="/admin/productos/nuevo" className="text-[11px] uppercase tracking-[0.3em] text-acid hover:underline">
+              Crear el primero →
+            </Link>
+          )}
         </div>
       ) : (
         <div className="border border-border divide-y divide-border">
-          {products.map((p) => {
+          {filtered.map((p) => {
             const front = getFrontImage(p.product_images);
             return (
               <div key={p.id} className="flex items-center gap-4 p-4 hover:bg-cream/5 transition-colors">

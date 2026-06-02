@@ -114,15 +114,22 @@ export function SearchModal({ open, onClose }: SearchModalProps) {
               <p className="w-full text-[10px] uppercase tracking-[0.35em] text-cream/30 mb-2">
                 Categorías
               </p>
-              {["Camisetas", "Busos", "Conjuntos", "Pantalonetas", "Pantalones", "Gorras"].map((cat) => (
+              {[
+                { handle: "camisetas", label: "Camisetas" },
+                { handle: "busos", label: "Chaqueta / Busos" },
+                { handle: "conjuntos", label: "Conjuntos" },
+                { handle: "pantalonetas", label: "Pantalonetas" },
+                { handle: "pantalones", label: "Pantalones" },
+                { handle: "gorras", label: "Gorras" },
+              ].map((cat) => (
                 <Link
-                  key={cat}
+                  key={cat.handle}
                   to="/collections/$handle"
-                  params={{ handle: cat.toLowerCase() }}
+                  params={{ handle: cat.handle }}
                   onClick={onClose}
                   className="flex items-center gap-1.5 border border-border px-3 py-1.5 text-[10px] uppercase tracking-[0.25em] text-cream/50 hover:text-cream hover:border-cream transition-colors"
                 >
-                  {cat}
+                  {cat.label}
                   <ArrowRight size={9} strokeWidth={1.5} />
                 </Link>
               ))}

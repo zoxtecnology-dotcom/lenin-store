@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Heart, Minus, Plus, ArrowRight,
   Package, RefreshCw, ShieldCheck,
@@ -10,9 +10,17 @@ import { fmtCOP, type Product } from "@/lib/products";
 import { fetchProductBySlug, fetchProducts } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
+import { SizeGuideModal } from "@/components/SizeGuideModal";
+import { supabase } from "@/lib/supabase";
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
+
+interface SiteSettings {
+  free_shipping_threshold: string;
+  returns_days: string;
+  shipping_time: string;
+}
 
 export const Route = createFileRoute("/products/$slug")({
   head: ({ loaderData }) => ({
@@ -24,12 +32,14 @@ export const Route = createFileRoute("/products/$slug")({
       : [{ title: "Producto no encontrado — AIAHN STORE" }],
   }),
   loader: async ({ params }) => {
-    const [product, allProducts] = await Promise.all([
+    const [product, allProducts, settingsRes] = await Promise.all([
       fetchProductBySlug(params.slug),
       fetchProducts(),
+      supabase.from("site_settings").select("key, value").in("key", ["free_shipping_threshold", "returns_days", "shipping_time"]),
     ]);
     if (!product) throw notFound();
-    return { product, allProducts };
+    const settings = (settingsRes.data ?? []).reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as SiteSettings);
+    return { product, allProducts, settings };
   },
   component: ProductPage,
 });
@@ -37,15 +47,15 @@ export const Route = createFileRoute("/products/$slug")({
 type ComboOption = "completo" | "top" | "bottom";
 
 function ProductPage() {
-  const { product } = Route.useLoaderData() as { product: Product; allProducts: Product[] };
+  const { product, settings } = Route.useLoaderData() as { product: Product; allProducts: Product[]; settings: SiteSettings };
   const isConjunto = product.type === "conjunto" && !!product.conjunto;
 
-  return isConjunto ? <ConjuntoProductPage product={product} /> : <StandardProductPage product={product} />;
+  return isConjunto ? <ConjuntoProductPage product={product} settings={settings} /> : <StandardProductPage product={product} settings={settings} />;
 }
 
 /* ─── Standard Product ──────────────────────────────────────── */
 
-function StandardProductPage({ product }: { product: Product }) {
+function StandardProductPage({ product, settings }: { product: Product; settings: SiteSettings }) {
   const { add, setOpen } = useCart();
   const [activeImage, setActiveImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(0);
@@ -97,6 +107,7 @@ function StandardProductPage({ product }: { product: Product }) {
               onSelect={setSelectedSize}
               variants={product.variants ?? []}
               selectedColor={product.colors[selectedColor]?.name ?? ""}
+              category={product.category}
             />
 
             <QtyPicker qty={qty} onChange={setQty} />
@@ -110,8 +121,8 @@ function StandardProductPage({ product }: { product: Product }) {
               </button>
             </div>
 
-            <TrustBadges />
-            <ProductAccordion product={product} />
+            <TrustBadges settings={settings} />
+            <ProductAccordion product={product} settings={settings} />
           </div>
         </div>
       </div>
@@ -123,7 +134,7 @@ function StandardProductPage({ product }: { product: Product }) {
 
 /* ─── Conjunto Product ──────────────────────────────────────── */
 
-function ConjuntoProductPage({ product }: { product: Product }) {
+function ConjuntoProductPage({ product, settings }: { product: Product; settings: SiteSettings }) {
   const { add, setOpen } = useCart();
   const c = product.conjunto!;
   const [combo, setCombo] = useState<ComboOption>("completo");
@@ -131,12 +142,26 @@ function ConjuntoProductPage({ product }: { product: Product }) {
   const [bottomSize, setBottomSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [guideCategory, setGuideCategory] = useState<string>("camiseta");
+
+  // Completo: todas las fotos (look completo + arriba + abajo + galería)
+  // Top/Bottom: solo las de esa pieza
+  const completoImages = [
+    ...c.fullImages,
+    ...c.topImages,
+    ...c.bottomImages,
+    ...product.images.filter((img) => !c.fullImages.includes(img) && !c.topImages.includes(img) && !c.bottomImages.includes(img)),
+  ].filter(Boolean);
 
   const activeImages =
-    combo === "completo" ? c.fullImages :
+    combo === "completo" ? completoImages :
     combo === "top" ? c.topImages : c.bottomImages;
 
   const [activeImage, setActiveImage] = useState(0);
+
+  // Reset a foto 0 cuando cambia el combo
+  useEffect(() => { setActiveImage(0); }, [combo]);
 
   const activePrice =
     combo === "completo" ? product.price :
@@ -275,11 +300,17 @@ function ConjuntoProductPage({ product }: { product: Product }) {
               <ColorPicker colors={product.colors} selected={selectedColor} onSelect={setSelectedColor} />
             )}
 
+            <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} category={guideCategory} />
+
             {(combo === "completo" || combo === "top") && (
               <div className="mb-4">
-                <p className="text-[10px] uppercase tracking-[0.3em] text-cream/50 mb-3">
-                  Talla — {c.topName}
-                </p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-cream/50">Talla — {c.topName}</p>
+                  <button type="button" onClick={() => { setGuideCategory(c.topPieceType); setGuideOpen(true); }}
+                    className="text-[10px] uppercase tracking-[0.22em] text-cream/50 hover:text-acid transition-colors flex items-center gap-1">
+                    Guía de tallas <ArrowRight size={10} strokeWidth={1.5} />
+                  </button>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => (
                     <button key={size} onClick={() => setTopSize(size)}
@@ -294,9 +325,13 @@ function ConjuntoProductPage({ product }: { product: Product }) {
 
             {(combo === "completo" || combo === "bottom") && (
               <div className="mb-8">
-                <p className="text-[10px] uppercase tracking-[0.3em] text-cream/50 mb-3">
-                  Talla — {c.bottomName}
-                </p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-cream/50">Talla — {c.bottomName}</p>
+                  <button type="button" onClick={() => { setGuideCategory(c.bottomPieceType); setGuideOpen(true); }}
+                    className="text-[10px] uppercase tracking-[0.22em] text-cream/50 hover:text-acid transition-colors flex items-center gap-1">
+                    Guía de tallas <ArrowRight size={10} strokeWidth={1.5} />
+                  </button>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => (
                     <button key={size} onClick={() => setBottomSize(size)}
@@ -320,8 +355,8 @@ function ConjuntoProductPage({ product }: { product: Product }) {
               </button>
             </div>
 
-            <TrustBadges />
-            <ProductAccordion product={product} />
+            <TrustBadges settings={settings} />
+            <ProductAccordion product={product} settings={settings} />
           </div>
         </div>
       </div>
@@ -451,13 +486,37 @@ function ColorPicker({ colors, selected, onSelect, variants, sizes }: {
   );
 }
 
-function SizePicker({ sizes, selected, onSelect, variants, selectedColor }: {
+function SizePicker({ sizes, selected, onSelect, variants, selectedColor, category }: {
   sizes: string[];
   selected: string | null;
   onSelect: (s: string) => void;
   variants: import("@/lib/products").ProductVariant[];
   selectedColor: string;
+  category?: string;
 }) {
+  const [guideOpen, setGuideOpen] = useState(false);
+
+  // Si es talla única, no mostrar selector ni guía
+  const isTallaUnica = sizes.length === 1 && sizes[0] === "Única";
+  
+  // Auto-seleccionar talla única
+  useEffect(() => {
+    if (isTallaUnica && selected !== "Única") {
+      onSelect("Única");
+    }
+  }, [isTallaUnica, selected, onSelect]);
+
+  if (isTallaUnica) {
+    return (
+      <div className="mb-6">
+        <p className="text-[10px] uppercase tracking-[0.3em] text-cream/50 mb-3">Talla</p>
+        <div className="inline-block px-4 py-2 text-[11px] uppercase tracking-[0.2em] bg-cream/10 text-cream/70 border border-border">
+          Talla Única
+        </div>
+      </div>
+    );
+  }
+
   function sizeStock(size: string) {
     if (!variants.length) return 99;
     return variants
@@ -467,11 +526,12 @@ function SizePicker({ sizes, selected, onSelect, variants, selectedColor }: {
 
   return (
     <div className="mb-6">
+      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} category={category} />
       <div className="flex items-center justify-between mb-3">
         <p className="text-[10px] uppercase tracking-[0.3em] text-cream/50">Talla</p>
-        <Link to="/guia-de-tallas" className="text-[10px] uppercase tracking-[0.22em] text-cream/50 hover:text-acid transition-colors flex items-center gap-1">
+        <button type="button" onClick={() => setGuideOpen(true)} className="text-[10px] uppercase tracking-[0.22em] text-cream/50 hover:text-acid transition-colors flex items-center gap-1">
           Guía de tallas <ArrowRight size={10} strokeWidth={1.5} />
-        </Link>
+        </button>
       </div>
       <div className="flex flex-wrap gap-2">
         {sizes.map((size) => {
@@ -517,12 +577,18 @@ function QtyPicker({ qty, onChange }: { qty: number; onChange: (q: number) => vo
   );
 }
 
-function TrustBadges() {
+function TrustBadges({ settings }: { settings: SiteSettings }) {
+  const threshold = parseInt(settings.free_shipping_threshold ?? "200000");
+  const fmtThreshold = threshold >= 1000000
+    ? `$${(threshold / 1000000).toFixed(1)}M`
+    : `$${Math.round(threshold / 1000)}k`;
+  const days = settings.returns_days ?? "30";
+
   return (
     <div className="flex flex-wrap gap-6 mb-10 pb-8 border-b border-border">
       {[
-        { icon: Package, label: "Envío gratis +$200k" },
-        { icon: RefreshCw, label: "Cambios 30 días" },
+        { icon: Package, label: `Envío gratis +${fmtThreshold}` },
+        { icon: RefreshCw, label: `Cambios ${days} días` },
         { icon: ShieldCheck, label: "Pago seguro" },
       ].map(({ icon: Icon, label }) => (
         <div key={label} className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-cream/50">
@@ -534,7 +600,12 @@ function TrustBadges() {
   );
 }
 
-function ProductAccordion({ product }: { product: Product }) {
+function ProductAccordion({ product, settings }: { product: Product; settings: SiteSettings }) {
+  const threshold = parseInt(settings.free_shipping_threshold ?? "200000");
+  const fmtThreshold = new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(threshold);
+  const days = settings.returns_days ?? "30";
+  const shippingTime = settings.shipping_time ?? "1–3 días hábiles";
+
   return (
     <Accordion type="multiple" defaultValue={["descripcion"]}>
       <AccordionItem value="descripcion" className="border-b border-border">
@@ -554,29 +625,7 @@ function ProductAccordion({ product }: { product: Product }) {
       <AccordionItem value="envio" className="border-b border-border">
         <AccordionTrigger className="text-[11px] uppercase tracking-[0.28em] text-cream hover:no-underline py-4">Envío &amp; Devoluciones</AccordionTrigger>
         <AccordionContent className="text-sm leading-relaxed text-cream/70 pb-5">
-          Envío gratis en pedidos mayores a $200.000. Despacho en 1–3 días hábiles. Cambios dentro de los 30 días siguientes a la compra.
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="tallas" className="border-b border-border">
-        <AccordionTrigger className="text-[11px] uppercase tracking-[0.28em] text-cream hover:no-underline py-4">Guía de Tallas</AccordionTrigger>
-        <AccordionContent className="pb-5">
-          <table className="w-full text-[11px] uppercase tracking-[0.15em] text-cream/70">
-            <thead>
-              <tr className="border-b border-border">
-                {["Talla", "Pecho", "Largo", "Hombro"].map((h) => (
-                  <th key={h} className="text-left py-2 pr-4 text-cream/50 font-normal">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[["XS","96cm","68cm","44cm"],["S","100cm","70cm","46cm"],["M","104cm","72cm","48cm"],["L","108cm","74cm","50cm"],["XL","112cm","76cm","52cm"],["XXL","116cm","78cm","54cm"]].map(([size, ...vals]) => (
-                <tr key={size} className="border-b border-border/50">
-                  <td className="py-2 pr-4 text-cream">{size}</td>
-                  {vals.map((v, i) => <td key={i} className="py-2 pr-4">{v}</td>)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          Envío gratis en pedidos mayores a {fmtThreshold}. Despacho en {shippingTime}. Cambios dentro de los {days} días siguientes a la compra.
         </AccordionContent>
       </AccordionItem>
     </Accordion>

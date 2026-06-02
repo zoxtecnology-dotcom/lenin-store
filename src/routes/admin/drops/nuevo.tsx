@@ -14,17 +14,30 @@ function NuevoDrop() {
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [form, setForm] = useState({
     slug: "", name: "", label: "", season: "",
-    release_date: "", editorial_quote: "", editorial_body: "", published: false,
+    release_date: "", editorial_quote: "", editorial_body: "",
+    discount: "12", published: false,
   });
 
-  function set(key: string, value: unknown) { setForm((p) => ({ ...p, [key]: value })); }
+  function slugify(str: string) {
+    return str.toLowerCase()
+      .normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
+  }
+
+  function set(key: string, value: unknown) {
+    setForm((p) => ({
+      ...p,
+      [key]: value,
+      ...(key === "name" ? { slug: slugify(value as string) } : {}),
+    }));
+  }
 
   async function handleSave() {
     if (!form.slug || !form.name) { alert("Slug y nombre son obligatorios."); return; }
     setSaving(true);
     try {
       const { data: drop, error } = await supabase.from("drops").insert({
-        ...form, release_date: form.release_date || null,
+        ...form, release_date: form.release_date || null, discount: parseInt(form.discount) || 12,
       }).select().single();
       if (error) throw error;
 
@@ -61,10 +74,11 @@ function NuevoDrop() {
         <div className="border-b border-border pb-2"><p className="text-[10px] uppercase tracking-[0.3em] text-acid">Información</p></div>
         <div className="grid grid-cols-2 gap-4">
           <div><label className={label}>Nombre *</label><input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Drop 01" className={input} /></div>
-          <div><label className={label}>Slug * (URL)</label><input value={form.slug} onChange={(e) => set("slug", e.target.value)} placeholder="01" className={input} /></div>
+          <div><label className={label}>Slug (URL) — se genera solo</label><input value={form.slug} onChange={(e) => set("slug", e.target.value)} placeholder="drop-01" className={`${input} text-cream/50`} /></div>
           <div><label className={label}>Label</label><input value={form.label} onChange={(e) => set("label", e.target.value)} placeholder="Essentials" className={input} /></div>
           <div><label className={label}>Season</label><input value={form.season} onChange={(e) => set("season", e.target.value)} placeholder="SS26" className={input} /></div>
           <div><label className={label}>Fecha de lanzamiento</label><input type="date" value={form.release_date} onChange={(e) => set("release_date", e.target.value)} className={input} /></div>
+          <div><label className={label}>Descuento drop completo %</label><input type="number" min={0} max={99} value={form.discount} onChange={(e) => set("discount", e.target.value)} placeholder="12" className={input} /></div>
           <div className="flex items-end">
             <label className="flex items-center gap-2 cursor-pointer pb-2">
               <input type="checkbox" checked={form.published} onChange={(e) => set("published", e.target.checked)} className="accent-[#d4f542]" />

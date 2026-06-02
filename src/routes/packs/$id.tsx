@@ -7,6 +7,7 @@ import { Reveal } from "@/components/Reveal";
 import { useCart } from "@/lib/cart";
 import { fmtCOP } from "@/lib/products";
 import { fetchPackBySlug } from "@/lib/catalog";
+import { SizeGuideModal } from "@/components/SizeGuideModal";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/packs/$id")({
@@ -14,19 +15,25 @@ export const Route = createFileRoute("/packs/$id")({
     meta: [{ title: loaderData?.pack ? `${loaderData.pack.name} — AIAHN STORE` : "Pack — AIAHN STORE" }],
   }),
   loader: async ({ params }) => {
-    const pack = await fetchPackBySlug(params.id);
+    const { fetchPacks } = await import("@/lib/catalog");
+    const [pack, allPacks] = await Promise.all([
+      fetchPackBySlug(params.id),
+      fetchPacks(),
+    ]);
     if (!pack) throw notFound();
-    return { pack };
+    return { pack, allPacks };
   },
   component: PackDetailPage,
 });
 
 function PackDetailPage() {
-  const { pack } = Route.useLoaderData();
+  const { pack, allPacks } = Route.useLoaderData();
 
   const { add, setOpen } = useCart();
   const [sizes, setSizes] = useState<Record<string, string>>({});
   const [activeImg, setActiveImg] = useState(0);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [guideCategory, setGuideCategory] = useState<string | undefined>(undefined);
   const [added, setAdded] = useState(false);
 
   const originalTotal = pack.items.reduce((s, i) => s + i.product.price, 0);
@@ -58,6 +65,7 @@ function PackDetailPage() {
   return (
     <main className="bg-background text-foreground min-h-screen">
       <SiteHeader />
+      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} category={guideCategory} />
 
       <div className="mx-auto max-w-[1500px] px-5 pt-28 pb-20 md:px-10 md:pt-36">
         {/* Breadcrumb */}
@@ -130,10 +138,10 @@ function PackDetailPage() {
                       <>
                         <div className="flex items-center justify-between mb-3">
                           <p className="text-[9px] uppercase tracking-[0.3em] text-cream/40">Talla</p>
-                          <Link to="/guia-de-tallas"
+                          <button type="button" onClick={() => { setGuideCategory(product.category); setGuideOpen(true); }}
                             className="text-[9px] uppercase tracking-[0.2em] text-cream/40 hover:text-acid transition-colors flex items-center gap-1">
                             Guía de tallas <ArrowRight size={9} strokeWidth={1.5} />
-                          </Link>
+                          </button>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {product.sizes.map((size) => (
@@ -204,15 +212,15 @@ function PackDetailPage() {
         </div>
 
         {/* Otros packs */}
-        {PACKS.filter((p) => p.id !== pack.id).length > 0 && (
+        {allPacks.filter((p) => p.id !== pack.id).length > 0 && (
           <section className="mt-24 border-t border-border pt-16">
             <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-8">— Otros packs</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-              {PACKS.filter((p) => p.id !== pack.id).map((p) => {
+              {allPacks.filter((p) => p.id !== pack.id).map((p) => {
                 const orig = p.items.reduce((s, i) => s + i.product.price, 0);
                 const final = Math.round(orig * (1 - p.discount / 100));
                 return (
-                  <Link key={p.id} to="/packs/$id" params={{ id: p.id }}
+                  <Link key={p.id} to="/packs/$id" params={{ id: p.slug }}
                     className="group border border-border hover:border-cream/30 transition-colors">
                     <div className="relative h-40 flex gap-px bg-border overflow-hidden">
                       <span className="absolute top-2 right-2 z-10 bg-acid text-ink text-[9px] uppercase tracking-[0.15em] px-1.5 py-0.5 font-medium">

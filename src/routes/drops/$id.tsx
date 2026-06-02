@@ -8,9 +8,8 @@ import { ProductCard } from "@/components/ProductCard";
 import { fmtCOP } from "@/lib/products";
 import { fetchDropBySlug, fetchProductsByDrop } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
+import { SizeGuideModal } from "@/components/SizeGuideModal";
 import { cn } from "@/lib/utils";
-const DROP_DISCOUNT = 12;
-
 export const Route = createFileRoute("/drops/$id")({
   head: ({ loaderData }) => ({
     meta: [
@@ -33,7 +32,10 @@ function DropDetailPage() {
   const [mode, setMode] = useState<"piezas" | "completo">("piezas");
   const [sizes, setSizes] = useState<Record<string, string>>({});
   const [added, setAdded] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [guideCategory, setGuideCategory] = useState<string | undefined>(undefined);
 
+  const DROP_DISCOUNT = drop.discount;
   const originalTotal = dropProducts.reduce((s, p) => s + p.price, 0);
   const discountedTotal = Math.round(originalTotal * (1 - DROP_DISCOUNT / 100));
   const savings = originalTotal - discountedTotal;
@@ -62,6 +64,7 @@ function DropDetailPage() {
   return (
     <main className="bg-background text-foreground min-h-screen">
       <SiteHeader />
+      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} category={guideCategory} />
 
       {/* Hero split */}
       <section className="relative overflow-hidden">
@@ -208,10 +211,10 @@ function DropDetailPage() {
                       <>
                         <div className="flex items-center justify-between mb-3">
                           <p className="text-[9px] uppercase tracking-[0.3em] text-cream/40">Talla</p>
-                          <Link to="/guia-de-tallas"
+                          <button type="button" onClick={() => { setGuideCategory(p.category); setGuideOpen(true); }}
                             className="text-[9px] uppercase tracking-[0.2em] text-cream/40 hover:text-acid transition-colors flex items-center gap-1">
                             Guía <ArrowRight size={9} strokeWidth={1.5} />
-                          </Link>
+                          </button>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {p.sizes.map((size) => (

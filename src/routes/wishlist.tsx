@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Heart } from "lucide-react";
+import { Heart, ArrowLeft } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/wishlist")({
 function WishlistPage() {
   const { products } = Route.useLoaderData();
   const { items } = useWishlist();
-  const saved = products.filter((p) => items.includes(p.slug));
+  const saved = products.filter((p) => items.includes(p.id));
 
   return (
     <main className="bg-background text-foreground min-h-screen">
@@ -28,6 +28,15 @@ function WishlistPage() {
       <section className="pt-36 pb-20 md:pt-48 md:pb-28 border-b border-border">
         <div className="mx-auto max-w-[1500px] px-5 md:px-10">
           <Reveal>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-cream/40 hover:text-cream transition-colors mb-6"
+            >
+              <ArrowLeft size={12} />
+              Volver a inicio
+            </Link>
+          </Reveal>
+          <Reveal delay={50}>
             <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-6">— Tu lista</p>
           </Reveal>
           <Reveal delay={100}>

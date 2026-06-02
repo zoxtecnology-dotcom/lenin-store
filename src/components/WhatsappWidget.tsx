@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { X, Send } from "lucide-react";
-import { BRAND, SOCIAL } from "@/lib/brand";
+import { BRAND } from "@/lib/brand";
 import { cn } from "@/lib/utils";
+import { useSettings } from "@/lib/settings";
 
 function WaIcon({ size = 24 }: { size?: number }) {
   return (
@@ -11,16 +12,15 @@ function WaIcon({ size = 24 }: { size?: number }) {
   );
 }
 
-const WA_NUMBER = SOCIAL.whatsapp.url.replace("https://wa.me/", "");
-
 export function WhatsappWidget() {
+  const { whatsappUrl } = useSettings();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
 
   function send() {
     if (!message.trim()) return;
     window.open(
-      `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message.trim())}`,
+      `${whatsappUrl}?text=${encodeURIComponent(message.trim())}`,
       "_blank"
     );
     setMessage("");

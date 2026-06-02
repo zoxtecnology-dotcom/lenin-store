@@ -16,6 +16,8 @@ export interface ConjuntoData {
   bottomName: string;
   topPrice: number;
   bottomPrice: number;
+  topPieceType: string;
+  bottomPieceType: string;
   topImages: string[];
   bottomImages: string[];
   fullImages: string[];
@@ -29,6 +31,7 @@ export interface ProductVariant {
 }
 
 export interface Product {
+  id: string;
   slug: string;
   name: string;
   price: number;

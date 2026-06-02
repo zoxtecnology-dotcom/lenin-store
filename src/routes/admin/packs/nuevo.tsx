@@ -14,14 +14,26 @@ function NuevoPack() {
   const [saving, setSaving] = useState(false);
   const [allProducts, setAllProducts] = useState<ProductOption[]>([]);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
-  const [form, setForm] = useState({ slug: "", name: "", tag: "", discount: "10", description: "", published: false });
+  const [form, setForm] = useState({ slug: "", name: "", discount: "10", description: "", published: true });
 
   useEffect(() => {
     supabase.from("products").select("id, name, price, category").order("position")
       .then(({ data }) => setAllProducts(data ?? []));
   }, []);
 
-  function set(key: string, value: unknown) { setForm((p) => ({ ...p, [key]: value })); }
+  function slugify(str: string) {
+    return str.toLowerCase()
+      .normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
+  }
+
+  function set(key: string, value: unknown) {
+    setForm((p) => ({
+      ...p,
+      [key]: value,
+      ...(key === "name" ? { slug: slugify(value as string) } : {}),
+    }));
+  }
 
   function addProduct(id: string) {
     if (!selectedProductIds.includes(id)) setSelectedProductIds((prev) => [...prev, id]);
@@ -39,7 +51,10 @@ function NuevoPack() {
     setSaving(true);
     try {
       const { data: pack, error } = await supabase.from("packs").insert({
-        ...form, discount: parseInt(form.discount),
+        slug: form.slug, name: form.name,
+        discount: parseInt(form.discount),
+        description: form.description,
+        published: true,
       }).select().single();
       if (error) throw error;
 
@@ -77,15 +92,11 @@ function NuevoPack() {
         <div className="border-b border-border pb-2"><p className="text-[10px] uppercase tracking-[0.3em] text-acid">Información</p></div>
         <div className="grid grid-cols-2 gap-4">
           <div><label className={lbl}>Nombre *</label><input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Pack Esencial" className={input} /></div>
-          <div><label className={lbl}>Slug *</label><input value={form.slug} onChange={(e) => set("slug", e.target.value.toLowerCase().replace(/\s+/g, "-"))} placeholder="esencial" className={input} /></div>
-          <div><label className={lbl}>Tag</label><input value={form.tag} onChange={(e) => set("tag", e.target.value)} placeholder="Más popular" className={input} /></div>
+          <div><label className={lbl}>Slug — se genera solo</label><input value={form.slug} onChange={(e) => set("slug", e.target.value)} className={`${input} text-cream/50`} /></div>
           <div><label className={lbl}>Descuento %</label><input type="number" min={1} max={99} value={form.discount} onChange={(e) => set("discount", e.target.value)} className={input} /></div>
         </div>
         <div><label className={lbl}>Descripción</label><textarea value={form.description} onChange={(e) => set("description", e.target.value)} rows={2} className={input} /></div>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={form.published} onChange={(e) => set("published", e.target.checked)} className="accent-[#d4f542]" />
-          <span className="text-[10px] uppercase tracking-[0.2em] text-cream/60">Publicado</span>
-        </label>
+        <p className="text-[10px] text-cream/20">Se publica automáticamente. Gestionalo desde el listado.</p>
       </div>
 
       {/* Selector de productos */}

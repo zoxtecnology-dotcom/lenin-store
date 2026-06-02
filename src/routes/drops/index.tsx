@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
 import { ProductCard } from "@/components/ProductCard";
-import { fetchDrops, fetchProductsByDrop } from "@/lib/catalog";
+import { fetchDrops, fetchProductsByDrop, fetchUpcomingDrop } from "@/lib/catalog";
 
 export const Route = createFileRoute("/drops/")({
   head: () => ({
@@ -15,15 +15,14 @@ export const Route = createFileRoute("/drops/")({
     ],
   }),
   loader: async () => {
-    const drops = await fetchDrops();
+    const [drops, upcoming] = await Promise.all([fetchDrops(), fetchUpcomingDrop()]);
     const drop01 = drops[0] ?? null;
     const drop01Products = drop01 ? (await fetchProductsByDrop(drop01.id)).slice(0, 3) : [];
-    return { drops, drop01, drop01Products };
+    return { drops, drop01, drop01Products, upcoming };
   },
   component: DropsPage,
 });
 
-const DROP_02_DATE = new Date("2026-10-01T00:00:00");
 
 function useCountdown(target: Date) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -46,8 +45,9 @@ function useCountdown(target: Date) {
 }
 
 function DropsPage() {
-  const { drop01, drop01Products } = Route.useLoaderData();
-  const countdown = useCountdown(DROP_02_DATE);
+  const { drops, drop01, drop01Products, upcoming } = Route.useLoaderData();
+  const upcomingDate = upcoming?.releaseDate ? new Date(upcoming.releaseDate) : new Date("2099-01-01");
+  const countdown = useCountdown(upcomingDate);
 
   const heroImg = drop01?.editorialImages[0] ?? "";
   const editImg1 = drop01?.editorialImages[0] ?? "";
@@ -149,69 +149,96 @@ function DropsPage() {
 
       <div className="border-t border-border" />
 
-      {/* DROP 02 — próximamente */}
-      <section className="bg-background py-24 md:py-36">
-        <div className="mx-auto max-w-[1500px] px-5 md:px-10">
-          <Reveal>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-cream/30 mb-6">— Próximamente</p>
-          </Reveal>
-          <Reveal delay={80}>
-            <div className="flex flex-wrap items-end justify-between gap-6 mb-16">
-              <div>
-                <h2 className="font-display text-[clamp(3rem,10vw,9rem)] uppercase leading-[0.85] text-cream/20">Drop 02</h2>
-                <p className="font-serif-i text-xl text-cream/30 mt-2">Otoño · 26</p>
-              </div>
-              <p className="text-[11px] uppercase tracking-[0.3em] text-cream/30">01 Oct 2026</p>
-            </div>
-          </Reveal>
-          <Reveal delay={120}>
-            <div className="grid grid-cols-4 gap-px border border-border/40 mb-20 max-w-2xl">
-              {[
-                { value: countdown.days, label: "Días" },
-                { value: countdown.hours, label: "Horas" },
-                { value: countdown.minutes, label: "Min" },
-                { value: countdown.seconds, label: "Seg" },
-              ].map(({ value, label }) => (
-                <div key={label} className="flex flex-col items-center py-8 border-r border-border/40 last:border-0">
-                  <span className="font-display text-[clamp(2.5rem,6vw,5rem)] tabular-nums leading-none text-cream">
-                    {String(value).padStart(2, "0")}
-                  </span>
-                  <span className="mt-2 text-[9px] uppercase tracking-[0.35em] text-cream/30">{label}</span>
+      {/* Próximo drop — solo si existe uno sin publicar */}
+      {upcoming && (
+        <>
+          <div className="border-t border-border" />
+          <section className="bg-background py-24 md:py-36">
+            <div className="mx-auto max-w-[1500px] px-5 md:px-10">
+              <Reveal>
+                <p className="text-[10px] uppercase tracking-[0.4em] text-cream/30 mb-6">— Próximamente</p>
+              </Reveal>
+              <Reveal delay={80}>
+                <div className="flex flex-wrap items-end justify-between gap-6 mb-16">
+                  <div>
+                    <h2 className="font-display text-[clamp(3rem,10vw,9rem)] uppercase leading-[0.85] text-cream/20">
+                      {upcoming.name}
+                    </h2>
+                    <p className="font-serif-i text-xl text-cream/30 mt-2">
+                      {upcoming.label}{upcoming.season ? ` · ${upcoming.season}` : ""}
+                    </p>
+                  </div>
+                  {upcoming.releaseDate && (
+                    <p className="text-[11px] uppercase tracking-[0.3em] text-cream/30">
+                      {new Date(upcoming.releaseDate).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
+                    </p>
+                  )}
                 </div>
-              ))}
+              </Reveal>
+
+              {upcoming.releaseDate && (
+                <Reveal delay={120}>
+                  <div className="grid grid-cols-4 gap-px border border-border/40 mb-20 max-w-2xl">
+                    {[
+                      { value: countdown.days, label: "Días" },
+                      { value: countdown.hours, label: "Horas" },
+                      { value: countdown.minutes, label: "Min" },
+                      { value: countdown.seconds, label: "Seg" },
+                    ].map(({ value, label }) => (
+                      <div key={label} className="flex flex-col items-center py-8 border-r border-border/40 last:border-0">
+                        <span className="font-display text-[clamp(2.5rem,6vw,5rem)] tabular-nums leading-none text-cream">
+                          {String(value).padStart(2, "0")}
+                        </span>
+                        <span className="mt-2 text-[9px] uppercase tracking-[0.35em] text-cream/30">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Reveal>
+              )}
+
+              {/* Newsletter — estilo home */}
+              <Reveal delay={160}>
+                <p className="text-[11px] uppercase tracking-[0.3em] text-acid mb-6">— Newsletter</p>
+                <h2 className="font-display text-[clamp(2.5rem,7vw,6rem)] uppercase leading-[0.9] text-cream mb-14">
+                  Sé el primero<br />
+                  <span className="font-serif-it normal-case text-cream/80">en los drops.</span>
+                </h2>
+                <form onSubmit={(e) => e.preventDefault()}
+                  className="flex max-w-2xl items-center gap-0 border-b border-cream/30 pb-2 focus-within:border-cream">
+                  <input type="email" required placeholder="tu@correo.com" aria-label="Correo electrónico"
+                    className="w-full bg-transparent py-3 text-base text-cream placeholder:text-cream/40 focus:outline-none md:text-lg" />
+                  <button type="submit" className="group shrink-0 flex items-center gap-3 px-2 text-[11px] uppercase tracking-[0.28em] text-cream hover:text-acid transition-colors">
+                    Suscribirme
+                    <ArrowRight size={18} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-2" />
+                  </button>
+                </form>
+                <p className="mt-6 max-w-md text-[11px] uppercase tracking-[0.22em] text-cream/40">
+                  Al suscribirte aceptas recibir comunicaciones. Cero spam, solo drops.
+                </p>
+              </Reveal>
             </div>
-          </Reveal>
-          <Reveal delay={160}>
-            <div className="max-w-xl mb-14">
-              <p className="font-serif-i text-[clamp(1.2rem,2.5vw,1.8rem)] leading-snug text-cream/40">
-                "El segundo capítulo está en construcción.<br />Suscríbete y sé el primero en verlo."
-              </p>
-            </div>
-          </Reveal>
-          <Reveal delay={200}>
-            <form onSubmit={(e) => e.preventDefault()}
-              className="flex max-w-lg items-center gap-0 border-b border-cream/20 pb-2 focus-within:border-cream/50">
-              <input type="email" required placeholder="tu@correo.com" aria-label="Correo electrónico"
-                className="w-full bg-transparent py-3 text-sm text-cream placeholder:text-cream/25 focus:outline-none" />
-              <button type="submit" className="shrink-0 flex items-center gap-2 px-2 text-[10px] uppercase tracking-[0.3em] text-cream/50 hover:text-acid transition-colors">
-                Avisar <ArrowRight size={14} strokeWidth={1.5} />
-              </button>
-            </form>
-            <p className="mt-4 text-[10px] uppercase tracking-[0.22em] text-cream/25">Solo te escribimos cuando hay algo nuevo. Cero spam.</p>
-          </Reveal>
-        </div>
-      </section>
+          </section>
+        </>
+      )}
 
       <section className="relative overflow-hidden border-y border-border bg-background py-8">
         <div className="flex whitespace-nowrap animate-marquee">
           {Array.from({ length: 2 }).map((_, k) => (
             <div key={k} className="flex shrink-0">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <span key={i} className="flex items-center">
-                  <span className="font-display text-[clamp(1.5rem,4vw,3rem)] uppercase leading-none mx-8 text-cream/10">Drop 01 disponible</span>
-                  <span className="text-acid/30 mx-4">✦</span>
-                  <span className="font-serif-it text-[clamp(1.5rem,4vw,3rem)] leading-none mx-8 text-cream/10">Drop 02 en camino</span>
-                  <span className="text-acid/30 mx-4">✦</span>
+              {Array.from({ length: 4 }).map((_, k) => (
+                <span key={k} className="flex items-center">
+                  {drops.map((d) => (
+                    <span key={d.id} className="flex items-center">
+                      <span className="font-display text-[clamp(1.5rem,4vw,3rem)] uppercase leading-none mx-8 text-cream/10">{d.name} disponible</span>
+                      <span className="text-acid/30 mx-4">✦</span>
+                    </span>
+                  ))}
+                  {upcoming && (
+                    <span className="flex items-center">
+                      <span className="font-serif-it text-[clamp(1.5rem,4vw,3rem)] leading-none mx-8 text-cream/10">{upcoming.name} en camino</span>
+                      <span className="text-acid/30 mx-4">✦</span>
+                    </span>
+                  )}
                 </span>
               ))}
             </div>

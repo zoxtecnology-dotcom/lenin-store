@@ -25,11 +25,21 @@ export function ProductCard({ product: p, delay = 0, noTouchSwipe = false }: Pro
   const [sheetSize, setSheetSize] = useState<string | null>(null);
 
   const isConjunto = p.type === "conjunto";
-  const wishlisted = has(p.slug);
+  const wishlisted = has(p.id);
   const totalStock = p.stock ?? 0;
   const isAgotado = totalStock === 0;
 
-  const allImages = [p.front, p.back, ...p.images.slice(2)].filter(Boolean).slice(0, 3);
+  // En conjuntos: look completo + parte de arriba + parte de abajo
+  // En estándar: front, back, galería
+  const allImages = (
+    isConjunto && p.conjunto
+      ? [
+          p.conjunto.fullImages?.[0],
+          p.conjunto.topImages?.[0],
+          p.conjunto.bottomImages?.[0],
+        ]
+      : [p.front, p.back, ...p.images.slice(2)]
+  ).filter(Boolean).slice(0, 3);
   const [hoverImg, setHoverImg] = useState(0);
 
   // Touch: detecta dirección del gesto para no pelear con el scroll
@@ -96,7 +106,7 @@ export function ProductCard({ product: p, delay = 0, noTouchSwipe = false }: Pro
   function handleWishlist(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    toggle(p.slug);
+    toggle(p.id);
   }
 
   function openSheet(e: React.MouseEvent) {
@@ -237,10 +247,10 @@ export function ProductCard({ product: p, delay = 0, noTouchSwipe = false }: Pro
           )}
         </div>
 
-        {/* Name & price */}
+        {/* Name & price — altura fija para que todas las cards sean iguales */}
         <Link to="/products/$slug" params={{ slug: p.slug }}>
-          <div className="mt-4 flex items-start justify-between gap-3">
-            <h3 className="text-xs uppercase tracking-[0.18em] text-cream">{p.name}</h3>
+          <div className="mt-4 flex items-start justify-between gap-3 min-h-[3rem]">
+            <h3 className="text-xs uppercase tracking-[0.18em] text-cream line-clamp-2 flex-1">{p.name}</h3>
             <div className="shrink-0 text-right">
               <span className="text-xs tabular-nums text-cream/70">{fmtCOP(p.price)}</span>
               {p.compareAtPrice && (

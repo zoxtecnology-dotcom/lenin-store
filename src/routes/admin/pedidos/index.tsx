@@ -13,7 +13,6 @@ interface Order {
   total: number;
   payment_method: string;
   created_at: string;
-  profiles: { full_name: string } | null;
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -38,15 +37,20 @@ function AdminPedidos() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     supabase.from("orders")
-      .select("id, email, status, total, payment_method, created_at, profiles(full_name)")
+      .select("id, email, status, total, payment_method, created_at")
       .order("created_at", { ascending: false })
       .then(({ data }) => { setOrders(data ?? []); setLoading(false); });
   }, []);
 
-  const filtered = filter === "all" ? orders : orders.filter((o) => o.status === filter);
+  const filtered = orders.filter((o) => {
+    if (filter !== "all" && o.status !== filter) return false;
+    if (search && !o.email.toLowerCase().includes(search.toLowerCase()) && !o.id.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
   const counts = Object.keys(STATUS_LABELS).reduce((acc, s) => {
     acc[s] = orders.filter((o) => o.status === s).length;
     return acc;
@@ -60,26 +64,58 @@ function AdminPedidos() {
       </div>
 
       {/* Filtros */}
-      <div className="flex flex-wrap gap-2">
-        <button onClick={() => setFilter("all")}
-          className={`px-3 py-1.5 text-[10px] uppercase tracking-[0.2em] border transition-colors ${filter === "all" ? "border-cream text-cream" : "border-border text-cream/40 hover:border-cream/30"}`}>
-          Todos ({orders.length})
-        </button>
-        {Object.entries(STATUS_LABELS).map(([key, label]) => (
-          counts[key] > 0 && (
-            <button key={key} onClick={() => setFilter(key)}
-              className={`px-3 py-1.5 text-[10px] uppercase tracking-[0.2em] border transition-colors ${filter === key ? "border-cream text-cream" : "border-border text-cream/40 hover:border-cream/30"}`}>
-              {label} ({counts[key]})
-            </button>
-          )
-        ))}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <input
+            type="text"
+            placeholder="Buscar por email o ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-transparent border border-border px-3 py-2 text-sm text-cream placeholder:text-cream/30 focus:border-acid focus:outline-none"
+          />
+          {search && (
+            <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-cream/30 hover:text-cream text-lg">×</button>
+          )}
+        </div>
+
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="bg-ink border border-border px-3 py-2 text-sm text-cream focus:border-acid focus:outline-none cursor-pointer"
+        >
+          <option value="all">Todos ({orders.length})</option>
+          {Object.entries(STATUS_LABELS).map(([key, label]) => (
+            <option key={key} value={key}>
+              {key === "pending" ? "⏳" : key === "paid" ? "💳" : key === "preparing" ? "📦" : key === "shipped" ? "🚚" : key === "delivered" ? "✓" : key === "cancelled" ? "✕" : "↺"} {label} ({counts[key] || 0})
+            </option>
+          ))}
+        </select>
+
+        {(filter !== "all" || search) && (
+          <button
+            onClick={() => { setFilter("all"); setSearch(""); }}
+            className="text-[10px] uppercase tracking-[0.2em] text-cream/40 hover:text-acid transition-colors"
+          >
+            Limpiar
+          </button>
+        )}
+
+        <span className="text-[10px] text-cream/30 ml-auto">
+          {filtered.length} de {orders.length}
+        </span>
       </div>
 
       {loading ? (
         <div className="space-y-2">{[...Array(5)].map((_, i) => <div key={i} className="h-16 bg-cream/5 animate-pulse" />)}</div>
       ) : filtered.length === 0 ? (
         <div className="border border-border p-12 text-center">
-          <p className="text-cream/40 text-sm">No hay pedidos {filter !== "all" ? `con estado "${STATUS_LABELS[filter]}"` : "todavía"}.</p>
+          <p className="text-cream/40 text-sm">
+            {orders.length === 0 
+              ? "No hay pedidos todavía." 
+              : search 
+                ? "No hay pedidos que coincidan con la búsqueda."
+                : `No hay pedidos con estado "${STATUS_LABELS[filter]}".`}
+          </p>
         </div>
       ) : (
         <div className="border border-border divide-y divide-border">
@@ -88,7 +124,7 @@ function AdminPedidos() {
               className="flex items-center gap-4 p-4 hover:bg-cream/5 transition-colors">
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-cream truncate">
-                  {order.profiles?.full_name ?? order.email}
+                  {order.email}
                 </p>
                 <div className="flex items-center gap-3 mt-0.5">
                   <span className="text-[10px] text-cream/40 font-mono">{order.id.slice(0, 8)}...</span>

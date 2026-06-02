@@ -73,7 +73,7 @@ function DetallePedido() {
       </div>
 
       {/* Estado y tracking */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={lbl}>Estado del pedido</label>
           <select value={status} onChange={(e) => setStatus(e.target.value)}

@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard, Package, Layers, Box,
   ShoppingBag, Settings, LogOut, Menu, X, ExternalLink,
+  Palette, Users, Ruler,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,9 @@ const NAV = [
   { to: "/admin/drops",        label: "Drops",         icon: Layers },
   { to: "/admin/packs",        label: "Packs",         icon: Box },
   { to: "/admin/pedidos",      label: "Pedidos",       icon: ShoppingBag },
+  { to: "/admin/colores",      label: "Colores",       icon: Palette },
+  { to: "/admin/tallas",       label: "Tallas",        icon: Ruler },
+  { to: "/admin/clientes",     label: "Clientes",      icon: Users },
   { to: "/admin/configuracion",label: "Configuración", icon: Settings },
 ];
 

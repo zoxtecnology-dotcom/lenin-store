@@ -17,7 +17,6 @@ import { Route as PrensaRouteImport } from './routes/prensa'
 import { Route as PacksRouteImport } from './routes/packs'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HistoriaRouteImport } from './routes/historia'
-import { Route as GuiaDeTallasRouteImport } from './routes/guia-de-tallas'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EnviosRouteImport } from './routes/envios'
 import { Route as DropsRouteImport } from './routes/drops'
@@ -30,13 +29,18 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PacksIndexRouteImport } from './routes/packs/index'
 import { Route as DropsIndexRouteImport } from './routes/drops/index'
+import { Route as CuentaIndexRouteImport } from './routes/cuenta/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ProductsSlugRouteImport } from './routes/products/$slug'
 import { Route as PacksIdRouteImport } from './routes/packs/$id'
 import { Route as DropsIdRouteImport } from './routes/drops/$id'
+import { Route as CuentaPedidosRouteImport } from './routes/cuenta/pedidos'
 import { Route as CollectionsHandleRouteImport } from './routes/collections/$handle'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as AdminTallasRouteImport } from './routes/admin/tallas'
 import { Route as AdminConfiguracionRouteImport } from './routes/admin/configuracion'
+import { Route as AdminColoresRouteImport } from './routes/admin/colores'
+import { Route as AdminClientesRouteImport } from './routes/admin/clientes'
 import { Route as AdminProductosIndexRouteImport } from './routes/admin/productos/index'
 import { Route as AdminPedidosIndexRouteImport } from './routes/admin/pedidos/index'
 import { Route as AdminPacksIndexRouteImport } from './routes/admin/packs/index'
@@ -87,11 +91,6 @@ const LoginRoute = LoginRouteImport.update({
 const HistoriaRoute = HistoriaRouteImport.update({
   id: '/historia',
   path: '/historia',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GuiaDeTallasRoute = GuiaDeTallasRouteImport.update({
-  id: '/guia-de-tallas',
-  path: '/guia-de-tallas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -154,6 +153,11 @@ const DropsIndexRoute = DropsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DropsRoute,
 } as any)
+const CuentaIndexRoute = CuentaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CuentaRoute,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -174,6 +178,11 @@ const DropsIdRoute = DropsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => DropsRoute,
 } as any)
+const CuentaPedidosRoute = CuentaPedidosRouteImport.update({
+  id: '/pedidos',
+  path: '/pedidos',
+  getParentRoute: () => CuentaRoute,
+} as any)
 const CollectionsHandleRoute = CollectionsHandleRouteImport.update({
   id: '/collections/$handle',
   path: '/collections/$handle',
@@ -184,9 +193,24 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTallasRoute = AdminTallasRouteImport.update({
+  id: '/tallas',
+  path: '/tallas',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminConfiguracionRoute = AdminConfiguracionRouteImport.update({
   id: '/configuracion',
   path: '/configuracion',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminColoresRoute = AdminColoresRouteImport.update({
+  id: '/colores',
+  path: '/colores',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminClientesRoute = AdminClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminProductosIndexRoute = AdminProductosIndexRouteImport.update({
@@ -252,11 +276,10 @@ export interface FileRoutesByFullPath {
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
-  '/cuenta': typeof CuentaRoute
+  '/cuenta': typeof CuentaRouteWithChildren
   '/drops': typeof DropsRouteWithChildren
   '/envios': typeof EnviosRoute
   '/faq': typeof FaqRoute
-  '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
   '/login': typeof LoginRoute
   '/packs': typeof PacksRouteWithChildren
@@ -265,13 +288,18 @@ export interface FileRoutesByFullPath {
   '/terminos': typeof TerminosRoute
   '/tiendas': typeof TiendasRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/clientes': typeof AdminClientesRoute
+  '/admin/colores': typeof AdminColoresRoute
   '/admin/configuracion': typeof AdminConfiguracionRoute
+  '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/cuenta/pedidos': typeof CuentaPedidosRoute
   '/drops/$id': typeof DropsIdRoute
   '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/cuenta/': typeof CuentaIndexRoute
   '/drops/': typeof DropsIndexRoute
   '/packs/': typeof PacksIndexRoute
   '/admin/drops/$id': typeof AdminDropsIdRoute
@@ -292,10 +320,8 @@ export interface FileRoutesByTo {
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
-  '/cuenta': typeof CuentaRoute
   '/envios': typeof EnviosRoute
   '/faq': typeof FaqRoute
-  '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
   '/login': typeof LoginRoute
   '/prensa': typeof PrensaRoute
@@ -303,13 +329,18 @@ export interface FileRoutesByTo {
   '/terminos': typeof TerminosRoute
   '/tiendas': typeof TiendasRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/clientes': typeof AdminClientesRoute
+  '/admin/colores': typeof AdminColoresRoute
   '/admin/configuracion': typeof AdminConfiguracionRoute
+  '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/cuenta/pedidos': typeof CuentaPedidosRoute
   '/drops/$id': typeof DropsIdRoute
   '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/admin': typeof AdminIndexRoute
+  '/cuenta': typeof CuentaIndexRoute
   '/drops': typeof DropsIndexRoute
   '/packs': typeof PacksIndexRoute
   '/admin/drops/$id': typeof AdminDropsIdRoute
@@ -332,11 +363,10 @@ export interface FileRoutesById {
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
-  '/cuenta': typeof CuentaRoute
+  '/cuenta': typeof CuentaRouteWithChildren
   '/drops': typeof DropsRouteWithChildren
   '/envios': typeof EnviosRoute
   '/faq': typeof FaqRoute
-  '/guia-de-tallas': typeof GuiaDeTallasRoute
   '/historia': typeof HistoriaRoute
   '/login': typeof LoginRoute
   '/packs': typeof PacksRouteWithChildren
@@ -345,13 +375,18 @@ export interface FileRoutesById {
   '/terminos': typeof TerminosRoute
   '/tiendas': typeof TiendasRoute
   '/wishlist': typeof WishlistRoute
+  '/admin/clientes': typeof AdminClientesRoute
+  '/admin/colores': typeof AdminColoresRoute
   '/admin/configuracion': typeof AdminConfiguracionRoute
+  '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/cuenta/pedidos': typeof CuentaPedidosRoute
   '/drops/$id': typeof DropsIdRoute
   '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/cuenta/': typeof CuentaIndexRoute
   '/drops/': typeof DropsIndexRoute
   '/packs/': typeof PacksIndexRoute
   '/admin/drops/$id': typeof AdminDropsIdRoute
@@ -379,7 +414,6 @@ export interface FileRouteTypes {
     | '/drops'
     | '/envios'
     | '/faq'
-    | '/guia-de-tallas'
     | '/historia'
     | '/login'
     | '/packs'
@@ -388,13 +422,18 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/tiendas'
     | '/wishlist'
+    | '/admin/clientes'
+    | '/admin/colores'
     | '/admin/configuracion'
+    | '/admin/tallas'
     | '/auth/callback'
     | '/collections/$handle'
+    | '/cuenta/pedidos'
     | '/drops/$id'
     | '/packs/$id'
     | '/products/$slug'
     | '/admin/'
+    | '/cuenta/'
     | '/drops/'
     | '/packs/'
     | '/admin/drops/$id'
@@ -415,10 +454,8 @@ export interface FileRouteTypes {
     | '/cambios-devoluciones'
     | '/contacto'
     | '/cookies'
-    | '/cuenta'
     | '/envios'
     | '/faq'
-    | '/guia-de-tallas'
     | '/historia'
     | '/login'
     | '/prensa'
@@ -426,13 +463,18 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/tiendas'
     | '/wishlist'
+    | '/admin/clientes'
+    | '/admin/colores'
     | '/admin/configuracion'
+    | '/admin/tallas'
     | '/auth/callback'
     | '/collections/$handle'
+    | '/cuenta/pedidos'
     | '/drops/$id'
     | '/packs/$id'
     | '/products/$slug'
     | '/admin'
+    | '/cuenta'
     | '/drops'
     | '/packs'
     | '/admin/drops/$id'
@@ -458,7 +500,6 @@ export interface FileRouteTypes {
     | '/drops'
     | '/envios'
     | '/faq'
-    | '/guia-de-tallas'
     | '/historia'
     | '/login'
     | '/packs'
@@ -467,13 +508,18 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/tiendas'
     | '/wishlist'
+    | '/admin/clientes'
+    | '/admin/colores'
     | '/admin/configuracion'
+    | '/admin/tallas'
     | '/auth/callback'
     | '/collections/$handle'
+    | '/cuenta/pedidos'
     | '/drops/$id'
     | '/packs/$id'
     | '/products/$slug'
     | '/admin/'
+    | '/cuenta/'
     | '/drops/'
     | '/packs/'
     | '/admin/drops/$id'
@@ -496,11 +542,10 @@ export interface RootRouteChildren {
   CambiosDevolucionesRoute: typeof CambiosDevolucionesRoute
   ContactoRoute: typeof ContactoRoute
   CookiesRoute: typeof CookiesRoute
-  CuentaRoute: typeof CuentaRoute
+  CuentaRoute: typeof CuentaRouteWithChildren
   DropsRoute: typeof DropsRouteWithChildren
   EnviosRoute: typeof EnviosRoute
   FaqRoute: typeof FaqRoute
-  GuiaDeTallasRoute: typeof GuiaDeTallasRoute
   HistoriaRoute: typeof HistoriaRoute
   LoginRoute: typeof LoginRoute
   PacksRoute: typeof PacksRouteWithChildren
@@ -570,13 +615,6 @@ declare module '@tanstack/react-router' {
       path: '/historia'
       fullPath: '/historia'
       preLoaderRoute: typeof HistoriaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/guia-de-tallas': {
-      id: '/guia-de-tallas'
-      path: '/guia-de-tallas'
-      fullPath: '/guia-de-tallas'
-      preLoaderRoute: typeof GuiaDeTallasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -663,6 +701,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DropsIndexRouteImport
       parentRoute: typeof DropsRoute
     }
+    '/cuenta/': {
+      id: '/cuenta/'
+      path: '/'
+      fullPath: '/cuenta/'
+      preLoaderRoute: typeof CuentaIndexRouteImport
+      parentRoute: typeof CuentaRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -691,6 +736,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DropsIdRouteImport
       parentRoute: typeof DropsRoute
     }
+    '/cuenta/pedidos': {
+      id: '/cuenta/pedidos'
+      path: '/pedidos'
+      fullPath: '/cuenta/pedidos'
+      preLoaderRoute: typeof CuentaPedidosRouteImport
+      parentRoute: typeof CuentaRoute
+    }
     '/collections/$handle': {
       id: '/collections/$handle'
       path: '/collections/$handle'
@@ -705,11 +757,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/tallas': {
+      id: '/admin/tallas'
+      path: '/tallas'
+      fullPath: '/admin/tallas'
+      preLoaderRoute: typeof AdminTallasRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/configuracion': {
       id: '/admin/configuracion'
       path: '/configuracion'
       fullPath: '/admin/configuracion'
       preLoaderRoute: typeof AdminConfiguracionRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/colores': {
+      id: '/admin/colores'
+      path: '/colores'
+      fullPath: '/admin/colores'
+      preLoaderRoute: typeof AdminColoresRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/clientes': {
+      id: '/admin/clientes'
+      path: '/clientes'
+      fullPath: '/admin/clientes'
+      preLoaderRoute: typeof AdminClientesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/productos/': {
@@ -793,7 +866,10 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminClientesRoute: typeof AdminClientesRoute
+  AdminColoresRoute: typeof AdminColoresRoute
   AdminConfiguracionRoute: typeof AdminConfiguracionRoute
+  AdminTallasRoute: typeof AdminTallasRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminDropsIdRoute: typeof AdminDropsIdRoute
   AdminDropsNuevoRoute: typeof AdminDropsNuevoRoute
@@ -809,7 +885,10 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminClientesRoute: AdminClientesRoute,
+  AdminColoresRoute: AdminColoresRoute,
   AdminConfiguracionRoute: AdminConfiguracionRoute,
+  AdminTallasRoute: AdminTallasRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminDropsIdRoute: AdminDropsIdRoute,
   AdminDropsNuevoRoute: AdminDropsNuevoRoute,
@@ -825,6 +904,19 @@ const AdminRouteChildren: AdminRouteChildren = {
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface CuentaRouteChildren {
+  CuentaPedidosRoute: typeof CuentaPedidosRoute
+  CuentaIndexRoute: typeof CuentaIndexRoute
+}
+
+const CuentaRouteChildren: CuentaRouteChildren = {
+  CuentaPedidosRoute: CuentaPedidosRoute,
+  CuentaIndexRoute: CuentaIndexRoute,
+}
+
+const CuentaRouteWithChildren =
+  CuentaRoute._addFileChildren(CuentaRouteChildren)
 
 interface DropsRouteChildren {
   DropsIdRoute: typeof DropsIdRoute
@@ -857,11 +949,10 @@ const rootRouteChildren: RootRouteChildren = {
   CambiosDevolucionesRoute: CambiosDevolucionesRoute,
   ContactoRoute: ContactoRoute,
   CookiesRoute: CookiesRoute,
-  CuentaRoute: CuentaRoute,
+  CuentaRoute: CuentaRouteWithChildren,
   DropsRoute: DropsRouteWithChildren,
   EnviosRoute: EnviosRoute,
   FaqRoute: FaqRoute,
-  GuiaDeTallasRoute: GuiaDeTallasRoute,
   HistoriaRoute: HistoriaRoute,
   LoginRoute: LoginRoute,
   PacksRoute: PacksRouteWithChildren,

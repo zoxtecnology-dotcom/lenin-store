@@ -8,8 +8,24 @@ export const Route = createFileRoute("/admin/productos/$id")({
   component: EditarProducto,
 });
 
-const CATEGORIES = ["Camisetas", "Busos", "Conjuntos", "Pantalonetas", "Pantalones", "Gorras", "Accesorios"];
+const CATEGORIES = [
+  { value: "Camisetas", label: "Camisetas" },
+  { value: "Busos", label: "Chaqueta / Busos" },
+  { value: "Conjuntos", label: "Conjuntos" },
+  { value: "Pantalonetas", label: "Pantalonetas" },
+  { value: "Pantalones", label: "Pantalones" },
+  { value: "Gorras", label: "Gorras" },
+  { value: "Accesorios", label: "Accesorios" },
+];
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "Única"];
+const TOP_PIECE_TYPES = [
+  { value: "camiseta", label: "Camiseta" },
+  { value: "buso", label: "Chaqueta / Buso" },
+];
+const BOTTOM_PIECE_TYPES = [
+  { value: "pantalon", label: "Pantalón" },
+  { value: "pantaloneta", label: "Pantaloneta" },
+];
 
 interface Color { id?: string; name: string; swatch: string; }
 interface Variant { id?: string; color_name: string; size: string; piece: string | null; stock: number; sku: string; }
@@ -27,11 +43,14 @@ function EditarProducto() {
   const [savedColors, setSavedColors] = useState<SavedColor[]>([]);
   const [productType, setProductType] = useState<"standard" | "conjunto">("standard");
 
+  const [drops, setDrops] = useState<{ id: string; name: string; label: string }[]>([]);
+
   const [form, setForm] = useState({
     slug: "", name: "", price: "", compare_at_price: "",
-    category: "Camisetas", short_desc: "", description: "", details: "",
+    category: "Camisetas", drop_id: "", short_desc: "", description: "", details: "",
     type: "standard" as "standard" | "conjunto",
     top_name: "", bottom_name: "", top_price: "", bottom_price: "",
+    top_piece_type: "camiseta", bottom_piece_type: "pantalon",
   });
 
   // Auto-genera variantes cuando cambian colores, tallas o tipo
@@ -59,18 +78,20 @@ function EditarProducto() {
 
   useEffect(() => {
     async function load() {
-      const [{ data: p }, { data: colorCatalog }] = await Promise.all([
+      const [{ data: p }, { data: colorCatalog }, { data: dropList }] = await Promise.all([
         supabase
           .from("products")
           .select("*, product_images(*), product_colors(*), product_variants(*)")
           .eq("id", id)
           .single(),
         supabase.from("colors").select("name, swatch").order("name"),
+        supabase.from("drops").select("id, name, label").order("position"),
       ]);
 
       if (!p) { navigate({ to: "/admin/productos" }); return; }
 
       setSavedColors(colorCatalog ?? []);
+      setDrops(dropList ?? []);
 
       const type = p.type ?? "standard";
       setProductType(type);
@@ -78,11 +99,14 @@ function EditarProducto() {
       setForm({
         slug: p.slug, name: p.name, price: String(p.price),
         compare_at_price: p.compare_at_price ? String(p.compare_at_price) : "",
-        category: p.category, short_desc: p.short_desc ?? "", description: p.description ?? "",
+        category: p.category, drop_id: p.drop_id ?? "",
+        short_desc: p.short_desc ?? "", description: p.description ?? "",
         details: p.details ?? "", type,
         top_name: p.top_name ?? "", bottom_name: p.bottom_name ?? "",
         top_price: p.top_price ? String(p.top_price) : "",
         bottom_price: p.bottom_price ? String(p.bottom_price) : "",
+        top_piece_type: p.top_piece_type ?? "camiseta",
+        bottom_piece_type: p.bottom_piece_type ?? "pantalon",
       });
 
       setImages(p.product_images.map((img: UploadedImage & { id: string }) => ({
@@ -140,12 +164,15 @@ function EditarProducto() {
         slug: form.slug, name: form.name, price: parseInt(form.price),
         compare_at_price: form.compare_at_price ? parseInt(form.compare_at_price) : null,
         category: form.category,
+        drop_id: form.drop_id || null,
         short_desc: form.short_desc, description: form.description, details: form.details,
         type: form.type,
         top_name: form.type === "conjunto" ? form.top_name : null,
         bottom_name: form.type === "conjunto" ? form.bottom_name : null,
         top_price: form.type === "conjunto" && form.top_price ? parseInt(form.top_price) : null,
         bottom_price: form.type === "conjunto" && form.bottom_price ? parseInt(form.bottom_price) : null,
+        top_piece_type: form.type === "conjunto" ? form.top_piece_type : null,
+        bottom_piece_type: form.type === "conjunto" ? form.bottom_piece_type : null,
       }).eq("id", id);
 
       // Imágenes
@@ -213,7 +240,13 @@ function EditarProducto() {
           <Field label="Precio original COP (si hay descuento)"><input type="number" value={form.compare_at_price} onChange={(e) => set("compare_at_price", e.target.value)} placeholder="El % se calcula solo" className={input} /></Field>
           <Field label="Categoría">
             <select value={form.category} onChange={(e) => set("category", e.target.value)} className={input}>
-              {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+              {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+            </select>
+          </Field>
+          <Field label="Drop (colección de lanzamiento)">
+            <select value={form.drop_id} onChange={(e) => set("drop_id", e.target.value)} className={input}>
+              <option value="">Sin drop</option>
+              {drops.map((d) => <option key={d.id} value={d.id}>{d.name} — {d.label}</option>)}
             </select>
           </Field>
         </div>
@@ -224,10 +257,22 @@ function EditarProducto() {
         <Section title="Configuración del conjunto">
           <div className="grid grid-cols-2 gap-4">
             <Field label="Nombre superior"><input value={form.top_name} onChange={(e) => set("top_name", e.target.value)} className={input} /></Field>
+            <Field label="Tipo de prenda superior">
+              <select value={form.top_piece_type} onChange={(e) => set("top_piece_type", e.target.value)} className={input}>
+                {TOP_PIECE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </Field>
             <Field label="Precio superior"><input type="number" value={form.top_price} onChange={(e) => set("top_price", e.target.value)} className={input} /></Field>
+            <div />
             <Field label="Nombre inferior"><input value={form.bottom_name} onChange={(e) => set("bottom_name", e.target.value)} className={input} /></Field>
+            <Field label="Tipo de prenda inferior">
+              <select value={form.bottom_piece_type} onChange={(e) => set("bottom_piece_type", e.target.value)} className={input}>
+                {BOTTOM_PIECE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </Field>
             <Field label="Precio inferior"><input type="number" value={form.bottom_price} onChange={(e) => set("bottom_price", e.target.value)} className={input} /></Field>
           </div>
+          <p className="text-[10px] text-cream/30 mt-3">El tipo de prenda determina qué guía de tallas se muestra al cliente.</p>
         </Section>
       )}
 
@@ -304,20 +349,22 @@ function EditarProducto() {
         {variants.length === 0 ? (
           <p className="text-[11px] text-cream/40">Agrega colores y selecciona tallas arriba para ver el stock.</p>
         ) : (
-          <div className="border border-border">
-            <div className="grid grid-cols-[1fr_1fr_80px_100px] text-[9px] uppercase tracking-[0.2em] text-cream/30 px-4 py-2 border-b border-border">
-              <span>Color</span><span>Talla</span><span>Pieza</span><span>Stock</span>
-            </div>
-            {variants.map((v, i) => (
-              <div key={i} className="grid grid-cols-[1fr_1fr_80px_100px] items-center px-4 py-2 border-b border-border/50 last:border-0 hover:bg-cream/5">
-                <span className="text-[11px] text-cream/70">{v.color_name}</span>
-                <span className="text-[11px] text-cream/70">{v.size}</span>
-                <span className="text-[10px] text-cream/40">{v.piece ?? "—"}</span>
-                <input type="number" min={0} value={v.stock}
-                  onChange={(e) => updateVariantStock(i, parseInt(e.target.value) || 0)}
-                  className="bg-background border border-border text-cream text-[11px] px-2 py-1 w-16 focus:outline-none focus:border-cream/40" />
+          <div className="border border-border overflow-x-auto">
+            <div className="min-w-[420px]">
+              <div className="grid grid-cols-[1fr_1fr_80px_100px] text-[9px] uppercase tracking-[0.2em] text-cream/30 px-4 py-2 border-b border-border">
+                <span>Color</span><span>Talla</span><span>Pieza</span><span>Stock</span>
               </div>
-            ))}
+              {variants.map((v, i) => (
+                <div key={i} className="grid grid-cols-[1fr_1fr_80px_100px] items-center px-4 py-2 border-b border-border/50 last:border-0 hover:bg-cream/5">
+                  <span className="text-[11px] text-cream/70">{v.color_name}</span>
+                  <span className="text-[11px] text-cream/70">{v.size}</span>
+                  <span className="text-[10px] text-cream/40">{v.piece ?? "—"}</span>
+                  <input type="number" min={0} value={v.stock}
+                    onChange={(e) => updateVariantStock(i, parseInt(e.target.value) || 0)}
+                    className="bg-background border border-border text-cream text-[11px] px-2 py-1 w-16 focus:outline-none focus:border-cream/40" />
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </Section>

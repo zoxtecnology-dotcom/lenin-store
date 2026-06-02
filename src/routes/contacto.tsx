@@ -3,7 +3,8 @@ import { Mail, MessageCircle, Instagram } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { EMAIL, SOCIAL, pageTitle } from "@/lib/brand";
+import { pageTitle } from "@/lib/brand";
+import { useSettings } from "@/lib/settings";
 
 export const Route = createFileRoute("/contacto")({
   head: () => ({
@@ -15,30 +16,6 @@ export const Route = createFileRoute("/contacto")({
   component: ContactoPage,
 });
 
-const CHANNELS = [
-  {
-    icon: Mail,
-    label: "Email general",
-    value: EMAIL.general,
-    desc: "Pedidos, cambios, dudas generales.",
-    href: `mailto:${EMAIL.general}`,
-  },
-  {
-    icon: MessageCircle,
-    label: "WhatsApp",
-    value: SOCIAL.whatsapp.display,
-    desc: "Lunes a viernes, 9am – 6pm.",
-    href: SOCIAL.whatsapp.url,
-  },
-  {
-    icon: Instagram,
-    label: "Instagram",
-    value: SOCIAL.instagram.handle,
-    desc: "DMs abiertos. Drops, novedades y más.",
-    href: SOCIAL.instagram.url,
-  },
-];
-
 const PQRS = [
   { code: "P", label: "Petición", desc: "Solicita información sobre productos, procesos o la marca." },
   { code: "Q", label: "Queja", desc: "Reporta inconformidades con tu pedido o el servicio recibido." },
@@ -47,6 +24,32 @@ const PQRS = [
 ];
 
 function ContactoPage() {
+  const { settings, whatsappUrl, whatsappDisplay } = useSettings();
+
+  const channels = [
+    {
+      icon: Mail,
+      label: "Email general",
+      value: settings.email_contacto,
+      desc: "Pedidos, cambios, dudas generales.",
+      href: `mailto:${settings.email_contacto}`,
+    },
+    {
+      icon: MessageCircle,
+      label: "WhatsApp",
+      value: whatsappDisplay,
+      desc: "Lunes a viernes, 9am – 6pm.",
+      href: whatsappUrl,
+    },
+    {
+      icon: Instagram,
+      label: "Instagram",
+      value: settings.instagram_url ? `@${settings.instagram_url.split("/").pop()}` : "@aiahn.co",
+      desc: "DMs abiertos. Drops, novedades y más.",
+      href: settings.instagram_url || "https://instagram.com/aiahn.co",
+    },
+  ];
+
   return (
     <main className="bg-background text-foreground min-h-screen">
       <SiteHeader />
@@ -76,7 +79,7 @@ function ContactoPage() {
             <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-12">— Canales de atención</p>
           </Reveal>
           <div className="grid md:grid-cols-3 gap-px bg-border">
-            {CHANNELS.map((ch) => (
+            {channels.map((ch) => (
               <Reveal key={ch.label}>
                 <a
                   href={ch.href}
@@ -108,8 +111,8 @@ function ContactoPage() {
               </h2>
               <p className="mt-6 text-sm leading-relaxed text-cream/55">
                 Para peticiones formales envía un correo a{" "}
-                <a href={`mailto:${EMAIL.pqrs}`} className="text-cream underline underline-offset-4 hover:text-acid transition-colors">
-                  {EMAIL.pqrs}
+                <a href={`mailto:${settings.email_contacto}`} className="text-cream underline underline-offset-4 hover:text-acid transition-colors">
+                  {settings.email_contacto}
                 </a>{" "}
                 indicando el tipo de solicitud, tu número de pedido (si aplica) y una descripción detallada. Respondemos en máximo 15 días hábiles.
               </p>

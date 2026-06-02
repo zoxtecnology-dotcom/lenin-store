@@ -36,6 +36,9 @@
 }
 
 :root {
+  /* Controles nativos (date picker, select, scrollbars) en modo oscuro
+     → flechas e iconos claros automáticamente, visibles sobre fondo negro */
+  color-scheme: dark;
   --background: oklch(0.08 0 0);
   --foreground: oklch(0.96 0.005 80);
   --bone: oklch(0.96 0.005 80);

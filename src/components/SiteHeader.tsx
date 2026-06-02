@@ -1,6 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Search, ShoppingBag, User, ChevronDown, X, Menu, ArrowRight, Heart } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { BRAND } from "@/lib/brand";
 import { useWishlist } from "@/lib/wishlist";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
@@ -8,13 +10,8 @@ import { megaCategories } from "@/lib/collections";
 import { SearchModal } from "@/components/SearchModal";
 import { cn } from "@/lib/utils";
 
-const announcements = [
-  "Envíos a toda Colombia",
-  "Envío gratis desde $200.000",
-  "Nueva colección Drop 01",
-  "AIAHN Store",
-  "Streetwear masculino hecho en Medellín",
-];
+// Fallback mientras carga
+const DEFAULT_ANNOUNCEMENTS = ["AIAHN Store"];
 
 interface SiteHeaderProps {
   transparentTop?: boolean;
@@ -25,6 +22,40 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
   const { items: wishlistItems } = useWishlist();
   const { user, isAdmin } = useAuth();
   const accountHref = !user ? "/login" : isAdmin ? "/admin" : "/cuenta";
+  const [announcements, setAnnouncements] = useState(DEFAULT_ANNOUNCEMENTS);
+
+  useEffect(() => {
+    async function loadAnnouncements() {
+      // Carga config y último drop en paralelo
+      const [{ data: settings }, { data: latestDrop }] = await Promise.all([
+        supabase.from("site_settings").select("key, value"),
+        supabase.from("drops").select("name").eq("published", true).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+      ]);
+
+      const cfg: Record<string, string> = {};
+      (settings ?? []).forEach((s: { key: string; value: string }) => { cfg[s.key] = s.value; });
+
+      const threshold = parseInt(cfg.free_shipping_threshold ?? "200000");
+      const fmtThreshold = new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(threshold);
+
+      const msgs: string[] = [
+        "Envíos a toda Colombia",
+        `Envío gratis desde ${fmtThreshold}`,
+        latestDrop ? `Nueva colección — ${latestDrop.name}` : "",
+        BRAND.store,
+        "Streetwear masculino hecho en Medellín",
+      ].filter(Boolean);
+
+      // Mensajes personalizados del admin (announcement_bar) se agregan al final
+      if (cfg.announcement_bar) {
+        const custom = cfg.announcement_bar.split("|").map((s: string) => s.trim()).filter(Boolean);
+        msgs.push(...custom);
+      }
+
+      setAnnouncements(msgs);
+    }
+    loadAnnouncements();
+  }, []);
   const { location } = useRouterState();
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);

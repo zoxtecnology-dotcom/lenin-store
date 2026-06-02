@@ -8,8 +8,24 @@ export const Route = createFileRoute("/admin/productos/nuevo")({
   component: NuevoProducto,
 });
 
-const CATEGORIES = ["Camisetas", "Busos", "Conjuntos", "Pantalonetas", "Pantalones", "Gorras", "Accesorios"];
+const CATEGORIES = [
+  { value: "Camisetas", label: "Camisetas" },
+  { value: "Busos", label: "Chaqueta / Busos" },
+  { value: "Conjuntos", label: "Conjuntos" },
+  { value: "Pantalonetas", label: "Pantalonetas" },
+  { value: "Pantalones", label: "Pantalones" },
+  { value: "Gorras", label: "Gorras" },
+  { value: "Accesorios", label: "Accesorios" },
+];
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "Única"];
+const TOP_PIECE_TYPES = [
+  { value: "camiseta", label: "Camiseta" },
+  { value: "buso", label: "Chaqueta / Buso" },
+];
+const BOTTOM_PIECE_TYPES = [
+  { value: "pantalon", label: "Pantalón" },
+  { value: "pantaloneta", label: "Pantaloneta" },
+];
 
 interface Color { name: string; swatch: string; }
 interface Variant { color_name: string; size: string; piece: string | null; stock: number; sku: string; }
@@ -22,19 +38,23 @@ function NuevoProducto() {
   // Campos básicos
   const [form, setForm] = useState({
     slug: "", name: "", price: "", compare_at_price: "",
-    category: "Camisetas", short_desc: "", description: "", details: "",
+    category: "Camisetas", drop_id: "", short_desc: "", description: "", details: "",
     type: "standard" as "standard" | "conjunto",
     top_name: "", bottom_name: "", top_price: "", bottom_price: "",
+    top_piece_type: "camiseta", bottom_piece_type: "pantalon",
   });
 
   const [colors, setColors] = useState<Color[]>([{ name: "", swatch: "#000000" }]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>(["S", "M", "L"]);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [savedColors, setSavedColors] = useState<Color[]>([]);
+  const [drops, setDrops] = useState<{ id: string; name: string; label: string }[]>([]);
 
   useEffect(() => {
     supabase.from("colors").select("name, swatch").order("name")
       .then(({ data }) => setSavedColors(data ?? []));
+    supabase.from("drops").select("id, name, label").order("position")
+      .then(({ data }) => setDrops(data ?? []));
   }, []);
 
   function set(key: string, value: unknown) {
@@ -110,6 +130,7 @@ function NuevoProducto() {
         is_new: true,       // nuevo producto siempre es "Nuevo"
         published: true,    // se publica directo
         category: form.category,
+        drop_id: form.drop_id || null,
         short_desc: form.short_desc,
         description: form.description,
         details: form.details,
@@ -118,7 +139,8 @@ function NuevoProducto() {
         bottom_name: form.type === "conjunto" ? form.bottom_name : null,
         top_price: form.type === "conjunto" && form.top_price ? parseInt(form.top_price) : null,
         bottom_price: form.type === "conjunto" && form.bottom_price ? parseInt(form.bottom_price) : null,
-        published: form.published,
+        top_piece_type: form.type === "conjunto" ? form.top_piece_type : null,
+        bottom_piece_type: form.type === "conjunto" ? form.bottom_piece_type : null,
       }).select().single();
 
       if (error) throw error;
@@ -211,7 +233,13 @@ function NuevoProducto() {
           </Field>
           <Field label="Categoría *">
             <select value={form.category} onChange={(e) => set("category", e.target.value)} className={input}>
-              {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+              {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+            </select>
+          </Field>
+          <Field label="Drop (colección de lanzamiento)">
+            <select value={form.drop_id} onChange={(e) => set("drop_id", e.target.value)} className={input}>
+              <option value="">Sin drop</option>
+              {drops.map((d) => <option key={d.id} value={d.id}>{d.name} — {d.label}</option>)}
             </select>
           </Field>
         </div>
@@ -227,19 +255,31 @@ function NuevoProducto() {
               <input value={form.top_name} onChange={(e) => set("top_name", e.target.value)}
                 placeholder="Buso Angoscia" className={input} />
             </Field>
+            <Field label="Tipo de prenda superior">
+              <select value={form.top_piece_type} onChange={(e) => set("top_piece_type", e.target.value)} className={input}>
+                {TOP_PIECE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </Field>
             <Field label="Precio parte superior">
               <input type="number" value={form.top_price} onChange={(e) => set("top_price", e.target.value)}
                 placeholder="160000" className={input} />
             </Field>
+            <div />  {/* spacer */}
             <Field label="Nombre parte inferior">
               <input value={form.bottom_name} onChange={(e) => set("bottom_name", e.target.value)}
                 placeholder="Pantalón Angoscia" className={input} />
+            </Field>
+            <Field label="Tipo de prenda inferior">
+              <select value={form.bottom_piece_type} onChange={(e) => set("bottom_piece_type", e.target.value)} className={input}>
+                {BOTTOM_PIECE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
             </Field>
             <Field label="Precio parte inferior">
               <input type="number" value={form.bottom_price} onChange={(e) => set("bottom_price", e.target.value)}
                 placeholder="140000" className={input} />
             </Field>
           </div>
+          <p className="text-[10px] text-cream/30 mt-3">El tipo de prenda determina qué guía de tallas se muestra al cliente.</p>
         </Section>
       )}
 
@@ -329,23 +369,25 @@ function NuevoProducto() {
         </div>
 
         {variants.length > 0 && (
-          <div className="border border-border">
-            <div className="grid grid-cols-[1fr_1fr_auto_100px_120px] gap-0 text-[9px] uppercase tracking-[0.2em] text-cream/30 px-4 py-2 border-b border-border">
-              <span>Color</span><span>Talla</span><span>Pieza</span><span>Stock</span><span>SKU</span>
-            </div>
-            {variants.map((v, i) => (
-              <div key={i} className="grid grid-cols-[1fr_1fr_auto_100px_120px] gap-0 items-center px-4 py-2 border-b border-border/50 last:border-0">
-                <span className="text-[11px] text-cream/70">{v.color_name}</span>
-                <span className="text-[11px] text-cream/70">{v.size}</span>
-                <span className="text-[10px] text-cream/40">{v.piece ?? "—"}</span>
-                <input type="number" min={0} value={v.stock}
-                  onChange={(e) => updateVariantStock(i, parseInt(e.target.value) || 0)}
-                  className="bg-background border border-border text-cream text-[11px] px-2 py-1 w-16 focus:outline-none focus:border-cream/40" />
-                <input value={v.sku}
-                  onChange={(e) => updateVariantSku(i, e.target.value)}
-                  className="bg-background border border-border text-cream/50 text-[10px] px-2 py-1 focus:outline-none focus:border-cream/40" />
+          <div className="border border-border overflow-x-auto">
+            <div className="min-w-[480px]">
+              <div className="grid grid-cols-[1fr_1fr_auto_100px_120px] gap-0 text-[9px] uppercase tracking-[0.2em] text-cream/30 px-4 py-2 border-b border-border">
+                <span>Color</span><span>Talla</span><span>Pieza</span><span>Stock</span><span>SKU</span>
               </div>
-            ))}
+              {variants.map((v, i) => (
+                <div key={i} className="grid grid-cols-[1fr_1fr_auto_100px_120px] gap-0 items-center px-4 py-2 border-b border-border/50 last:border-0">
+                  <span className="text-[11px] text-cream/70">{v.color_name}</span>
+                  <span className="text-[11px] text-cream/70">{v.size}</span>
+                  <span className="text-[10px] text-cream/40">{v.piece ?? "—"}</span>
+                  <input type="number" min={0} value={v.stock}
+                    onChange={(e) => updateVariantStock(i, parseInt(e.target.value) || 0)}
+                    className="bg-background border border-border text-cream text-[11px] px-2 py-1 w-16 focus:outline-none focus:border-cream/40" />
+                  <input value={v.sku}
+                    onChange={(e) => updateVariantSku(i, e.target.value)}
+                    className="bg-background border border-border text-cream/50 text-[10px] px-2 py-1 focus:outline-none focus:border-cream/40" />
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </Section>
