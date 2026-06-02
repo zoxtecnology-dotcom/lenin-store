@@ -163,8 +163,8 @@ function CheckoutPage() {
       // Limpiar carrito y redirigir a MercadoPago
       clear();
       
-      // SIEMPRE usar sandbox para pruebas (cambiar a initPoint cuando vayas a producción)
-      const checkoutUrl = result.sandboxInitPoint || result.initPoint;
+      // Usar initPoint para producción
+      const checkoutUrl = result.initPoint;
 
       window.location.href = checkoutUrl!;
     } catch (err) {
