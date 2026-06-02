@@ -25,70 +25,87 @@ async function main() {
     }, null, 2)
   );
   
-  // Crear el handler
+  // Crear el handler usando formato legacy de Vercel (req, res)
   const handlerCode = `
 import { createClient } from '@supabase/supabase-js';
 import { createHmac } from 'crypto';
 
 export default async function handler(req, res) {
+  // Habilitar CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-signature, x-request-id');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const xSignature = req.headers['x-signature'];
-  const xRequestId = req.headers['x-request-id'];
-  const body = req.body;
-  
-  console.log('Webhook recibido:', JSON.stringify(body));
-
-  // Verificar firma
-  const webhookSecret = process.env.MP_WEBHOOK_SECRET;
-  if (webhookSecret && xSignature && xRequestId) {
-    const parts = xSignature.split(',');
-    let ts = '', hash = '';
-    for (const part of parts) {
-      const [key, value] = part.split('=');
-      if (key === 'ts') ts = value;
-      if (key === 'v1') hash = value;
-    }
-    const dataId = body?.data?.id;
-    const manifest = \`id:\${dataId};request-id:\${xRequestId};ts:\${ts};\`;
-    const computedHash = createHmac('sha256', webhookSecret).update(manifest).digest('hex');
-    if (computedHash !== hash) {
-      console.error('Firma inválida');
-      return res.status(401).json({ error: 'Invalid signature' });
-    }
-    console.log('✅ Firma verificada');
-  }
-
-  if (body?.type !== 'payment' || !body?.data?.id) {
-    return res.status(200).json({ received: true, processed: false });
-  }
-
-  const mpAccessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
-  if (!mpAccessToken) {
-    return res.status(500).json({ error: 'Config error' });
-  }
-
   try {
+    const xSignature = req.headers['x-signature'];
+    const xRequestId = req.headers['x-request-id'];
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    
+    console.log('Webhook recibido:', JSON.stringify(body));
+
+    // Verificar firma solo si existe el secret
+    const webhookSecret = process.env.MP_WEBHOOK_SECRET;
+    if (webhookSecret && xSignature && xRequestId) {
+      const parts = xSignature.split(',');
+      let ts = '', hash = '';
+      for (const part of parts) {
+        const [key, value] = part.split('=');
+        if (key === 'ts') ts = value;
+        if (key === 'v1') hash = value;
+      }
+      const dataId = body?.data?.id;
+      const manifest = \`id:\${dataId};request-id:\${xRequestId};ts:\${ts};\`;
+      const computedHash = createHmac('sha256', webhookSecret).update(manifest).digest('hex');
+      if (computedHash !== hash) {
+        console.error('Firma inválida');
+        return res.status(401).json({ error: 'Invalid signature' });
+      }
+      console.log('✅ Firma verificada');
+    }
+
+    if (body?.type !== 'payment' || !body?.data?.id) {
+      return res.status(200).json({ received: true, processed: false });
+    }
+
+    const mpAccessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    if (!mpAccessToken) {
+      console.error('MERCADOPAGO_ACCESS_TOKEN no configurado');
+      return res.status(200).json({ received: true, error: 'Config error' });
+    }
+
     const mpRes = await fetch(\`https://api.mercadopago.com/v1/payments/\${body.data.id}\`, {
       headers: { Authorization: \`Bearer \${mpAccessToken}\` }
     });
     
     if (!mpRes.ok) {
-      return res.status(200).json({ error: 'MP API error' });
+      console.error('Error MP API:', await mpRes.text());
+      return res.status(200).json({ received: true, error: 'MP API error' });
     }
     
     const paymentInfo = await mpRes.json();
     
     if (!paymentInfo.external_reference) {
+      console.log('Pago sin external_reference:', paymentInfo.id);
       return res.status(200).json({ received: true, processed: false });
     }
     
-    const supabase = createClient(
-      process.env.VITE_SUPABASE_URL,
-      process.env.VITE_SUPABASE_ANON_KEY
-    );
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Supabase no configurado');
+      return res.status(200).json({ received: true, error: 'DB config error' });
+    }
+    
+    const supabase = createClient(supabaseUrl, supabaseKey);
     
     const statusMap = {
       approved: 'paid',
@@ -101,7 +118,7 @@ export default async function handler(req, res) {
     
     const orderStatus = statusMap[paymentInfo.status] || 'pending';
     
-    await supabase
+    const { error } = await supabase
       .from('orders')
       .update({
         status: orderStatus,
@@ -110,11 +127,16 @@ export default async function handler(req, res) {
       })
       .eq('id', paymentInfo.external_reference);
     
+    if (error) {
+      console.error('Error DB:', error);
+      return res.status(200).json({ received: true, error: 'DB error' });
+    }
+    
     console.log(\`✅ Orden \${paymentInfo.external_reference} → \${orderStatus}\`);
     return res.status(200).json({ received: true, processed: true, status: orderStatus });
   } catch (err) {
     console.error('Webhook error:', err);
-    return res.status(200).json({ error: 'Processing error' });
+    return res.status(200).json({ received: true, error: 'Processing error' });
   }
 }
 `;
@@ -148,3 +170,4 @@ export default async function handler(req, res) {
 }
 
 main().catch(console.error);
+
