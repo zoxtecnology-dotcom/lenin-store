@@ -31,6 +31,7 @@ type Order = {
   city: string;
   phone: string;
   items: Array<{
+    slug?: string;
     name: string;
     size: string;
     color: string;
@@ -63,28 +64,14 @@ function CheckoutResultPage() {
 
     if (isSuccess) {
       setStatus("success");
+      // Clear cart only - wishlist will be cleared after we know the items
       localStorage.removeItem("aiahn-cart");
-      localStorage.removeItem("aiahn-wishlist");
       window.dispatchEvent(new Event("storage"));
-      
-      // Clear wishlist from DB for logged in user
-      supabase.auth.getUser().then(async ({ data: { user } }) => {
-        if (user) {
-          console.log("Clearing wishlist for user:", user.id);
-          const { error } = await supabase
-            .from("wishlist")
-            .delete()
-            .eq("user_id", user.id);
-          if (error) {
-            console.error("Error clearing wishlist:", error);
-          }
-        }
-      });
     } else if (collectionStatus === "rejected") {
       setStatus("failed");
     }
 
-    // Fetch order
+    // Fetch order and clear purchased items from wishlist
     if (orderId) {
       supabase
         .from("orders")
@@ -97,6 +84,30 @@ function CheckoutResultPage() {
             if (data.status === "paid") setStatus("success");
             if (data.status === "failed" || data.status === "cancelled")
               setStatus("failed");
+            
+            // Remove only purchased items from wishlist
+            const purchasedSlugs = (data.items || []).map((item: { slug?: string }) => item.slug).filter(Boolean);
+            
+            if (purchasedSlugs.length > 0 && isSuccess) {
+              // Remove from localStorage wishlist
+              try {
+                const localWishlist = JSON.parse(localStorage.getItem("aiahn-wishlist") || "[]") as string[];
+                const filtered = localWishlist.filter(id => !purchasedSlugs.includes(id));
+                localStorage.setItem("aiahn-wishlist", JSON.stringify(filtered));
+                window.dispatchEvent(new Event("storage"));
+              } catch {}
+              
+              // Remove from DB wishlist for logged in user
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                console.log("Removing purchased items from wishlist:", purchasedSlugs);
+                await supabase
+                  .from("wishlist")
+                  .delete()
+                  .eq("user_id", user.id)
+                  .in("product_id", purchasedSlugs);
+              }
+            }
           }
           setLoading(false);
         });

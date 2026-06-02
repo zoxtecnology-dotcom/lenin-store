@@ -21,6 +21,7 @@ interface Order {
   status: string;
   total: number;
   items: Array<{
+    slug?: string;
     name: string;
     size: string;
     color: string;
