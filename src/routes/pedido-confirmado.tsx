@@ -61,6 +61,7 @@ function CheckoutResultPage() {
     if (collectionStatus === "approved" || urlStatus === "success") {
       setStatus("success");
       localStorage.removeItem("aiahn-cart");
+      localStorage.removeItem("aiahn-wishlist");
       window.dispatchEvent(new Event("storage"));
     } else if (collectionStatus === "rejected") {
       setStatus("failed");
