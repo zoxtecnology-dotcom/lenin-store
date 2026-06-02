@@ -106,11 +106,19 @@ function CheckoutResultPage() {
               const { data: { user } } = await supabase.auth.getUser();
               if (user) {
                 console.log("Removing purchased items from wishlist:", purchasedSlugs);
-                await supabase
-                  .from("wishlist")
-                  .delete()
-                  .eq("user_id", user.id)
-                  .in("product_id", purchasedSlugs);
+                // Delete each item individually to avoid .in() issues
+                for (const slug of purchasedSlugs) {
+                  const { error } = await supabase
+                    .from("wishlist")
+                    .delete()
+                    .eq("user_id", user.id)
+                    .eq("product_id", slug);
+                  if (error) {
+                    console.error("Error deleting wishlist item:", slug, error);
+                  } else {
+                    console.log("Deleted from wishlist:", slug);
+                  }
+                }
               }
             }
           }
