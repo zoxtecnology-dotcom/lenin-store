@@ -80,6 +80,8 @@ function CheckoutResultPage() {
         .single()
         .then(async ({ data, error }) => {
           if (!error && data) {
+            console.log("Order data:", data);
+            console.log("Order items:", data.items);
             setOrder(data as Order);
             if (data.status === "paid") setStatus("success");
             if (data.status === "failed" || data.status === "cancelled")
@@ -87,12 +89,15 @@ function CheckoutResultPage() {
             
             // Remove only purchased items from wishlist
             const purchasedSlugs = (data.items || []).map((item: { slug?: string }) => item.slug).filter(Boolean);
+            console.log("Purchased slugs:", purchasedSlugs);
             
             if (purchasedSlugs.length > 0 && isSuccess) {
               // Remove from localStorage wishlist
               try {
                 const localWishlist = JSON.parse(localStorage.getItem("aiahn-wishlist") || "[]") as string[];
+                console.log("Local wishlist before:", localWishlist);
                 const filtered = localWishlist.filter(id => !purchasedSlugs.includes(id));
+                console.log("Local wishlist after:", filtered);
                 localStorage.setItem("aiahn-wishlist", JSON.stringify(filtered));
                 window.dispatchEvent(new Event("storage"));
               } catch {}
