@@ -18,23 +18,23 @@ function CheckoutResultPage() {
 
   useEffect(() => {
     setMounted(true);
-    // Parsear params de la URL en el cliente
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       const p: Record<string, string> = {};
       urlParams.forEach((value, key) => {
         p[key] = value;
       });
       setParams(p);
-      
+
       // Limpiar carrito si es exitoso
-      if (p.collection_status === 'approved' || p.status === 'success') {
+      if (p.collection_status === "approved" || p.status === "success") {
         localStorage.removeItem("aiahn-cart");
       }
     }
   }, []);
 
-  const isSuccess = params.collection_status === 'approved' || params.status === 'success';
+  const isSuccess =
+    params.collection_status === "approved" || params.status === "success";
 
   if (!mounted) {
     return (
@@ -54,9 +54,14 @@ function CheckoutResultPage() {
       <section className="pt-36 pb-20">
         <div className="max-w-xl mx-auto px-5 md:px-10 text-center">
           {/* Icon */}
-          <div className={`w-20 h-20 mx-auto rounded-full ${isSuccess ? 'bg-green-400/10' : 'bg-amber-400/10'} flex items-center justify-center mb-6`}>
+          <div
+            className={`w-20 h-20 mx-auto rounded-full ${isSuccess ? "bg-green-400/10" : "bg-amber-400/10"} flex items-center justify-center mb-6`}
+          >
             {isSuccess ? (
-              <CheckCircle className="w-10 h-10 text-green-400" strokeWidth={1.5} />
+              <CheckCircle
+                className="w-10 h-10 text-green-400"
+                strokeWidth={1.5}
+              />
             ) : (
               <Clock className="w-10 h-10 text-amber-400" strokeWidth={1.5} />
             )}
@@ -64,21 +69,23 @@ function CheckoutResultPage() {
 
           {/* Title */}
           <h1 className="font-display text-3xl md:text-4xl uppercase tracking-wide text-cream mb-4">
-            {isSuccess ? '¡Pago exitoso!' : 'Procesando pago'}
+            {isSuccess ? "¡Pago exitoso!" : "Procesando pago"}
           </h1>
 
           {/* Description */}
           <p className="text-cream/60 mb-8">
-            {isSuccess 
-              ? 'Tu pedido ha sido confirmado y estamos preparándolo para enviártelo.'
-              : 'Estamos procesando tu pago. Te notificaremos cuando se confirme.'}
+            {isSuccess
+              ? "Tu pedido ha sido confirmado y estamos preparándolo para enviártelo."
+              : "Estamos procesando tu pago. Te notificaremos cuando se confirme."}
           </p>
 
           {/* Order ID */}
           {(params.order || params.external_reference) && (
             <div className="border border-border p-4 mb-8">
               <p className="text-sm text-cream/60">Número de orden:</p>
-              <p className="text-cream font-mono text-xs">{params.order || params.external_reference}</p>
+              <p className="text-cream font-mono text-xs">
+                {params.order || params.external_reference}
+              </p>
             </div>
           )}
 
@@ -98,58 +105,6 @@ function CheckoutResultPage() {
               Volver a la tienda
             </Link>
           </div>
-        </div>
-      </section>
-
-      <Footer />
-    </main>
-  );
-}
-              </div>
-            </Reveal>
-          )}
-
-          {/* Actions */}
-          <Reveal delay={0.3}>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              {(status === "failure" || status === "failed" || status === "cancelled") ? (
-                <Link
-                  to="/checkout"
-                  className="bg-acid text-ink px-8 py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                >
-                  Reintentar pago
-                  <ArrowRight size={14} />
-                </Link>
-              ) : (
-                <Link
-                  to="/"
-                  className="bg-acid text-ink px-8 py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                >
-                  Seguir comprando
-                  <ArrowRight size={14} />
-                </Link>
-              )}
-
-              {order && (
-                <Link
-                  to="/cuenta"
-                  className="border border-border text-cream px-8 py-4 text-[11px] uppercase tracking-[0.3em] hover:border-cream/40 transition-colors"
-                >
-                  Ver mis pedidos
-                </Link>
-              )}
-            </div>
-          </Reveal>
-
-          {/* Support */}
-          <Reveal delay={0.35}>
-            <p className="mt-10 text-[10px] text-cream/40">
-              ¿Tienes problemas?{" "}
-              <Link to="/contacto" className="text-acid hover:underline">
-                Contáctanos
-              </Link>
-            </p>
-          </Reveal>
         </div>
       </section>
 
