@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { createHmac } from "crypto";
 
 export default defineEventHandler(async (event) => {
   // Solo POST
@@ -6,8 +7,42 @@ export default defineEventHandler(async (event) => {
     return { error: "Method not allowed" };
   }
 
+  // Obtener headers para verificación
+  const xSignature = getHeader(event, "x-signature");
+  const xRequestId = getHeader(event, "x-request-id");
+  
   const body = await readBody(event);
   console.log("Webhook recibido:", JSON.stringify(body));
+
+  // Verificar firma si está configurada la clave secreta
+  const webhookSecret = process.env.MP_WEBHOOK_SECRET;
+  if (webhookSecret && xSignature && xRequestId) {
+    // Extraer ts y v1 del header x-signature
+    const parts = xSignature.split(",");
+    let ts = "";
+    let hash = "";
+    
+    for (const part of parts) {
+      const [key, value] = part.split("=");
+      if (key === "ts") ts = value;
+      if (key === "v1") hash = value;
+    }
+
+    // Construir el manifest para verificar
+    const dataId = body?.data?.id;
+    const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
+    
+    // Generar HMAC
+    const computedHash = createHmac("sha256", webhookSecret)
+      .update(manifest)
+      .digest("hex");
+
+    if (computedHash !== hash) {
+      console.error("Firma inválida del webhook");
+      return { received: true, error: "Invalid signature" };
+    }
+    console.log("✅ Firma verificada correctamente");
+  }
 
   // Solo procesar notificaciones de pago
   if (body?.type !== "payment" || !body?.data?.id) {
