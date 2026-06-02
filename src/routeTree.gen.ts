@@ -14,6 +14,7 @@ import { Route as TiendasRouteImport } from './routes/tiendas'
 import { Route as TerminosRouteImport } from './routes/terminos'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as PrensaRouteImport } from './routes/prensa'
+import { Route as PedidoConfirmadoRouteImport } from './routes/pedido-confirmado'
 import { Route as PacksRouteImport } from './routes/packs'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HistoriaRouteImport } from './routes/historia'
@@ -39,7 +40,6 @@ import { Route as CuentaPerfilRouteImport } from './routes/cuenta/perfil'
 import { Route as CuentaPedidosRouteImport } from './routes/cuenta/pedidos'
 import { Route as CuentaDireccionesRouteImport } from './routes/cuenta/direcciones'
 import { Route as CollectionsHandleRouteImport } from './routes/collections/$handle'
-import { Route as CheckoutResultadoRouteImport } from './routes/checkout/resultado'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AdminTallasRouteImport } from './routes/admin/tallas'
 import { Route as AdminConfiguracionRouteImport } from './routes/admin/configuracion'
@@ -80,6 +80,11 @@ const PrivacidadRoute = PrivacidadRouteImport.update({
 const PrensaRoute = PrensaRouteImport.update({
   id: '/prensa',
   path: '/prensa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PedidoConfirmadoRoute = PedidoConfirmadoRouteImport.update({
+  id: '/pedido-confirmado',
+  path: '/pedido-confirmado',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PacksRoute = PacksRouteImport.update({
@@ -207,11 +212,6 @@ const CollectionsHandleRoute = CollectionsHandleRouteImport.update({
   path: '/collections/$handle',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CheckoutResultadoRoute = CheckoutResultadoRouteImport.update({
-  id: '/resultado',
-  path: '/resultado',
-  getParentRoute: () => CheckoutRoute,
-} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
@@ -298,7 +298,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/aviso': typeof AvisoRoute
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
-  '/checkout': typeof CheckoutRouteWithChildren
+  '/checkout': typeof CheckoutRoute
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
   '/cuenta': typeof CuentaRouteWithChildren
@@ -308,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/historia': typeof HistoriaRoute
   '/login': typeof LoginRoute
   '/packs': typeof PacksRouteWithChildren
+  '/pedido-confirmado': typeof PedidoConfirmadoRoute
   '/prensa': typeof PrensaRoute
   '/privacidad': typeof PrivacidadRoute
   '/terminos': typeof TerminosRoute
@@ -318,7 +319,6 @@ export interface FileRoutesByFullPath {
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/checkout/resultado': typeof CheckoutResultadoRoute
   '/collections/$handle': typeof CollectionsHandleRoute
   '/cuenta/direcciones': typeof CuentaDireccionesRoute
   '/cuenta/pedidos': typeof CuentaPedidosRoute
@@ -346,13 +346,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aviso': typeof AvisoRoute
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
-  '/checkout': typeof CheckoutRouteWithChildren
+  '/checkout': typeof CheckoutRoute
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
   '/envios': typeof EnviosRoute
   '/faq': typeof FaqRoute
   '/historia': typeof HistoriaRoute
   '/login': typeof LoginRoute
+  '/pedido-confirmado': typeof PedidoConfirmadoRoute
   '/prensa': typeof PrensaRoute
   '/privacidad': typeof PrivacidadRoute
   '/terminos': typeof TerminosRoute
@@ -363,7 +364,6 @@ export interface FileRoutesByTo {
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/checkout/resultado': typeof CheckoutResultadoRoute
   '/collections/$handle': typeof CollectionsHandleRoute
   '/cuenta/direcciones': typeof CuentaDireccionesRoute
   '/cuenta/pedidos': typeof CuentaPedidosRoute
@@ -393,7 +393,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/aviso': typeof AvisoRoute
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
-  '/checkout': typeof CheckoutRouteWithChildren
+  '/checkout': typeof CheckoutRoute
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
   '/cuenta': typeof CuentaRouteWithChildren
@@ -403,6 +403,7 @@ export interface FileRoutesById {
   '/historia': typeof HistoriaRoute
   '/login': typeof LoginRoute
   '/packs': typeof PacksRouteWithChildren
+  '/pedido-confirmado': typeof PedidoConfirmadoRoute
   '/prensa': typeof PrensaRoute
   '/privacidad': typeof PrivacidadRoute
   '/terminos': typeof TerminosRoute
@@ -413,7 +414,6 @@ export interface FileRoutesById {
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/checkout/resultado': typeof CheckoutResultadoRoute
   '/collections/$handle': typeof CollectionsHandleRoute
   '/cuenta/direcciones': typeof CuentaDireccionesRoute
   '/cuenta/pedidos': typeof CuentaPedidosRoute
@@ -454,6 +454,7 @@ export interface FileRouteTypes {
     | '/historia'
     | '/login'
     | '/packs'
+    | '/pedido-confirmado'
     | '/prensa'
     | '/privacidad'
     | '/terminos'
@@ -464,7 +465,6 @@ export interface FileRouteTypes {
     | '/admin/configuracion'
     | '/admin/tallas'
     | '/auth/callback'
-    | '/checkout/resultado'
     | '/collections/$handle'
     | '/cuenta/direcciones'
     | '/cuenta/pedidos'
@@ -499,6 +499,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/historia'
     | '/login'
+    | '/pedido-confirmado'
     | '/prensa'
     | '/privacidad'
     | '/terminos'
@@ -509,7 +510,6 @@ export interface FileRouteTypes {
     | '/admin/configuracion'
     | '/admin/tallas'
     | '/auth/callback'
-    | '/checkout/resultado'
     | '/collections/$handle'
     | '/cuenta/direcciones'
     | '/cuenta/pedidos'
@@ -548,6 +548,7 @@ export interface FileRouteTypes {
     | '/historia'
     | '/login'
     | '/packs'
+    | '/pedido-confirmado'
     | '/prensa'
     | '/privacidad'
     | '/terminos'
@@ -558,7 +559,6 @@ export interface FileRouteTypes {
     | '/admin/configuracion'
     | '/admin/tallas'
     | '/auth/callback'
-    | '/checkout/resultado'
     | '/collections/$handle'
     | '/cuenta/direcciones'
     | '/cuenta/pedidos'
@@ -588,7 +588,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AvisoRoute: typeof AvisoRoute
   CambiosDevolucionesRoute: typeof CambiosDevolucionesRoute
-  CheckoutRoute: typeof CheckoutRouteWithChildren
+  CheckoutRoute: typeof CheckoutRoute
   ContactoRoute: typeof ContactoRoute
   CookiesRoute: typeof CookiesRoute
   CuentaRoute: typeof CuentaRouteWithChildren
@@ -598,6 +598,7 @@ export interface RootRouteChildren {
   HistoriaRoute: typeof HistoriaRoute
   LoginRoute: typeof LoginRoute
   PacksRoute: typeof PacksRouteWithChildren
+  PedidoConfirmadoRoute: typeof PedidoConfirmadoRoute
   PrensaRoute: typeof PrensaRoute
   PrivacidadRoute: typeof PrivacidadRoute
   TerminosRoute: typeof TerminosRoute
@@ -643,6 +644,13 @@ declare module '@tanstack/react-router' {
       path: '/prensa'
       fullPath: '/prensa'
       preLoaderRoute: typeof PrensaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pedido-confirmado': {
+      id: '/pedido-confirmado'
+      path: '/pedido-confirmado'
+      fullPath: '/pedido-confirmado'
+      preLoaderRoute: typeof PedidoConfirmadoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/packs': {
@@ -820,13 +828,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CollectionsHandleRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/checkout/resultado': {
-      id: '/checkout/resultado'
-      path: '/resultado'
-      fullPath: '/checkout/resultado'
-      preLoaderRoute: typeof CheckoutResultadoRouteImport
-      parentRoute: typeof CheckoutRoute
-    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -982,18 +983,6 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
-interface CheckoutRouteChildren {
-  CheckoutResultadoRoute: typeof CheckoutResultadoRoute
-}
-
-const CheckoutRouteChildren: CheckoutRouteChildren = {
-  CheckoutResultadoRoute: CheckoutResultadoRoute,
-}
-
-const CheckoutRouteWithChildren = CheckoutRoute._addFileChildren(
-  CheckoutRouteChildren,
-)
-
 interface CuentaRouteChildren {
   CuentaDireccionesRoute: typeof CuentaDireccionesRoute
   CuentaPedidosRoute: typeof CuentaPedidosRoute
@@ -1040,7 +1029,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AvisoRoute: AvisoRoute,
   CambiosDevolucionesRoute: CambiosDevolucionesRoute,
-  CheckoutRoute: CheckoutRouteWithChildren,
+  CheckoutRoute: CheckoutRoute,
   ContactoRoute: ContactoRoute,
   CookiesRoute: CookiesRoute,
   CuentaRoute: CuentaRouteWithChildren,
@@ -1050,6 +1039,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoriaRoute: HistoriaRoute,
   LoginRoute: LoginRoute,
   PacksRoute: PacksRouteWithChildren,
+  PedidoConfirmadoRoute: PedidoConfirmadoRoute,
   PrensaRoute: PrensaRoute,
   PrivacidadRoute: PrivacidadRoute,
   TerminosRoute: TerminosRoute,

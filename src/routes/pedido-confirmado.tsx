@@ -14,7 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-export const Route = createFileRoute("/checkout/resultado")({
+export const Route = createFileRoute("/pedido-confirmado")({
   head: () => ({
     meta: [{ title: pageTitle("Confirmación de pedido") }],
   }),

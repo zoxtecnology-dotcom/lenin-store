@@ -152,9 +152,9 @@ export const createMPPreference = createServerFn({ method: "POST" })
         },
       },
       back_urls: {
-        success: `${siteUrl}/checkout/resultado?status=success&order=${order.id}`,
-        failure: `${siteUrl}/checkout/resultado?status=failure&order=${order.id}`,
-        pending: `${siteUrl}/checkout/resultado?status=pending&order=${order.id}`,
+        success: `${siteUrl}/pedido-confirmado?status=success&order=${order.id}`,
+        failure: `${siteUrl}/pedido-confirmado?status=failure&order=${order.id}`,
+        pending: `${siteUrl}/pedido-confirmado?status=pending&order=${order.id}`,
       },
       auto_return: "all",
       external_reference: order.id,
