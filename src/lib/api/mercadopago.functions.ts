@@ -156,7 +156,7 @@ export const createMPPreference = createServerFn({ method: "POST" })
         failure: `${siteUrl}/pedido-confirmado?status=failure&order=${order.id}`,
         pending: `${siteUrl}/pedido-confirmado?status=pending&order=${order.id}`,
       },
-      auto_return: "all",
+      auto_return: "approved",
       external_reference: order.id,
       notification_url: `${siteUrl}/api/mp/webhook`,
       statement_descriptor: "AIAHN STORE",
