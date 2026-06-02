@@ -3,14 +3,8 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs20.x"
-    },
     "**/*.func/**": {
       "includeFiles": "node_modules/tslib/**"
     }
-  },
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" }
-  ]
+  }
 }
