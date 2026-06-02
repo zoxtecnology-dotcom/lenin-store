@@ -1,9 +1,10 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { useCart, type CartItem } from "@/lib/cart";
 import { fmtCOP } from "@/lib/products";
-import { Minus, Plus, Trash2, X, ArrowRight, ChevronDown, MessageCircle } from "lucide-react";
+import { Minus, Plus, Trash2, X, ArrowRight, ChevronDown, MessageCircle, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { useSettings } from "@/lib/settings";
+import { Link } from "@tanstack/react-router";
 
 function buildWhatsAppLink(items: CartItem[], total: number, whatsappUrl: string) {
   const lines = items.map((item) => {
@@ -173,9 +174,15 @@ export function CartDrawer() {
               <span className="font-display text-2xl text-acid tabular-nums">{fmtCOP(total)}</span>
             </div>
 
-            <button className="w-full flex items-center justify-center gap-3 bg-cream text-ink py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:bg-acid transition-colors duration-300">
-              Ir a pagar <ArrowRight size={14} strokeWidth={1.5} />
-            </button>
+            {/* Botón principal - Checkout con MercadoPago */}
+            <Link
+              to="/checkout"
+              onClick={() => setOpen(false)}
+              className="w-full flex items-center justify-center gap-3 bg-acid text-ink py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:opacity-90 transition-opacity"
+            >
+              <CreditCard size={16} strokeWidth={1.5} />
+              Pagar ahora
+            </Link>
 
           </div>
         )}

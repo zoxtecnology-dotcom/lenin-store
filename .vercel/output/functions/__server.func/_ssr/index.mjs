@@ -17073,7 +17073,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-Chjua16K.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-CNB1c3LZ.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -17095,7 +17095,15 @@ async function getStartManifest(matchedRoutes) {
 const manifest = {
   "130b829988ea2c8180bcef695dfd31d73ff7f9d3bfe8bbda342969f6d540f822": {
     functionName: "getCloudinarySignature_createServerFn_handler",
-    importer: () => import("./cloudinary-sign-CUJpMkgs.mjs")
+    importer: () => import("./cloudinary-sign-vTrhlHYu.mjs")
+  },
+  "48abe60d10af1c4b63432e6b3c1444fc22bb23a2122340216f236e7cb93baf74": {
+    functionName: "createMPPreference_createServerFn_handler",
+    importer: () => import("./mercadopago.functions-CFSwI36H.mjs")
+  },
+  "9a2b3fe0ff87ae35bef9460fb93350905804f8167a152d318d7a59e276f7fbcf": {
+    functionName: "getOrderStatus_createServerFn_handler",
+    importer: () => import("./mercadopago.functions-CFSwI36H.mjs")
   }
 };
 async function getServerFnById(id, access) {
@@ -18325,7 +18333,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-Cd0oBxWL.mjs").then((n2) => n2.O),
+    import("./router-BWVHQLZp.mjs").then((n2) => n2.O),
     import("./start-CXCBtj1Q.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);

@@ -29,5 +29,11 @@ export default defineConfig(({ mode }) => {
     ssr: {
       noExternal: true, // Bundle TODAS las dependencias
     },
+    // Excluir el directorio api/ (funciones de Vercel) del procesamiento de Vite
+    server: {
+      watch: {
+        ignored: ["**/api/**"],
+      },
+    },
   };
 });

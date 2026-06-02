@@ -23,6 +23,7 @@ import { Route as DropsRouteImport } from './routes/drops'
 import { Route as CuentaRouteImport } from './routes/cuenta'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactoRouteImport } from './routes/contacto'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CambiosDevolucionesRouteImport } from './routes/cambios-devoluciones'
 import { Route as AvisoRouteImport } from './routes/aviso'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -38,6 +39,7 @@ import { Route as CuentaPerfilRouteImport } from './routes/cuenta/perfil'
 import { Route as CuentaPedidosRouteImport } from './routes/cuenta/pedidos'
 import { Route as CuentaDireccionesRouteImport } from './routes/cuenta/direcciones'
 import { Route as CollectionsHandleRouteImport } from './routes/collections/$handle'
+import { Route as CheckoutResultadoRouteImport } from './routes/checkout/resultado'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AdminTallasRouteImport } from './routes/admin/tallas'
 import { Route as AdminConfiguracionRouteImport } from './routes/admin/configuracion'
@@ -125,6 +127,11 @@ const ContactoRoute = ContactoRouteImport.update({
   path: '/contacto',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CambiosDevolucionesRoute = CambiosDevolucionesRouteImport.update({
   id: '/cambios-devoluciones',
   path: '/cambios-devoluciones',
@@ -199,6 +206,11 @@ const CollectionsHandleRoute = CollectionsHandleRouteImport.update({
   id: '/collections/$handle',
   path: '/collections/$handle',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutResultadoRoute = CheckoutResultadoRouteImport.update({
+  id: '/resultado',
+  path: '/resultado',
+  getParentRoute: () => CheckoutRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
@@ -286,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/aviso': typeof AvisoRoute
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
   '/cuenta': typeof CuentaRouteWithChildren
@@ -305,6 +318,7 @@ export interface FileRoutesByFullPath {
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/checkout/resultado': typeof CheckoutResultadoRoute
   '/collections/$handle': typeof CollectionsHandleRoute
   '/cuenta/direcciones': typeof CuentaDireccionesRoute
   '/cuenta/pedidos': typeof CuentaPedidosRoute
@@ -332,6 +346,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aviso': typeof AvisoRoute
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
   '/envios': typeof EnviosRoute
@@ -348,6 +363,7 @@ export interface FileRoutesByTo {
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/checkout/resultado': typeof CheckoutResultadoRoute
   '/collections/$handle': typeof CollectionsHandleRoute
   '/cuenta/direcciones': typeof CuentaDireccionesRoute
   '/cuenta/pedidos': typeof CuentaPedidosRoute
@@ -377,6 +393,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/aviso': typeof AvisoRoute
   '/cambios-devoluciones': typeof CambiosDevolucionesRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/contacto': typeof ContactoRoute
   '/cookies': typeof CookiesRoute
   '/cuenta': typeof CuentaRouteWithChildren
@@ -396,6 +413,7 @@ export interface FileRoutesById {
   '/admin/configuracion': typeof AdminConfiguracionRoute
   '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/checkout/resultado': typeof CheckoutResultadoRoute
   '/collections/$handle': typeof CollectionsHandleRoute
   '/cuenta/direcciones': typeof CuentaDireccionesRoute
   '/cuenta/pedidos': typeof CuentaPedidosRoute
@@ -426,6 +444,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/aviso'
     | '/cambios-devoluciones'
+    | '/checkout'
     | '/contacto'
     | '/cookies'
     | '/cuenta'
@@ -445,6 +464,7 @@ export interface FileRouteTypes {
     | '/admin/configuracion'
     | '/admin/tallas'
     | '/auth/callback'
+    | '/checkout/resultado'
     | '/collections/$handle'
     | '/cuenta/direcciones'
     | '/cuenta/pedidos'
@@ -472,6 +492,7 @@ export interface FileRouteTypes {
     | '/'
     | '/aviso'
     | '/cambios-devoluciones'
+    | '/checkout'
     | '/contacto'
     | '/cookies'
     | '/envios'
@@ -488,6 +509,7 @@ export interface FileRouteTypes {
     | '/admin/configuracion'
     | '/admin/tallas'
     | '/auth/callback'
+    | '/checkout/resultado'
     | '/collections/$handle'
     | '/cuenta/direcciones'
     | '/cuenta/pedidos'
@@ -516,6 +538,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/aviso'
     | '/cambios-devoluciones'
+    | '/checkout'
     | '/contacto'
     | '/cookies'
     | '/cuenta'
@@ -535,6 +558,7 @@ export interface FileRouteTypes {
     | '/admin/configuracion'
     | '/admin/tallas'
     | '/auth/callback'
+    | '/checkout/resultado'
     | '/collections/$handle'
     | '/cuenta/direcciones'
     | '/cuenta/pedidos'
@@ -564,6 +588,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AvisoRoute: typeof AvisoRoute
   CambiosDevolucionesRoute: typeof CambiosDevolucionesRoute
+  CheckoutRoute: typeof CheckoutRouteWithChildren
   ContactoRoute: typeof ContactoRoute
   CookiesRoute: typeof CookiesRoute
   CuentaRoute: typeof CuentaRouteWithChildren
@@ -683,6 +708,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cambios-devoluciones': {
       id: '/cambios-devoluciones'
       path: '/cambios-devoluciones'
@@ -787,6 +819,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/collections/$handle'
       preLoaderRoute: typeof CollectionsHandleRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/checkout/resultado': {
+      id: '/checkout/resultado'
+      path: '/resultado'
+      fullPath: '/checkout/resultado'
+      preLoaderRoute: typeof CheckoutResultadoRouteImport
+      parentRoute: typeof CheckoutRoute
     }
     '/auth/callback': {
       id: '/auth/callback'
@@ -943,6 +982,18 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface CheckoutRouteChildren {
+  CheckoutResultadoRoute: typeof CheckoutResultadoRoute
+}
+
+const CheckoutRouteChildren: CheckoutRouteChildren = {
+  CheckoutResultadoRoute: CheckoutResultadoRoute,
+}
+
+const CheckoutRouteWithChildren = CheckoutRoute._addFileChildren(
+  CheckoutRouteChildren,
+)
+
 interface CuentaRouteChildren {
   CuentaDireccionesRoute: typeof CuentaDireccionesRoute
   CuentaPedidosRoute: typeof CuentaPedidosRoute
@@ -989,6 +1040,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AvisoRoute: AvisoRoute,
   CambiosDevolucionesRoute: CambiosDevolucionesRoute,
+  CheckoutRoute: CheckoutRouteWithChildren,
   ContactoRoute: ContactoRoute,
   CookiesRoute: CookiesRoute,
   CuentaRoute: CuentaRouteWithChildren,
