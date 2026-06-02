@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import {
   Heart, Minus, Plus, ArrowRight,
@@ -57,6 +57,7 @@ function ProductPage() {
 
 function StandardProductPage({ product, settings }: { product: Product; settings: SiteSettings }) {
   const { add, setOpen } = useCart();
+  const navigate = useNavigate();
   const [activeImage, setActiveImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -74,6 +75,18 @@ function StandardProductPage({ product, settings }: { product: Product; settings
       color: product.colors[selectedColor]?.name,
     });
     setOpen(true);
+  }
+
+  function handleBuyNow() {
+    add({
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      image: product.front,
+      size: selectedSize ?? undefined,
+      color: product.colors[selectedColor]?.name,
+    });
+    navigate({ to: "/checkout" });
   }
 
   return (
@@ -116,7 +129,7 @@ function StandardProductPage({ product, settings }: { product: Product; settings
               <button onClick={handleAddToCart} className="w-full bg-cream text-ink py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:bg-acid transition-colors duration-300">
                 Añadir al carrito
               </button>
-              <button className="w-full flex items-center justify-center gap-2 border border-cream text-cream py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:bg-cream hover:text-ink transition-colors duration-300">
+              <button onClick={handleBuyNow} className="w-full flex items-center justify-center gap-2 border border-cream text-cream py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:bg-cream hover:text-ink transition-colors duration-300">
                 Comprar ya <ArrowRight size={13} strokeWidth={1.5} />
               </button>
             </div>
@@ -136,6 +149,7 @@ function StandardProductPage({ product, settings }: { product: Product; settings
 
 function ConjuntoProductPage({ product, settings }: { product: Product; settings: SiteSettings }) {
   const { add, setOpen } = useCart();
+  const navigate = useNavigate();
   const c = product.conjunto!;
   const [combo, setCombo] = useState<ComboOption>("completo");
   const [topSize, setTopSize] = useState<string | null>(null);
@@ -210,6 +224,44 @@ function ConjuntoProductPage({ product, settings }: { product: Product; settings
       });
     }
     setOpen(true);
+  }
+
+  function handleBuyNow() {
+    if (combo === "completo") {
+      add({
+        slug: product.slug + "-completo",
+        name: product.name,
+        price: product.price,
+        image: c.fullImages[0],
+        color: product.colors[selectedColor]?.name,
+        conjuntoMode: "completo",
+        pieces: [
+          { name: c.topName, size: topSize ?? "?" },
+          { name: c.bottomName, size: bottomSize ?? "?" },
+        ],
+      });
+    } else if (combo === "top") {
+      add({
+        slug: product.slug + "-top",
+        name: c.topName,
+        price: c.topPrice,
+        image: c.topImages[0],
+        size: topSize ?? undefined,
+        color: product.colors[selectedColor]?.name,
+        conjuntoMode: "top",
+      });
+    } else {
+      add({
+        slug: product.slug + "-bottom",
+        name: c.bottomName,
+        price: c.bottomPrice,
+        image: c.bottomImages[0],
+        size: bottomSize ?? undefined,
+        color: product.colors[selectedColor]?.name,
+        conjuntoMode: "bottom",
+      });
+    }
+    navigate({ to: "/checkout" });
   }
 
   return (
@@ -351,7 +403,7 @@ function ConjuntoProductPage({ product, settings }: { product: Product; settings
                  combo === "top" ? `Añadir ${c.topName.split("/")[0].trim()} al carrito` :
                  `Añadir ${c.bottomName.split("/")[0].trim()} al carrito`}
               </button>
-              <button className="w-full flex items-center justify-center gap-2 border border-cream text-cream py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:bg-cream hover:text-ink transition-colors duration-300">
+              <button onClick={handleBuyNow} className="w-full flex items-center justify-center gap-2 border border-cream text-cream py-4 text-[11px] uppercase tracking-[0.3em] font-medium hover:bg-cream hover:text-ink transition-colors duration-300">
                 Comprar ya <ArrowRight size={13} strokeWidth={1.5} />
               </button>
             </div>

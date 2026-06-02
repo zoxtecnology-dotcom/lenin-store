@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -35,10 +35,46 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+const CART_KEY = "aiahn-cart";
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [open, setOpen] = useState(false);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(200000);
+  const ready = useRef(false);
+
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(CART_KEY);
+      if (saved) {
+        setItems(JSON.parse(saved));
+      }
+    } catch {}
+    ready.current = true;
+
+    // Listen for cart clear events (e.g., after purchase)
+    const handleCartUpdate = () => {
+      try {
+        const saved = localStorage.getItem(CART_KEY);
+        setItems(saved ? JSON.parse(saved) : []);
+      } catch {
+        setItems([]);
+      }
+    };
+    window.addEventListener("storage", handleCartUpdate);
+    window.addEventListener("cart-updated", handleCartUpdate);
+    return () => {
+      window.removeEventListener("storage", handleCartUpdate);
+      window.removeEventListener("cart-updated", handleCartUpdate);
+    };
+  }, []);
+
+  // Persist cart to localStorage when items change
+  useEffect(() => {
+    if (!ready.current) return;
+    localStorage.setItem(CART_KEY, JSON.stringify(items));
+  }, [items]);
 
   useEffect(() => {
     supabase.from("site_settings")

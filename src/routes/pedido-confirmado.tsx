@@ -64,9 +64,10 @@ function CheckoutResultPage() {
 
     if (isSuccess) {
       setStatus("success");
-      // Clear cart only - wishlist will be cleared after we know the items
+      // Clear cart
       localStorage.removeItem("aiahn-cart");
       window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new Event("cart-updated"));
     } else if (collectionStatus === "rejected") {
       setStatus("failed");
     }
@@ -127,6 +128,8 @@ function CheckoutResultPage() {
                     console.log("Deleted from wishlist:", productId);
                   }
                 }
+                // Notify WishlistProvider to refresh
+                window.dispatchEvent(new Event("wishlist-updated"));
               }
             }
           }

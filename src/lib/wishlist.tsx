@@ -59,6 +59,13 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     }
     
     load();
+
+    // Listen for wishlist updates from other parts of the app (e.g., after purchase)
+    const handleUpdate = () => {
+      load();
+    };
+    window.addEventListener("wishlist-updated", handleUpdate);
+    return () => window.removeEventListener("wishlist-updated", handleUpdate);
   }, [user]);
 
   // Persist to localStorage for non-logged users
