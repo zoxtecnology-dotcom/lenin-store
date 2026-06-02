@@ -23,6 +23,7 @@ export const Route = createFileRoute("/pedido-confirmado")({
 
 type Order = {
   id: string;
+  user_id?: string;
   status: string;
   total: number;
   email: string;
@@ -74,12 +75,23 @@ function CheckoutResultPage() {
         .select("*")
         .eq("id", orderId)
         .single()
-        .then(({ data, error }) => {
+        .then(async ({ data, error }) => {
           if (!error && data) {
             setOrder(data as Order);
             if (data.status === "paid") setStatus("success");
             if (data.status === "failed" || data.status === "cancelled")
               setStatus("failed");
+            
+            // Clear wishlist from DB if payment was successful
+            const isSuccess = data.status === "paid" || 
+              collectionStatus === "approved" || 
+              urlStatus === "success";
+            if (isSuccess && data.user_id) {
+              await supabase
+                .from("wishlist")
+                .delete()
+                .eq("user_id", data.user_id);
+            }
           }
           setLoading(false);
         });
