@@ -34,7 +34,9 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ProductsSlugRouteImport } from './routes/products/$slug'
 import { Route as PacksIdRouteImport } from './routes/packs/$id'
 import { Route as DropsIdRouteImport } from './routes/drops/$id'
+import { Route as CuentaPerfilRouteImport } from './routes/cuenta/perfil'
 import { Route as CuentaPedidosRouteImport } from './routes/cuenta/pedidos'
+import { Route as CuentaDireccionesRouteImport } from './routes/cuenta/direcciones'
 import { Route as CollectionsHandleRouteImport } from './routes/collections/$handle'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AdminTallasRouteImport } from './routes/admin/tallas'
@@ -178,9 +180,19 @@ const DropsIdRoute = DropsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => DropsRoute,
 } as any)
+const CuentaPerfilRoute = CuentaPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => CuentaRoute,
+} as any)
 const CuentaPedidosRoute = CuentaPedidosRouteImport.update({
   id: '/pedidos',
   path: '/pedidos',
+  getParentRoute: () => CuentaRoute,
+} as any)
+const CuentaDireccionesRoute = CuentaDireccionesRouteImport.update({
+  id: '/direcciones',
+  path: '/direcciones',
   getParentRoute: () => CuentaRoute,
 } as any)
 const CollectionsHandleRoute = CollectionsHandleRouteImport.update({
@@ -294,7 +306,9 @@ export interface FileRoutesByFullPath {
   '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/cuenta/direcciones': typeof CuentaDireccionesRoute
   '/cuenta/pedidos': typeof CuentaPedidosRoute
+  '/cuenta/perfil': typeof CuentaPerfilRoute
   '/drops/$id': typeof DropsIdRoute
   '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -335,7 +349,9 @@ export interface FileRoutesByTo {
   '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/cuenta/direcciones': typeof CuentaDireccionesRoute
   '/cuenta/pedidos': typeof CuentaPedidosRoute
+  '/cuenta/perfil': typeof CuentaPerfilRoute
   '/drops/$id': typeof DropsIdRoute
   '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -381,7 +397,9 @@ export interface FileRoutesById {
   '/admin/tallas': typeof AdminTallasRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/collections/$handle': typeof CollectionsHandleRoute
+  '/cuenta/direcciones': typeof CuentaDireccionesRoute
   '/cuenta/pedidos': typeof CuentaPedidosRoute
+  '/cuenta/perfil': typeof CuentaPerfilRoute
   '/drops/$id': typeof DropsIdRoute
   '/packs/$id': typeof PacksIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -428,7 +446,9 @@ export interface FileRouteTypes {
     | '/admin/tallas'
     | '/auth/callback'
     | '/collections/$handle'
+    | '/cuenta/direcciones'
     | '/cuenta/pedidos'
+    | '/cuenta/perfil'
     | '/drops/$id'
     | '/packs/$id'
     | '/products/$slug'
@@ -469,7 +489,9 @@ export interface FileRouteTypes {
     | '/admin/tallas'
     | '/auth/callback'
     | '/collections/$handle'
+    | '/cuenta/direcciones'
     | '/cuenta/pedidos'
+    | '/cuenta/perfil'
     | '/drops/$id'
     | '/packs/$id'
     | '/products/$slug'
@@ -514,7 +536,9 @@ export interface FileRouteTypes {
     | '/admin/tallas'
     | '/auth/callback'
     | '/collections/$handle'
+    | '/cuenta/direcciones'
     | '/cuenta/pedidos'
+    | '/cuenta/perfil'
     | '/drops/$id'
     | '/packs/$id'
     | '/products/$slug'
@@ -736,11 +760,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DropsIdRouteImport
       parentRoute: typeof DropsRoute
     }
+    '/cuenta/perfil': {
+      id: '/cuenta/perfil'
+      path: '/perfil'
+      fullPath: '/cuenta/perfil'
+      preLoaderRoute: typeof CuentaPerfilRouteImport
+      parentRoute: typeof CuentaRoute
+    }
     '/cuenta/pedidos': {
       id: '/cuenta/pedidos'
       path: '/pedidos'
       fullPath: '/cuenta/pedidos'
       preLoaderRoute: typeof CuentaPedidosRouteImport
+      parentRoute: typeof CuentaRoute
+    }
+    '/cuenta/direcciones': {
+      id: '/cuenta/direcciones'
+      path: '/direcciones'
+      fullPath: '/cuenta/direcciones'
+      preLoaderRoute: typeof CuentaDireccionesRouteImport
       parentRoute: typeof CuentaRoute
     }
     '/collections/$handle': {
@@ -906,12 +944,16 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface CuentaRouteChildren {
+  CuentaDireccionesRoute: typeof CuentaDireccionesRoute
   CuentaPedidosRoute: typeof CuentaPedidosRoute
+  CuentaPerfilRoute: typeof CuentaPerfilRoute
   CuentaIndexRoute: typeof CuentaIndexRoute
 }
 
 const CuentaRouteChildren: CuentaRouteChildren = {
+  CuentaDireccionesRoute: CuentaDireccionesRoute,
   CuentaPedidosRoute: CuentaPedidosRoute,
+  CuentaPerfilRoute: CuentaPerfilRoute,
   CuentaIndexRoute: CuentaIndexRoute,
 }
 

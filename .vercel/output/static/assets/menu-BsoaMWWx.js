@@ -1,1 +1,0 @@
-import{a8 as o,$ as r,a9 as s,D as a}from"./index-BWfiE-TS.js";function d(n){const t=o();return r.useRef(void 0),s(t.stores.__store,e=>e)}const u=[["path",{d:"M4 5h16",key:"1tepv9"}],["path",{d:"M4 12h16",key:"1lakjw"}],["path",{d:"M4 19h16",key:"1djgab"}]],h=a("menu",u);export{h as M,d as u};

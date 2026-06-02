@@ -13,7 +13,11 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      nitro({ preset: "vercel" }),
+      nitro({
+        preset: "vercel",
+        // Forzar bundling de todas las dependencias
+        externals: false,
+      }),
       tanstackStart({
         server: { entry: "./src/server.ts" },
       }),
@@ -23,7 +27,7 @@ export default defineConfig(({ mode }) => {
     ],
     // Forzar que estos paquetes se incluyan en el bundle SSR (no como externos)
     ssr: {
-      noExternal: ["tslib", "react-remove-scroll", "react-remove-scroll-bar"],
+      noExternal: true, // Bundle TODAS las dependencias
     },
   };
 });

@@ -1,5 +1,10 @@
 {
   "framework": null,
   "buildCommand": "npm run build",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "functions": {
+    "**/*.func/**": {
+      "includeFiles": "node_modules/tslib/**"
+    }
+  }
 }
