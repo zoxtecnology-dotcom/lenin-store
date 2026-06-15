@@ -82,20 +82,24 @@ export const createMPPreference = createServerFn({ method: "POST" })
       throw new Error("MERCADOPAGO_ACCESS_TOKEN no configurado");
     }
 
-    // Supabase admin client para crear la orden
+    // Supabase admin client (service role) para crear la orden bypaseando RLS.
+    // Esto corre solo en el servidor (server function), por eso es seguro usar
+    // la service role key aquí — nunca se expone al cliente.
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-    
-    const supabase = data.accessToken
-      ? createClient(supabaseUrl, supabaseKey, {
-          global: { headers: { Authorization: `Bearer ${data.accessToken}` } },
-        })
-      : createClient(supabaseUrl, supabaseKey);
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
+    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-    // Obtener user_id si hay sesión
+    if (!serviceRoleKey) {
+      throw new Error("SUPABASE_SERVICE_ROLE_KEY no configurado");
+    }
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // Obtener user_id si hay sesión (usando un cliente anon con el JWT del usuario)
     let userId: string | null = null;
     if (data.accessToken) {
-      const { data: userData } = await supabase.auth.getUser(data.accessToken);
+      const supabaseAuth = createClient(supabaseUrl, anonKey);
+      const { data: userData } = await supabaseAuth.auth.getUser(data.accessToken);
       userId = userData.user?.id ?? null;
     }
 
