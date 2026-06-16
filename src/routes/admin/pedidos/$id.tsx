@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Save, Loader } from "lucide-react";
+import { ArrowLeft, Save, Loader, Printer } from "lucide-react";
 
 export const Route = createFileRoute("/admin/pedidos/$id")({
   component: DetallePedido,
@@ -46,6 +46,98 @@ function DetallePedido() {
     navigate({ to: "/admin/pedidos" });
   }
 
+  function handlePrint() {
+    if (!order) return;
+    const address = order.address_snap as Record<string, string> | null;
+    const profile = order.profiles as Record<string, string> | null;
+    const orderNo = (order.id as string).slice(0, 8).toUpperCase();
+    const date = order.created_at
+      ? new Date(order.created_at as string).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })
+      : "";
+
+    const itemsRows = items.map((it) => {
+      const meta = [
+        it.size ? `Talla ${it.size}` : "",
+        it.color_name ?? "",
+        it.piece ?? "",
+      ].filter(Boolean).join(" · ");
+      const lineTotal = (it.unit_price as number) * (it.qty as number);
+      return `<tr>
+        <td>${it.product_name as string}${meta ? `<br><span class="meta">${meta}</span>` : ""}</td>
+        <td class="c">${it.qty as number}</td>
+        <td class="r">${fmt(lineTotal)}</td>
+      </tr>`;
+    }).join("");
+
+    const win = window.open("", "_blank", "width=820,height=920");
+    if (!win) return;
+    win.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8">
+      <title>Pedido #${orderNo}</title>
+      <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, Helvetica, sans-serif; color: #111; margin: 32px; font-size: 13px; }
+        h1 { font-size: 20px; margin: 0; letter-spacing: 1px; }
+        h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin: 0 0 6px; }
+        .head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #111; padding-bottom: 12px; margin-bottom: 20px; }
+        .muted { color: #555; font-size: 12px; }
+        .box { border: 1px solid #ddd; padding: 14px; margin-bottom: 16px; }
+        .grid { display: flex; gap: 16px; }
+        .grid > div { flex: 1; }
+        table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+        th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+        th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; }
+        td.c, th.c { text-align: center; width: 50px; }
+        td.r, th.r { text-align: right; width: 110px; }
+        .meta { color: #888; font-size: 11px; }
+        .totals { margin-top: 10px; margin-left: auto; width: 260px; }
+        .totals .row { display: flex; justify-content: space-between; padding: 4px 0; }
+        .totals .total { border-top: 2px solid #111; font-weight: bold; font-size: 15px; padding-top: 8px; }
+        @media print { body { margin: 12mm; } }
+      </style></head><body>
+      <div class="head">
+        <div>
+          <h1>PEDIDO #${orderNo}</h1>
+          <div class="muted">${date}</div>
+          <div class="muted">Estado: ${STATUS_LABELS[status] ?? status}</div>
+          ${trackingCode ? `<div class="muted">Guía: ${trackingCode}</div>` : ""}
+        </div>
+        <div style="text-align:right">
+          <strong>AIAHN STORE</strong>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="box">
+          <h2>Cliente</h2>
+          <div>${profile?.full_name ?? address?.full_name ?? (order.email as string)}</div>
+          <div class="muted">${order.email as string}</div>
+          ${address?.phone || profile?.phone ? `<div class="muted">Tel: ${address?.phone ?? profile?.phone}</div>` : ""}
+        </div>
+        <div class="box">
+          <h2>Dirección de envío</h2>
+          ${address?.full_name ? `<div>${address.full_name}</div>` : ""}
+          <div>${address?.address ?? ""}</div>
+          <div class="muted">${[address?.city, address?.department].filter(Boolean).join(", ")}${address?.postal_code ? ` — CP ${address.postal_code}` : ""}</div>
+        </div>
+      </div>
+      <div class="box">
+        <h2>Productos</h2>
+        <table>
+          <thead><tr><th>Producto</th><th class="c">Cant</th><th class="r">Total</th></tr></thead>
+          <tbody>${itemsRows}</tbody>
+        </table>
+        <div class="totals">
+          <div class="row"><span>Subtotal</span><span>${fmt(order.subtotal as number)}</span></div>
+          ${(order.discount as number) > 0 ? `<div class="row"><span>Descuento</span><span>-${fmt(order.discount as number)}</span></div>` : ""}
+          <div class="row"><span>Envío</span><span>${(order.shipping_cost as number) > 0 ? fmt(order.shipping_cost as number) : "Gratis"}</span></div>
+          <div class="row total"><span>Total</span><span>${fmt(order.total as number)}</span></div>
+        </div>
+      </div>
+      </body></html>`);
+    win.document.close();
+    win.focus();
+    win.print();
+  }
+
   if (loading || !order) return <div className="flex justify-center py-24"><div className="w-5 h-5 border border-cream/20 border-t-cream rounded-full animate-spin" /></div>;
 
   const address = order.address_snap as Record<string, string> | null;
@@ -65,11 +157,18 @@ function DetallePedido() {
             </h1>
           </div>
         </div>
-        <button onClick={handleSave} disabled={saving}
-          className="flex items-center gap-2 bg-acid text-ink px-4 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:opacity-90 disabled:opacity-50">
-          {saving ? <Loader size={14} className="animate-spin" /> : <Save size={14} strokeWidth={2} />}
-          {saving ? "Guardando..." : "Guardar"}
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={handlePrint}
+            className="flex items-center gap-2 border border-border text-cream px-4 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:border-cream/40 transition-colors">
+            <Printer size={14} strokeWidth={2} />
+            Imprimir
+          </button>
+          <button onClick={handleSave} disabled={saving}
+            className="flex items-center gap-2 bg-acid text-ink px-4 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:opacity-90 disabled:opacity-50">
+            {saving ? <Loader size={14} className="animate-spin" /> : <Save size={14} strokeWidth={2} />}
+            {saving ? "Guardando..." : "Guardar"}
+          </button>
+        </div>
       </div>
 
       {/* Estado y tracking */}
@@ -92,14 +191,21 @@ function DetallePedido() {
       {/* Info del cliente */}
       <div className="border border-border p-5 space-y-2">
         <p className="text-[10px] uppercase tracking-[0.3em] text-acid mb-3">Cliente</p>
-        <p className="text-sm text-cream">{profile?.full_name ?? order.email as string}</p>
+        <p className="text-sm text-cream">{profile?.full_name ?? address?.full_name ?? order.email as string}</p>
         <p className="text-[11px] text-cream/50">{order.email as string}</p>
-        {profile?.phone && <p className="text-[11px] text-cream/50">{profile.phone}</p>}
+        {(address?.phone || profile?.phone) && (
+          <p className="text-[11px] text-cream/50">Tel: {address?.phone ?? profile?.phone}</p>
+        )}
         {address && (
           <div className="mt-3 pt-3 border-t border-border">
             <p className="text-[10px] uppercase tracking-[0.25em] text-cream/30 mb-1">Dirección de envío</p>
+            {address.full_name && <p className="text-[11px] text-cream/70">{address.full_name}</p>}
             <p className="text-[11px] text-cream/70">{address.address}</p>
-            <p className="text-[11px] text-cream/50">{address.city}, {address.department}</p>
+            <p className="text-[11px] text-cream/50">
+              {[address.city, address.department].filter(Boolean).join(", ")}
+              {address.postal_code ? ` — CP ${address.postal_code}` : ""}
+            </p>
+            {address.phone && <p className="text-[11px] text-cream/50">Tel: {address.phone}</p>}
           </div>
         )}
       </div>
