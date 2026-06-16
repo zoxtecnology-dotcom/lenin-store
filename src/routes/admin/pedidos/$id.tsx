@@ -15,29 +15,59 @@ const STATUS_LABELS: Record<string, string> = {
 
 const fmt = (n: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(n);
 
+interface OrderItem {
+  product_name: string;
+  color_name: string | null;
+  size: string | null;
+  piece: string | null;
+  qty: number;
+  unit_price: number;
+}
+
+// Unifica items que vienen de la tabla order_items o del JSONB `items` del carrito (MercadoPago)
+function normalizeItem(it: Record<string, unknown>): OrderItem {
+  return {
+    product_name: String(it.product_name ?? it.name ?? "Producto"),
+    color_name: (it.color_name ?? it.color ?? null) as string | null,
+    size: (it.size ?? null) as string | null,
+    piece: (it.piece ?? null) as string | null,
+    qty: Number(it.qty ?? 1),
+    unit_price: Number(it.unit_price ?? it.price ?? 0),
+  };
+}
+
 function DetallePedido() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState<Record<string, unknown> | null>(null);
-  const [items, setItems] = useState<Record<string, unknown>[]>([]);
+  const [items, setItems] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState("");
   const [trackingCode, setTrackingCode] = useState("");
 
   useEffect(() => {
     Promise.all([
-      supabase.from("orders").select("*, profiles(full_name, phone)").eq("id", id).single(),
+      supabase.from("orders").select("*").eq("id", id).single(),
       supabase.from("order_items").select("*").eq("order_id", id),
-    ]).then(([{ data: ord }, { data: its }]) => {
-      if (!ord) { navigate({ to: "/admin/pedidos" }); return; }
+    ]).then(([{ data: ord, error: ordErr }, { data: its }]) => {
+      if (ordErr || !ord) {
+        console.error("Error cargando pedido:", ordErr);
+        setLoadError(ordErr?.message ?? "No se encontró el pedido");
+        setLoading(false);
+        return;
+      }
       setOrder(ord);
       setStatus(ord.status as string);
-      setTrackingCode(ord.tracking_code as string ?? "");
-      setItems(its ?? []);
+      setTrackingCode((ord.tracking_code as string) ?? "");
+      // Items: usar la tabla order_items si existe; si no, el JSONB `items` del pedido (caso MercadoPago)
+      const fromTable = (its ?? []) as Record<string, unknown>[];
+      const fromJsonb = Array.isArray(ord.items) ? (ord.items as Record<string, unknown>[]) : [];
+      setItems((fromTable.length ? fromTable : fromJsonb).map(normalizeItem));
       setLoading(false);
     });
-  }, [id, navigate]);
+  }, [id]);
 
   async function handleSave() {
     setSaving(true);
@@ -138,7 +168,20 @@ function DetallePedido() {
     win.print();
   }
 
-  if (loading || !order) return <div className="flex justify-center py-24"><div className="w-5 h-5 border border-cream/20 border-t-cream rounded-full animate-spin" /></div>;
+  if (loading) return <div className="flex justify-center py-24"><div className="w-5 h-5 border border-cream/20 border-t-cream rounded-full animate-spin" /></div>;
+
+  if (loadError || !order) return (
+    <div className="max-w-2xl space-y-4">
+      <button onClick={() => navigate({ to: "/admin/pedidos" })} className="flex items-center gap-2 text-cream/40 hover:text-cream transition-colors text-[11px] uppercase tracking-[0.25em]">
+        <ArrowLeft size={16} strokeWidth={1.5} /> Volver a pedidos
+      </button>
+      <div className="border border-red-500/30 bg-red-500/10 p-5">
+        <p className="text-sm text-red-400 mb-1">No se pudo cargar el pedido</p>
+        <p className="text-[11px] text-cream/50">{loadError ?? "Pedido no encontrado"}</p>
+        <p className="text-[10px] text-cream/30 mt-2 font-mono">ID: {id}</p>
+      </div>
+    </div>
+  );
 
   const address = order.address_snap as Record<string, string> | null;
   const profile = order.profiles as Record<string, string> | null;
@@ -153,7 +196,7 @@ function DetallePedido() {
           <div>
             <p className="text-[10px] uppercase tracking-[0.4em] text-acid mb-1">Pedidos</p>
             <h1 className="font-display text-[clamp(1.5rem,3vw,2.5rem)] uppercase leading-[0.88] text-cream">
-              #{(order.id as string).slice(0, 8)}
+              #{(order.id as string).slice(0, 8).toUpperCase()}
             </h1>
           </div>
         </div>
@@ -217,15 +260,15 @@ function DetallePedido() {
           {items.map((item, i) => (
             <div key={i} className="flex items-center justify-between px-4 py-3">
               <div>
-                <p className="text-sm text-cream">{item.product_name as string}</p>
+                <p className="text-sm text-cream">{item.product_name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  {item.color_name && <span className="text-[10px] text-cream/40">{item.color_name as string}</span>}
-                  {item.size && <span className="text-[10px] text-cream/40">Talla {item.size as string}</span>}
-                  {item.piece && <span className="text-[10px] text-cream/30">{item.piece as string}</span>}
-                  <span className="text-[10px] text-cream/30">×{item.qty as number}</span>
+                  {item.color_name && <span className="text-[10px] text-cream/40">{item.color_name}</span>}
+                  {item.size && <span className="text-[10px] text-cream/40">Talla {item.size}</span>}
+                  {item.piece && <span className="text-[10px] text-cream/30">{item.piece}</span>}
+                  <span className="text-[10px] text-cream/30">×{item.qty}</span>
                 </div>
               </div>
-              <span className="text-sm text-cream">{fmt((item.unit_price as number) * (item.qty as number))}</span>
+              <span className="text-sm text-cream">{fmt(item.unit_price * item.qty)}</span>
             </div>
           ))}
         </div>

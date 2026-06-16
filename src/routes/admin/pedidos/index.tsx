@@ -13,6 +13,7 @@ interface Order {
   total: number;
   payment_method: string;
   created_at: string;
+  address_snap: { full_name?: string } | null;
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -41,14 +42,18 @@ function AdminPedidos() {
 
   useEffect(() => {
     supabase.from("orders")
-      .select("id, email, status, total, payment_method, created_at")
+      .select("id, email, status, total, payment_method, created_at, address_snap")
       .order("created_at", { ascending: false })
-      .then(({ data }) => { setOrders(data ?? []); setLoading(false); });
+      .then(({ data }) => { setOrders((data ?? []) as Order[]); setLoading(false); });
   }, []);
 
   const filtered = orders.filter((o) => {
     if (filter !== "all" && o.status !== filter) return false;
-    if (search && !o.email.toLowerCase().includes(search.toLowerCase()) && !o.id.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      const name = (o.address_snap?.full_name ?? "").toLowerCase();
+      if (!o.email.toLowerCase().includes(q) && !o.id.toLowerCase().includes(q) && !name.includes(q)) return false;
+    }
     return true;
   });
   const counts = Object.keys(STATUS_LABELS).reduce((acc, s) => {
@@ -123,16 +128,16 @@ function AdminPedidos() {
             <Link key={order.id} to="/admin/pedidos/$id" params={{ id: order.id }}
               className="flex items-center gap-4 p-4 hover:bg-cream/5 transition-colors">
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-cream truncate">
-                  {order.email}
-                </p>
-                <div className="flex items-center gap-3 mt-0.5">
-                  <span className="text-[10px] text-cream/40 font-mono">{order.id.slice(0, 8)}...</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-cream font-mono">#{order.id.slice(0, 8).toUpperCase()}</span>
                   <span className="text-[10px] text-cream/40">{fmtDate(order.created_at)}</span>
                   {order.payment_method && (
                     <span className="text-[10px] text-cream/30 uppercase">{order.payment_method}</span>
                   )}
                 </div>
+                <p className="text-[11px] text-cream/60 truncate mt-0.5">
+                  {order.address_snap?.full_name ? `${order.address_snap.full_name} · ` : ""}{order.email}
+                </p>
               </div>
               <span className="text-sm text-cream shrink-0">{fmt(order.total)}</span>
               <span className={`text-[9px] uppercase tracking-[0.2em] px-2 py-1 shrink-0 ${STATUS_COLORS[order.status] ?? "text-cream/40 bg-cream/5"}`}>
