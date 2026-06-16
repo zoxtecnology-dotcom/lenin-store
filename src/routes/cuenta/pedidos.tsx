@@ -7,7 +7,28 @@ import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
 import { pageTitle } from "@/lib/brand";
 import { fmtCOP } from "@/lib/products";
-import { ArrowLeft, Package, Clock, CheckCircle, Truck, XCircle } from "lucide-react";
+import { ArrowLeft, Package, Clock, CheckCircle, Truck, XCircle, MapPin, Pencil, Save, Loader2, X, ChevronDown } from "lucide-react";
+import { updateOrderAddress, EDITABLE_ADDRESS_STATUSES } from "@/lib/api/orders.functions";
+
+const DEPARTMENTS = [
+  "Amazonas", "Antioquia", "Arauca", "Atlántico", "Bogotá D.C.", "Bolívar",
+  "Boyacá", "Caldas", "Caquetá", "Casanare", "Cauca", "Cesar", "Chocó",
+  "Córdoba", "Cundinamarca", "Guainía", "Guaviare", "Huila", "La Guajira",
+  "Magdalena", "Meta", "Nariño", "Norte de Santander", "Putumayo", "Quindío",
+  "Risaralda", "San Andrés y Providencia", "Santander", "Sucre", "Tolima",
+  "Valle del Cauca", "Vaupés", "Vichada",
+];
+
+interface ShippingAddress {
+  full_name?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  department?: string;
+  postal_code?: string;
+}
+
+const inputCls = "w-full bg-background border border-border px-3 py-2.5 text-sm text-cream placeholder:text-cream/30 focus:border-cream/40 outline-none";
 
 export const Route = createFileRoute("/cuenta/pedidos")({
   head: () => ({
@@ -29,11 +50,7 @@ interface Order {
     price: number;
     image?: string;
   }>;
-  shipping_address: {
-    name?: string;
-    address?: string;
-    city?: string;
-  } | null;
+  address_snap: ShippingAddress | null;
   created_at: string;
 }
 
@@ -49,10 +66,58 @@ const STATUS_CONFIG: Record<string, { label: string; icon: typeof Clock; color: 
 };
 
 function MisPedidosPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Edición de dirección
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<ShippingAddress>({});
+  const [savingAddr, setSavingAddr] = useState(false);
+  const [addrError, setAddrError] = useState<string | null>(null);
+
+  function startEdit(order: Order) {
+    setAddrError(null);
+    setEditingId(order.id);
+    setEditForm({ ...(order.address_snap ?? {}) });
+  }
+
+  async function saveAddress(orderId: string) {
+    setAddrError(null);
+    // Validaciones básicas
+    if (!editForm.full_name || !editForm.phone || !editForm.address || !editForm.city || !editForm.department) {
+      setAddrError("Completa todos los campos obligatorios");
+      return;
+    }
+    if (!/^\d{7,10}$/.test((editForm.phone ?? "").trim())) {
+      setAddrError("El teléfono debe tener entre 7 y 10 dígitos");
+      return;
+    }
+    setSavingAddr(true);
+    try {
+      await updateOrderAddress({
+        data: {
+          orderId,
+          address: {
+            full_name: editForm.full_name!,
+            phone: editForm.phone!,
+            address: editForm.address!,
+            city: editForm.city!,
+            department: editForm.department!,
+            postal_code: editForm.postal_code,
+          },
+          accessToken: session!.access_token,
+        },
+      });
+      setEditingId(null);
+      await loadOrders();
+    } catch (err) {
+      setAddrError(err instanceof Error ? err.message : "No se pudo actualizar la dirección");
+    } finally {
+      setSavingAddr(false);
+    }
+  }
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -188,15 +253,85 @@ function MisPedidosPage() {
                       </div>
 
                       {/* Footer */}
-                      <div className="p-6 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-cream/[0.02]">
-                        {order.shipping_address && (
-                          <p className="text-[10px] text-cream/40">
-                            Envío a: {order.shipping_address.city}
-                          </p>
+                      <div className="p-6 border-t border-border bg-cream/[0.02]">
+                        {editingId === order.id ? (
+                          /* ── Editar dirección ── */
+                          <div className="space-y-3">
+                            <p className="text-[10px] uppercase tracking-[0.3em] text-acid">Editar dirección de envío</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <input type="text" placeholder="Nombre completo *" value={editForm.full_name ?? ""}
+                                onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value.replace(/[^a-zA-ZÀ-ÿñÑ\s'.]/g, "") })}
+                                className={inputCls} />
+                              <input type="tel" inputMode="numeric" maxLength={10} placeholder="Teléfono *" value={editForm.phone ?? ""}
+                                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
+                                className={inputCls} />
+                              <input type="text" placeholder="Dirección completa *" value={editForm.address ?? ""}
+                                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                                className={`${inputCls} sm:col-span-2`} />
+                              <input type="text" placeholder="Ciudad *" value={editForm.city ?? ""}
+                                onChange={(e) => setEditForm({ ...editForm, city: e.target.value.replace(/[^a-zA-ZÀ-ÿñÑ\s'.-]/g, "") })}
+                                className={inputCls} />
+                              <div className="relative">
+                                <select value={editForm.department ?? ""}
+                                  onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                                  className={`${inputCls} appearance-none cursor-pointer pr-9`}>
+                                  <option value="" className="bg-background">Departamento *</option>
+                                  {DEPARTMENTS.map((d) => <option key={d} value={d} className="bg-background">{d}</option>)}
+                                </select>
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cream/50 pointer-events-none" />
+                              </div>
+                              <input type="text" inputMode="numeric" maxLength={6} placeholder="Código postal (opcional)" value={editForm.postal_code ?? ""}
+                                onChange={(e) => setEditForm({ ...editForm, postal_code: e.target.value.replace(/\D/g, "").slice(0, 6) })}
+                                className={`${inputCls} sm:col-span-2`} />
+                            </div>
+                            {addrError && <p className="text-[11px] text-red-400">{addrError}</p>}
+                            <div className="flex items-center gap-2">
+                              <button onClick={() => saveAddress(order.id)} disabled={savingAddr}
+                                className="flex items-center gap-2 bg-acid text-ink px-4 py-2.5 text-[10px] uppercase tracking-[0.25em] font-medium hover:opacity-90 disabled:opacity-50">
+                                {savingAddr ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} strokeWidth={2} />}
+                                {savingAddr ? "Guardando..." : "Guardar dirección"}
+                              </button>
+                              <button onClick={() => setEditingId(null)} disabled={savingAddr}
+                                className="flex items-center gap-2 border border-border text-cream/70 px-4 py-2.5 text-[10px] uppercase tracking-[0.25em] hover:border-cream/40 transition-colors">
+                                <X size={13} strokeWidth={2} /> Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          /* ── Vista normal ── */
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                            <div className="min-w-0">
+                              {order.address_snap ? (
+                                <div className="flex items-start gap-2">
+                                  <MapPin size={13} className="text-cream/30 mt-0.5 shrink-0" />
+                                  <div className="text-[11px] text-cream/50 leading-relaxed">
+                                    {order.address_snap.full_name && <span className="text-cream/70">{order.address_snap.full_name}<br /></span>}
+                                    {order.address_snap.address}
+                                    {(order.address_snap.city || order.address_snap.department) && (
+                                      <><br />{[order.address_snap.city, order.address_snap.department].filter(Boolean).join(", ")}</>
+                                    )}
+                                    {order.address_snap.phone && <><br />Tel: {order.address_snap.phone}</>}
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-[10px] text-cream/40">Sin dirección registrada</p>
+                              )}
+                              {EDITABLE_ADDRESS_STATUSES.includes(order.status) ? (
+                                <button onClick={() => startEdit(order)}
+                                  className="mt-3 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-acid hover:underline">
+                                  <Pencil size={11} strokeWidth={2} /> Editar dirección
+                                </button>
+                              ) : (
+                                <p className="mt-3 text-[9px] uppercase tracking-[0.2em] text-cream/30">
+                                  El pedido ya fue procesado — no se puede cambiar la dirección
+                                </p>
+                              )}
+                            </div>
+                            <p className="text-sm text-cream shrink-0">
+                              Total: <span className="font-medium">{fmtCOP(order.total)}</span>
+                            </p>
+                          </div>
                         )}
-                        <p className="text-sm text-cream">
-                          Total: <span className="font-medium">{fmtCOP(order.total)}</span>
-                        </p>
                       </div>
                     </div>
                   </Reveal>
