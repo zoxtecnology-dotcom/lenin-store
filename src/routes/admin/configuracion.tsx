@@ -26,7 +26,7 @@ const SECTIONS: { title: string; icon: React.ElementType; keys: string[]; descri
   {
     title: "Envíos",
     icon: Truck,
-    keys: ["free_shipping_threshold", "shipping_zona1", "shipping_zona2", "shipping_zona3", "shipping_cost", "shipping_time"],
+    keys: ["free_shipping_threshold", "shipping_zona1", "shipping_zona2", "shipping_zona3", "shipping_time"],
     description: "Tarifas por zona (Z1: principales · Z2: resto · Z3: remotas). Gratis sobre el umbral.",
   },
   {
