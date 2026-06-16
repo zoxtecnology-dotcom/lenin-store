@@ -141,6 +141,12 @@ function CheckoutPage() {
       if (!address.full_name || !address.phone || !address.address || !address.city || !address.department) {
         throw new Error("Por favor completa todos los campos de la dirección");
       }
+      if (!/^[a-zA-ZÀ-ÿñÑ\s'.]{3,}$/.test(address.full_name.trim())) {
+        throw new Error("El nombre solo puede contener letras (mínimo 3 caracteres)");
+      }
+      if (!/^\d{7,10}$/.test(address.phone.trim())) {
+        throw new Error("El teléfono debe tener entre 7 y 10 dígitos");
+      }
 
       // Crear preferencia de MercadoPago
       const result = await createMPPreference({
@@ -311,15 +317,17 @@ function CheckoutPage() {
                           type="text"
                           placeholder="Nombre completo *"
                           value={form.full_name}
-                          onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                          onChange={(e) => setForm({ ...form, full_name: e.target.value.replace(/[^a-zA-ZÀ-ÿñÑ\s'.]/g, "") })}
                           required={useNewAddress}
                           className="w-full bg-transparent border border-border px-4 py-3 text-sm text-cream placeholder:text-cream/30 focus:border-cream/40 outline-none"
                         />
                         <input
                           type="tel"
+                          inputMode="numeric"
+                          maxLength={10}
                           placeholder="Teléfono *"
                           value={form.phone}
-                          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                          onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
                           required={useNewAddress}
                           className="w-full bg-transparent border border-border px-4 py-3 text-sm text-cream placeholder:text-cream/30 focus:border-cream/40 outline-none"
                         />
@@ -335,7 +343,7 @@ function CheckoutPage() {
                           type="text"
                           placeholder="Ciudad *"
                           value={form.city}
-                          onChange={(e) => setForm({ ...form, city: e.target.value })}
+                          onChange={(e) => setForm({ ...form, city: e.target.value.replace(/[^a-zA-ZÀ-ÿñÑ\s'.-]/g, "") })}
                           required={useNewAddress}
                           className="w-full bg-transparent border border-border px-4 py-3 text-sm text-cream placeholder:text-cream/30 focus:border-cream/40 outline-none"
                         />
@@ -357,9 +365,11 @@ function CheckoutPage() {
                         </div>
                         <input
                           type="text"
+                          inputMode="numeric"
+                          maxLength={6}
                           placeholder="Código postal (opcional)"
                           value={form.postal_code}
-                          onChange={(e) => setForm({ ...form, postal_code: e.target.value })}
+                          onChange={(e) => setForm({ ...form, postal_code: e.target.value.replace(/\D/g, "").slice(0, 6) })}
                           className="md:col-span-2 w-full bg-transparent border border-border px-4 py-3 text-sm text-cream placeholder:text-cream/30 focus:border-cream/40 outline-none"
                         />
                       </div>

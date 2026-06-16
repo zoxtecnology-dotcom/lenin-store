@@ -53,6 +53,7 @@ export interface Product {
   stock?: number;                // stock total (suma de variantes)
   type?: "standard" | "conjunto";
   conjunto?: ConjuntoData;
+  tag?: string;                  // etiqueta visual (ej: "-30%", "NUEVO")
 }
 
 export const products: Product[] = [

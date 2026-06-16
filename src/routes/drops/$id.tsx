@@ -28,6 +28,7 @@ export const Route = createFileRoute("/drops/$id")({
 
 function DropDetailPage() {
   const { drop, dropProducts } = Route.useLoaderData();
+  const { add, setOpen } = useCart();
 
   const [mode, setMode] = useState<"piezas" | "completo">("piezas");
   const [sizes, setSizes] = useState<Record<string, string>>({});

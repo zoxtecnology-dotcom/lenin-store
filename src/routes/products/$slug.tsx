@@ -23,14 +23,17 @@ interface SiteSettings {
 }
 
 export const Route = createFileRoute("/products/$slug")({
-  head: ({ loaderData }) => ({
-    meta: loaderData?.product
-      ? [
-          { title: `${loaderData.product.name} — AIAHN STORE` },
-          { name: "description", content: loaderData.product.shortDescription },
-        ]
-      : [{ title: "Producto no encontrado — AIAHN STORE" }],
-  }),
+  head: ({ loaderData }) => {
+    const product = (loaderData as { product?: Product } | undefined)?.product;
+    return {
+      meta: product
+        ? [
+            { title: `${product.name} — AIAHN STORE` },
+            { name: "description", content: product.shortDescription },
+          ]
+        : [{ title: "Producto no encontrado — AIAHN STORE" }],
+    };
+  },
   loader: async ({ params }) => {
     const [product, allProducts, settingsRes] = await Promise.all([
       fetchProductBySlug(params.slug),
@@ -62,10 +65,22 @@ function StandardProductPage({ product, settings }: { product: Product; settings
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
+  const [sizeError, setSizeError] = useState(false);
   const { toggle, has } = useWishlist();
   const wishlisted = has(product.id);
 
+  // Solo exige talla si el producto realmente tiene tallas (las de "Única" se autoseleccionan)
+  function validateSize() {
+    if (product.sizes.length > 0 && !selectedSize) {
+      setSizeError(true);
+      return false;
+    }
+    setSizeError(false);
+    return true;
+  }
+
   function handleAddToCart() {
+    if (!validateSize()) return;
     add({
       slug: product.slug,
       name: product.name,
@@ -78,6 +93,7 @@ function StandardProductPage({ product, settings }: { product: Product; settings
   }
 
   function handleBuyNow() {
+    if (!validateSize()) return;
     add({
       slug: product.slug,
       name: product.name,
@@ -117,11 +133,17 @@ function StandardProductPage({ product, settings }: { product: Product; settings
             <SizePicker
               sizes={product.sizes}
               selected={selectedSize}
-              onSelect={setSelectedSize}
+              onSelect={(s) => { setSelectedSize(s); setSizeError(false); }}
               variants={product.variants ?? []}
               selectedColor={product.colors[selectedColor]?.name ?? ""}
               category={product.category}
             />
+
+            {sizeError && (
+              <p className="-mt-3 mb-4 text-[11px] uppercase tracking-[0.2em] text-red-400">
+                Por favor selecciona una talla
+              </p>
+            )}
 
             <QtyPicker qty={qty} onChange={setQty} />
 
@@ -155,10 +177,26 @@ function ConjuntoProductPage({ product, settings }: { product: Product; settings
   const [topSize, setTopSize] = useState<string | null>(null);
   const [bottomSize, setBottomSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState(0);
+  const [sizeError, setSizeError] = useState(false);
   const { toggle, has } = useWishlist();
   const wishlisted = has(product.id);
   const [guideOpen, setGuideOpen] = useState(false);
   const [guideCategory, setGuideCategory] = useState<string>("camiseta");
+
+  // Exige las tallas necesarias según el combo elegido (si el producto tiene tallas)
+  function validateSizes() {
+    if (product.sizes.length === 0) return true;
+    const missing =
+      (combo === "completo" && (!topSize || !bottomSize)) ||
+      (combo === "top" && !topSize) ||
+      (combo === "bottom" && !bottomSize);
+    if (missing) {
+      setSizeError(true);
+      return false;
+    }
+    setSizeError(false);
+    return true;
+  }
 
   // Completo: todas las fotos (look completo + arriba + abajo + galería)
   // Top/Bottom: solo las de esa pieza
@@ -189,6 +227,7 @@ function ConjuntoProductPage({ product, settings }: { product: Product; settings
   const savings = Math.round((1 - product.price / (c.topPrice + c.bottomPrice)) * 100);
 
   function handleAddToCart() {
+    if (!validateSizes()) return;
     if (combo === "completo") {
       add({
         slug: product.slug + "-completo",
@@ -227,6 +266,7 @@ function ConjuntoProductPage({ product, settings }: { product: Product; settings
   }
 
   function handleBuyNow() {
+    if (!validateSizes()) return;
     if (combo === "completo") {
       add({
         slug: product.slug + "-completo",
@@ -366,7 +406,7 @@ function ConjuntoProductPage({ product, settings }: { product: Product; settings
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => (
-                    <button key={size} onClick={() => setTopSize(size)}
+                    <button key={size} onClick={() => { setTopSize(size); setSizeError(false); }}
                       className={`min-w-[44px] px-3 py-2 text-[10px] uppercase tracking-[0.2em] border transition-all ${
                         topSize === size ? "bg-cream text-ink border-cream" : "text-cream/60 border-border hover:border-cream hover:text-cream"
                       }`}
@@ -387,7 +427,7 @@ function ConjuntoProductPage({ product, settings }: { product: Product; settings
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => (
-                    <button key={size} onClick={() => setBottomSize(size)}
+                    <button key={size} onClick={() => { setBottomSize(size); setSizeError(false); }}
                       className={`min-w-[44px] px-3 py-2 text-[10px] uppercase tracking-[0.2em] border transition-all ${
                         bottomSize === size ? "bg-cream text-ink border-cream" : "text-cream/60 border-border hover:border-cream hover:text-cream"
                       }`}
@@ -395,6 +435,12 @@ function ConjuntoProductPage({ product, settings }: { product: Product; settings
                   ))}
                 </div>
               </div>
+            )}
+
+            {sizeError && (
+              <p className="mb-4 text-[11px] uppercase tracking-[0.2em] text-red-400">
+                Por favor selecciona {combo === "completo" ? "las tallas" : "la talla"}
+              </p>
             )}
 
             <div className="flex flex-col gap-3 mb-8">
@@ -436,7 +482,7 @@ function Breadcrumb({ category, name }: { category: string; name: string }) {
     <nav className="flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-cream/40">
       <Link to="/" className="hover:text-cream transition-colors">Inicio</Link>
       <span>/</span>
-      <Link to="/collections/$handle" params={{ handle }} className="hover:text-cream transition-colors">
+      <Link to="/collections/$handle" params={{ handle }} search={{ sort: "reciente" }} className="hover:text-cream transition-colors">
         {category}
       </Link>
       <span>/</span>
@@ -502,12 +548,12 @@ function PriceBlock({ price, compareAtPrice }: { price: number; compareAtPrice?:
   );
 }
 
-function ColorPicker({ colors, selected, onSelect, variants, sizes }: {
+function ColorPicker({ colors, selected, onSelect, variants = [], sizes = [] }: {
   colors: { name: string; swatch: string }[];
   selected: number;
   onSelect: (i: number) => void;
-  variants: import("@/lib/products").ProductVariant[];
-  sizes: string[];
+  variants?: import("@/lib/products").ProductVariant[];
+  sizes?: string[];
 }) {
   function colorStock(colorName: string) {
     if (!variants.length) return 99;
