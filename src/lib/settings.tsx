@@ -12,6 +12,9 @@ export interface SiteSettings {
   // Envíos
   free_shipping_threshold: string;
   shipping_cost: string;
+  shipping_zona1: string;
+  shipping_zona2: string;
+  shipping_zona3: string;
   shipping_time: string;
   // Contraentrega
   cod_enabled: string;
@@ -36,6 +39,9 @@ const DEFAULTS: SiteSettings = {
   youtube_url: "",
   free_shipping_threshold: "200000",
   shipping_cost: "15000",
+  shipping_zona1: "12000",
+  shipping_zona2: "18000",
+  shipping_zona3: "30000",
   shipping_time: "3-5 días hábiles",
   cod_enabled: "true",
   cod_cities: "Medellín|Envigado|Sabaneta|Itagüí|Bello",

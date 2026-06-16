@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
+import { calcShipping, ratesFromSettings } from "@/lib/shipping";
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -105,7 +106,19 @@ export const createMPPreference = createServerFn({ method: "POST" })
 
     // Calcular totales
     const subtotal = data.items.reduce((sum, item) => sum + item.price * item.qty, 0);
-    const shippingCost = 0; // TODO: calcular según dirección
+
+    // Costo de envío según la zona del departamento de destino (gratis sobre el umbral).
+    // Se lee de site_settings con fallback a los valores por defecto.
+    const { data: shipSettings } = await supabase
+      .from("site_settings")
+      .select("key, value")
+      .in("key", ["shipping_zona1", "shipping_zona2", "shipping_zona3", "free_shipping_threshold"]);
+    const shipMap = (shipSettings ?? []).reduce(
+      (acc, { key, value }) => ({ ...acc, [key]: value }),
+      {} as Record<string, string>
+    );
+    const rates = ratesFromSettings(shipMap);
+    const shippingCost = calcShipping(data.address.department, subtotal, rates);
     const total = subtotal + shippingCost;
 
     // 1. Crear la orden en Supabase (status: pending)
@@ -157,6 +170,8 @@ export const createMPPreference = createServerFn({ method: "POST" })
       auto_return: "approved",
       external_reference: order.id,
       notification_url: `${siteUrl}/api/mp/webhook`,
+      // Cobrar el envío como costo de envío (se suma al total en el checkout de MP)
+      ...(shippingCost > 0 ? { shipments: { cost: shippingCost, mode: "not_specified" } } : {}),
     };
 
     const preferenceData = await createMPPreferenceAPI(mpAccessToken, preferenceBody);

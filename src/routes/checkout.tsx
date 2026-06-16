@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
+import { useSettings } from "@/lib/settings";
+import { calcShipping, ratesFromSettings } from "@/lib/shipping";
 import { supabase } from "@/lib/supabase";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
@@ -42,6 +44,7 @@ const DEPARTMENTS = [
 function CheckoutPage() {
   const { user, session, loading: authLoading } = useAuth();
   const { items, total, count, clear } = useCart();
+  const { settings } = useSettings();
   const navigate = useNavigate();
 
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -105,6 +108,12 @@ function CheckoutPage() {
 
   // Obtener dirección seleccionada
   const selectedAddress = savedAddresses.find((a) => a.id === selectedAddressId);
+
+  // Calcular envío según el departamento de destino (mismo cálculo que el servidor)
+  const shippingDept = useNewAddress ? form.department : (selectedAddress?.department ?? "");
+  const shippingRates = ratesFromSettings(settings);
+  const shipping = shippingDept ? calcShipping(shippingDept, total, shippingRates) : null;
+  const grandTotal = total + (shipping ?? 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -445,11 +454,22 @@ function CheckoutPage() {
                       </div>
                       <div className="flex justify-between text-xs">
                         <span className="text-cream/60">Envío</span>
-                        <span className="text-cream/50 text-[10px]">Calculado al pagar</span>
+                        {shipping === null ? (
+                          <span className="text-cream/50 text-[10px]">Elige tu departamento</span>
+                        ) : shipping === 0 ? (
+                          <span className="text-acid">Gratis</span>
+                        ) : (
+                          <span className="text-cream">{fmtCOP(shipping)}</span>
+                        )}
                       </div>
+                      {shipping !== null && shipping > 0 && (
+                        <p className="text-[9px] text-cream/40">
+                          Envío gratis desde {fmtCOP(shippingRates.freeThreshold)}
+                        </p>
+                      )}
                       <div className="flex justify-between text-sm font-medium pt-2 border-t border-border">
                         <span className="text-cream">Total</span>
-                        <span className="text-cream">{fmtCOP(total)}</span>
+                        <span className="text-cream">{fmtCOP(grandTotal)}</span>
                       </div>
                     </div>
 

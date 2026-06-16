@@ -26,8 +26,8 @@ const SECTIONS: { title: string; icon: React.ElementType; keys: string[]; descri
   {
     title: "Envíos",
     icon: Truck,
-    keys: ["free_shipping_threshold", "shipping_cost", "shipping_time"],
-    description: "Configuración de envíos y costos",
+    keys: ["free_shipping_threshold", "shipping_zona1", "shipping_zona2", "shipping_zona3", "shipping_cost", "shipping_time"],
+    description: "Tarifas por zona (Z1: principales · Z2: resto · Z3: remotas). Gratis sobre el umbral.",
   },
   {
     title: "Contraentrega",
@@ -56,7 +56,7 @@ const SECTIONS: { title: string; icon: React.ElementType; keys: string[]; descri
 ];
 
 const boolKeys = ["cod_enabled"];
-const numberKeys = ["free_shipping_threshold", "shipping_cost", "cod_extra_fee", "min_order_amount", "returns_days"];
+const numberKeys = ["free_shipping_threshold", "shipping_cost", "shipping_zona1", "shipping_zona2", "shipping_zona3", "cod_extra_fee", "min_order_amount", "returns_days"];
 const multilineKeys = ["announcement_bar", "cod_cities"];
 
 function AdminConfiguracion() {
