@@ -10,6 +10,8 @@ import {
 import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
+import favicon from "@/assets/favicon.png?url";
+import appleTouchIcon from "@/assets/apple-touch-icon.png?url";
 import { CartProvider } from "@/lib/cart";
 import { CartDrawer } from "@/components/CartDrawer";
 import { WhatsappWidget } from "@/components/WhatsappWidget";
@@ -104,6 +106,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "icon", type: "image/png", href: favicon },
+      { rel: "apple-touch-icon", sizes: "180x180", href: appleTouchIcon },
     ],
   }),
   shellComponent: RootShell,

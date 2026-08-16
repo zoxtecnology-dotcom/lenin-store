@@ -8,6 +8,7 @@ import {
   Palette, Users, Ruler,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo.png";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
@@ -84,9 +85,7 @@ function AdminLayout() {
         {/* Logo */}
         <div className="px-6 py-5 border-b border-border">
           <Link to="/" className="flex items-center gap-2 group">
-            <span className="bg-acid px-1.5 py-0.5 font-display text-xl font-black uppercase leading-none text-ink">
-              AI<span className="font-serif-it not-italic">A</span>HN
-            </span>
+            <img src={logo} alt="SAIL STORE" className="block h-10 w-10 object-cover object-[50%_47%]" />
             <span className="text-[9px] uppercase tracking-[0.3em] text-cream/30 group-hover:text-cream/60 transition-colors">
               Admin
             </span>
@@ -139,9 +138,7 @@ function AdminLayout() {
           <div className="absolute inset-0 bg-background/80" onClick={() => setSidebarOpen(false)} />
           <aside className="absolute left-0 top-0 bottom-0 bg-background border-r border-border flex flex-col" style={{ width: "min(var(--sidebar-w), 85vw)" }}>
             <div className="px-6 py-5 border-b border-border flex items-center justify-between">
-              <span className="bg-acid px-1.5 py-0.5 font-display text-xl font-black uppercase leading-none text-ink">
-                AI<span className="font-serif-it not-italic">A</span>HN
-              </span>
+              <img src={logo} alt="SAIL STORE" className="block h-10 w-10 object-cover object-[50%_47%]" />
               <button onClick={() => setSidebarOpen(false)}>
                 <X size={18} strokeWidth={1.5} className="text-cream/50" />
               </button>
@@ -175,9 +172,7 @@ function AdminLayout() {
           <button onClick={() => setSidebarOpen(true)}>
             <Menu size={20} strokeWidth={1.5} className="text-cream" />
           </button>
-          <span className="bg-acid px-1.5 py-0.5 font-display text-xl font-black uppercase leading-none text-ink">
-            AI<span className="font-serif-it not-italic">A</span>HN
-          </span>
+          <img src={logo} alt="SAIL STORE" className="block h-10 w-10 object-cover object-[50%_47%]" />
           <div className="w-5" />
         </header>
 

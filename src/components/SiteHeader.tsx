@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { megaCategories } from "@/lib/collections";
 import { SearchModal } from "@/components/SearchModal";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo.png";
 
 // Fallback mientras carga
 const DEFAULT_ANNOUNCEMENTS = ["SAIL Store"];
@@ -138,10 +139,8 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
           <div className="mx-auto hidden md:grid max-w-[1500px] grid-cols-[auto_1fr_auto] items-start gap-x-8 px-10 py-4">
 
             {/* Logo */}
-            <Link to="/" className="shrink-0 pt-0.5">
-              <span className="block bg-acid px-2 py-0.5 font-display text-2xl font-black uppercase leading-none tracking-tight text-ink">
-                AI<span className="font-serif-it not-italic">A</span>HN
-              </span>
+            <Link to="/" className="shrink-0">
+              <img src={logo} alt={BRAND.store} className="block h-12 w-12 object-cover object-[50%_47%]" />
             </Link>
 
             {/* Nav — wraps to second row automatically */}
@@ -186,9 +185,7 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
           {/* Mobile row (< md): logo + cart + hamburger */}
           <div className="md:hidden flex items-center justify-between px-5 py-4">
             <Link to="/" className="shrink-0">
-              <span className="block bg-acid px-2 py-0.5 font-display text-2xl font-black uppercase leading-none tracking-tight text-ink">
-                AI<span className="font-serif-it not-italic">A</span>HN
-              </span>
+              <img src={logo} alt={BRAND.store} className="block h-11 w-11 object-cover object-[50%_47%]" />
             </Link>
             <div className="flex items-center gap-4 text-cream">
               <Link to="/wishlist" aria-label="Guardados" className="relative hover:text-acid transition-colors">
@@ -260,9 +257,7 @@ export function SiteHeader({ transparentTop }: SiteHeaderProps) {
       )}>
         <div className="flex items-center justify-between px-5 py-5 border-b border-border">
           <Link to="/" onClick={() => setMobileOpen(false)}>
-            <span className="block bg-acid px-2 py-0.5 font-display text-2xl font-black uppercase leading-none tracking-tight text-ink">
-              AI<span className="font-serif-it not-italic">A</span>HN
-            </span>
+            <img src={logo} alt={BRAND.store} className="block h-11 w-11 object-cover object-[50%_47%]" />
           </Link>
           <button onClick={() => setMobileOpen(false)} className="text-cream hover:text-acid transition-colors">
             <X size={22} strokeWidth={1.5} />
