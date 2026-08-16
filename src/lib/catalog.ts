@@ -60,7 +60,7 @@ const CARD_IMG = "w_1024,q_auto,f_auto";
 
 // ─── Mapper: fila de DB → Product (el shape que usa el front) ──
 function rowToProduct(row: ProductRow): Product {
-  const imgs = [...row.product_images].sort((a, b) => a.position - b.position);
+  const imgs = [...(row.product_images ?? [])].sort((a, b) => a.position - b.position);
 
   const front = imgs.find((i) => i.role === "front") ?? imgs[0];
   const back = imgs.find((i) => i.role === "back") ?? imgs[1] ?? front;
@@ -68,20 +68,20 @@ function rowToProduct(row: ProductRow): Product {
   // Galería: front, back, gallery (excluye piezas de conjunto top/bottom/full)
   const galleryImgs = imgs.filter((i) => ["front", "back", "gallery"].includes(i.role));
 
-  const colors: ProductColor[] = [...row.product_colors]
+  const colors: ProductColor[] = [...(row.product_colors ?? [])]
     .sort((a, b) => a.position - b.position)
     .map((c) => ({ name: c.name, swatch: c.swatch }));
 
   // Tallas: distintas de las variantes (excluye piezas para no duplicar)
-  const sizeSet = new Set(row.product_variants.map((v) => v.size));
+  const sizeSet = new Set((row.product_variants ?? []).map((v) => v.size));
   const sizes = sortSizes([...sizeSet]);
 
-  const totalStock = row.product_variants.reduce((sum, v) => sum + v.stock, 0);
+  const totalStock = (row.product_variants ?? []).reduce((sum, v) => sum + v.stock, 0);
 
   const dropLabel = row.drops ? `${row.drops.name} — ${row.drops.label}` : "";
 
   // Variantes con stock para deshabilitar tallas/colores agotados
-  const variants: ProductVariant[] = row.product_variants.map((v) => ({
+  const variants: ProductVariant[] = (row.product_variants ?? []).map((v) => ({
     color_name: v.color_name,
     size: v.size,
     piece: v.piece,

@@ -78,6 +78,7 @@ function AdminProductos() {
   }
 
   function getFrontImage(images: Product["product_images"]) {
+    if (!images || images.length === 0) return undefined;
     return images.find((i) => i.role === "front") ?? images[0];
   }
 

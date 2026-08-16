@@ -109,23 +109,23 @@ function EditarProducto() {
         bottom_piece_type: p.bottom_piece_type ?? "pantalon",
       });
 
-      setImages(p.product_images.map((img: UploadedImage & { id: string }) => ({
+      setImages((p.product_images ?? []).map((img: UploadedImage & { id: string }) => ({
         cloudinary_id: img.cloudinary_id,
         role: img.role,
         alt_text: img.alt_text,
         position: img.position,
       })));
 
-      const loadedColors = p.product_colors.map((c: Color) => ({ id: c.id, name: c.name, swatch: c.swatch }));
+      const loadedColors = (p.product_colors ?? []).map((c: Color) => ({ id: c.id, name: c.name, swatch: c.swatch }));
       setColors(loadedColors);
 
-      const loadedVariants = p.product_variants.map((v: Variant) => ({
+      const loadedVariants = (p.product_variants ?? []).map((v: Variant) => ({
         id: v.id, color_name: v.color_name, size: v.size,
         piece: v.piece, stock: v.stock, sku: v.sku ?? "",
       }));
       setVariants(loadedVariants);
 
-      const sizes = [...new Set(p.product_variants.map((v: Variant) => v.size))] as string[];
+      const sizes = [...new Set((p.product_variants ?? []).map((v: Variant) => v.size))] as string[];
       setSelectedSizes(sizes.length > 0 ? sizes : ["S", "M", "L"]);
 
       setLoading(false);
