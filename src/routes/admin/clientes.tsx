@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { User, Mail, Phone, ShoppingBag, Calendar, Search } from "lucide-react";
+import { User, Mail, Phone, ShoppingBag, Calendar, Search, Shield, ShieldOff, Loader } from "lucide-react";
 import { fmtCOP } from "@/lib/products";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/admin/clientes")({
   component: AdminClientes,
@@ -20,43 +21,82 @@ interface Profile {
 }
 
 function AdminClientes() {
+  const { user, loading: authLoading } = useAuth();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [togglingRole, setTogglingRole] = useState<string | null>(null);
 
   useEffect(() => {
-    load();
-  }, []);
+    if (!authLoading && user) load();
+  }, [authLoading, user]);
 
   async function load() {
-    // Cargar perfiles
-    const { data: profilesData } = await supabase
-      .from("profiles")
-      .select("id, email, full_name, phone, role, created_at")
-      .order("created_at", { ascending: false });
+    try {
+      // Cargar perfiles
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("id, email, full_name, phone, role, created_at")
+        .order("created_at", { ascending: false });
 
-    // Cargar estadísticas de órdenes por usuario
-    const { data: ordersData } = await supabase
-      .from("orders")
-      .select("user_id, total");
+      // Cargar estadísticas de órdenes por usuario
+      const { data: ordersData } = await supabase
+        .from("orders")
+        .select("user_id, total");
 
-    // Combinar datos
-    const ordersByUser = (ordersData ?? []).reduce((acc, o) => {
-      if (!acc[o.user_id]) acc[o.user_id] = { count: 0, total: 0 };
-      acc[o.user_id].count++;
-      acc[o.user_id].total += o.total || 0;
-      return acc;
-    }, {} as Record<string, { count: number; total: number }>);
+      // Combinar datos
+      const ordersByUser = (ordersData ?? []).reduce((acc, o) => {
+        if (!acc[o.user_id]) acc[o.user_id] = { count: 0, total: 0 };
+        acc[o.user_id].count++;
+        acc[o.user_id].total += o.total || 0;
+        return acc;
+      }, {} as Record<string, { count: number; total: number }>);
 
-    const enriched = (profilesData ?? []).map((p) => ({
-      ...p,
-      orders_count: ordersByUser[p.id]?.count ?? 0,
-      orders_total: ordersByUser[p.id]?.total ?? 0,
-    }));
+      const enriched = (profilesData ?? []).map((p) => ({
+        ...p,
+        orders_count: ordersByUser[p.id]?.count ?? 0,
+        orders_total: ordersByUser[p.id]?.total ?? 0,
+      }));
 
-    setProfiles(enriched);
-    setLoading(false);
+      setProfiles(enriched);
+    } catch (e) {
+      console.error("Error loading profiles:", e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function toggleRole(profileId: string, currentRole: string) {
+    if (profileId === user?.id) {
+      alert("No puedes cambiar tu propio rol");
+      return;
+    }
+    
+    const newRole = currentRole === "admin" ? "customer" : "admin";
+    const confirmMsg = newRole === "admin" 
+      ? "¿Estás seguro de dar permisos de administrador a este usuario?" 
+      : "¿Estás seguro de quitar permisos de administrador a este usuario?";
+    
+    if (!confirm(confirmMsg)) return;
+    
+    setTogglingRole(profileId);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ role: newRole })
+        .eq("id", profileId);
+      
+      if (error) throw error;
+      
+      setProfiles((prev) => 
+        prev.map((p) => p.id === profileId ? { ...p, role: newRole } : p)
+      );
+    } catch (e) {
+      alert(`Error al cambiar rol: ${e instanceof Error ? e.message : "Error desconocido"}`);
+    } finally {
+      setTogglingRole(null);
+    }
   }
 
   const filtered = profiles.filter((p) => {
@@ -89,7 +129,7 @@ function AdminClientes() {
           Clientes
         </h1>
         <p className="text-sm text-cream/40 mt-2">
-          Lista de usuarios registrados (solo lectura).
+          Gestiona usuarios y administradores.
         </p>
       </div>
 
@@ -175,6 +215,27 @@ function AdminClientes() {
                   <Calendar size={12} />
                   <span>{new Date(profile.created_at).toLocaleDateString("es-CO")}</span>
                 </div>
+                {profile.id !== user?.id && (
+                  <button
+                    onClick={() => toggleRole(profile.id, profile.role)}
+                    disabled={togglingRole === profile.id}
+                    title={profile.role === "admin" ? "Quitar admin" : "Hacer admin"}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] uppercase tracking-[0.15em] border transition-colors ${
+                      profile.role === "admin"
+                        ? "border-red-500/50 text-red-400 hover:bg-red-500/10"
+                        : "border-acid/50 text-acid hover:bg-acid/10"
+                    } disabled:opacity-50`}
+                  >
+                    {togglingRole === profile.id ? (
+                      <Loader size={12} className="animate-spin" />
+                    ) : profile.role === "admin" ? (
+                      <ShieldOff size={12} />
+                    ) : (
+                      <Shield size={12} />
+                    )}
+                    {profile.role === "admin" ? "Quitar admin" : "Hacer admin"}
+                  </button>
+                )}
               </div>
             </div>
           ))}
