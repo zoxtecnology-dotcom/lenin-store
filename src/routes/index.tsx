@@ -13,9 +13,9 @@ import { ProductCard } from "@/components/ProductCard";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AIAHN STORE — Hecho por amor, vestido con actitud" },
-      { name: "description", content: "Streetwear premium de Colombia. Drop 01 — AIAHN Essentials SS26. Ropa hecha por amor, vestida con actitud." },
-      { property: "og:title", content: "AIAHN STORE — Drop 01" },
+      { title: "SAIL STORE — Hecho por amor, vestido con actitud" },
+      { name: "description", content: "Streetwear premium de Colombia. Drop 01 — SAIL Essentials SS26. Ropa hecha por amor, vestida con actitud." },
+      { property: "og:title", content: "SAIL STORE — Drop 01" },
       { property: "og:description", content: "Ropa hecha por amor, vestida con actitud. Drop 01 disponible ahora." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -99,15 +99,15 @@ function Index() {
           </Reveal>
           <Reveal delay={120}>
             <h2 className="mt-8 font-serif-i text-[clamp(2.6rem,7vw,7rem)] leading-[0.95] text-cream">
-              Dos nombres.<br />
-              Una sangre.<br />
+              Sin mapa.<br />
+              Sin ancla.<br />
               <span className="font-display not-italic tracking-tight">Una marca.</span>
             </h2>
           </Reveal>
           <Reveal delay={220}>
             <div className="mt-14 grid gap-10 md:grid-cols-12">
               <p className="md:col-start-7 md:col-span-6 text-sm leading-relaxed text-cream/70 md:text-base">
-                AIAHN nace de dos nombres: <span className="text-cream">Alahia</span> y <span className="text-cream">Iahn</span>.
+                SAIL es un verbo: <span className="text-cream">navegar</span>. Zarpar sin mapa y sin puerto fijo.
                 Una marca fundada por un padre, escrita sobre el pecho como una promesa.
                 Cada prenda es un capítulo — cosido en Medellín, vestido en la calle,
                 hecho para durar más que la temporada.
@@ -271,7 +271,7 @@ function Index() {
           </Reveal>
           <Reveal delay={280}>
             <p className="mt-6 max-w-md text-[11px] uppercase tracking-[0.22em] text-cream/40">
-              Al suscribirte aceptas recibir comunicaciones de AIAHN. Cero spam, sólo drops.
+              Al suscribirte aceptas recibir comunicaciones de SAIL. Cero spam, sólo drops.
             </p>
           </Reveal>
         </div>

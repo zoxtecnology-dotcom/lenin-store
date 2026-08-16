@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/drops/$id")({
   head: ({ loaderData }) => ({
     meta: [
-      { title: loaderData?.drop ? `${loaderData.drop.name} — ${loaderData.drop.label} — AIAHN STORE` : "Drop — AIAHN STORE" },
+      { title: loaderData?.drop ? `${loaderData.drop.name} — ${loaderData.drop.label} — SAIL STORE` : "Drop — SAIL STORE" },
       { name: "description", content: loaderData?.drop?.editorialBody ?? "" },
     ],
   }),

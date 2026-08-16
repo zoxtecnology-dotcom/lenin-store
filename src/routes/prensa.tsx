@@ -39,7 +39,7 @@ function PrensaPage() {
       <section className="pt-36 pb-20 md:pt-48 md:pb-28 border-b border-border">
         <div className="mx-auto max-w-[1500px] px-5 md:px-10">
           <Reveal>
-            <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-6">— AIAHN</p>
+            <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-6">— SAIL</p>
           </Reveal>
           <Reveal delay={100}>
             <h1 className="font-display text-[clamp(3.5rem,12vw,10rem)] uppercase leading-[0.88] text-cream">
@@ -66,8 +66,8 @@ function PrensaPage() {
             </Reveal>
             <Reveal delay={100} className="md:col-span-7 md:col-start-6">
               <p className="text-base leading-relaxed text-cream/60 mb-8">
-                {BRAND.name} es una marca de streetwear masculino fundada en {BRAND.city} en {BRAND.year}. Su nombre viene de
-                dos personas: Alahia e Iahn — los hijos de quien la creó. Opera bajo un modelo de drops
+                {BRAND.name} es una marca de streetwear masculino fundada en {BRAND.city} en {BRAND.year}. Su nombre es un verbo —
+                navegar: zarpar sin mapa y sin puerto fijo. Opera bajo un modelo de drops
                 limitados con producción 100% local. Cada pieza se diseña para durar, no para una temporada.
               </p>
               <div className="grid grid-cols-2 gap-px bg-border">

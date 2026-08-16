@@ -11,7 +11,7 @@ import { SearchModal } from "@/components/SearchModal";
 import { cn } from "@/lib/utils";
 
 // Fallback mientras carga
-const DEFAULT_ANNOUNCEMENTS = ["AIAHN Store"];
+const DEFAULT_ANNOUNCEMENTS = ["SAIL Store"];
 
 interface SiteHeaderProps {
   transparentTop?: boolean;

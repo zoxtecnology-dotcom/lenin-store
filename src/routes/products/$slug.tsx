@@ -28,10 +28,10 @@ export const Route = createFileRoute("/products/$slug")({
     return {
       meta: product
         ? [
-            { title: `${product.name} — AIAHN STORE` },
+            { title: `${product.name} — SAIL STORE` },
             { name: "description", content: product.shortDescription },
           ]
-        : [{ title: "Producto no encontrado — AIAHN STORE" }],
+        : [{ title: "Producto no encontrado — SAIL STORE" }],
     };
   },
   loader: async ({ params }) => {

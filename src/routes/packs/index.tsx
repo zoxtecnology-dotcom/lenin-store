@@ -10,7 +10,7 @@ export const Route = createFileRoute("/packs/")({
   head: () => ({
     meta: [
       { title: pageTitle("Packs") },
-      { name: "description", content: "Packs AIAHN — combina prendas y ahorra. Más look, mejor precio." },
+      { name: "description", content: "Packs SAIL — combina prendas y ahorra. Más look, mejor precio." },
     ],
   }),
   loader: async () => ({ packs: await fetchPacks() }),

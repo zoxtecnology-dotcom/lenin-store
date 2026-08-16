@@ -21,7 +21,7 @@ export const Route = createFileRoute("/collections/$handle")({
   head: ({ loaderData }) => ({
     meta: loaderData?.collection
       ? [
-          { title: `${loaderData.collection.name} — AIAHN STORE` },
+          { title: `${loaderData.collection.name} — SAIL STORE` },
           { name: "description", content: `Streetwear masculino premium — ${loaderData.collection.name}. ${loaderData.collection.subtitle}` },
         ]
       : [{ title: "Colección no encontrada" }],

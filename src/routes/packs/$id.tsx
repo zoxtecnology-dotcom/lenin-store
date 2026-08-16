@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/packs/$id")({
   head: ({ loaderData }) => ({
-    meta: [{ title: loaderData?.pack ? `${loaderData.pack.name} — AIAHN STORE` : "Pack — AIAHN STORE" }],
+    meta: [{ title: loaderData?.pack ? `${loaderData.pack.name} — SAIL STORE` : "Pack — SAIL STORE" }],
   }),
   loader: async ({ params }) => {
     const { fetchPacks } = await import("@/lib/catalog");

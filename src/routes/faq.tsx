@@ -86,7 +86,7 @@ const FAQS = [
       },
       {
         q: `¿Qué significa ${BRAND.name}?`,
-        a: `${BRAND.name} es la combinación de dos nombres: Alahia e Iahn. Los hijos de quien fundó la marca. Cada prenda lleva esos dos nombres. No es un proyecto de moda — es un documento de amor con forma de ropa.`,
+        a: `${BRAND.name} es un verbo: navegar. Zarpar sin mapa, sin puerto fijo, sin permiso. La marca la fundó un padre y cada prenda lleva ese rumbo. No es un proyecto de moda — es un documento de amor con forma de ropa.`,
       },
     ],
   },

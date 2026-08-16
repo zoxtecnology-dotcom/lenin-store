@@ -57,7 +57,7 @@ function ContactoPage() {
       <section className="pt-36 pb-20 md:pt-48 md:pb-28 border-b border-border">
         <div className="mx-auto max-w-[1500px] px-5 md:px-10">
           <Reveal>
-            <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-6">— AIAHN</p>
+            <p className="text-[11px] uppercase tracking-[0.4em] text-acid mb-6">— SAIL</p>
           </Reveal>
           <Reveal delay={100}>
             <h1 className="font-display text-[clamp(3.5rem,12vw,10rem)] uppercase leading-[0.88] text-cream">

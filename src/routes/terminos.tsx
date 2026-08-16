@@ -28,7 +28,7 @@ const SECTIONS = [
   {
     num: "03",
     title: "Precios y pagos",
-    body: "Todos los precios están expresados en pesos colombianos (COP) e incluyen IVA donde aplica. El pago se realiza al momento de la compra. AIAHN se reserva el derecho de modificar precios sin previo aviso, pero los precios de pedidos ya confirmados no cambian.",
+    body: "Todos los precios están expresados en pesos colombianos (COP) e incluyen IVA donde aplica. El pago se realiza al momento de la compra. SAIL se reserva el derecho de modificar precios sin previo aviso, pero los precios de pedidos ya confirmados no cambian.",
   },
   {
     num: "04",

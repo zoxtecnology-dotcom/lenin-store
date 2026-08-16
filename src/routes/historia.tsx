@@ -12,8 +12,8 @@ import p1 from "@/assets/p1.jpg";
 export const Route = createFileRoute("/historia")({
   head: () => ({
     meta: [
-      { title: "Historia — AIAHN STORE" },
-      { name: "description", content: "AIAHN nace de dos nombres: Alahia e Iahn. Una marca fundada por un padre, escrita sobre el pecho como una promesa. Streetwear masculino hecho en Medellín." },
+      { title: "Historia — SAIL STORE" },
+      { name: "description", content: "SAIL es un verbo: navegar. Una marca fundada por un padre, escrita sobre el pecho como una promesa. Streetwear masculino hecho en Medellín." },
     ],
   }),
   component: HistoriaPage,
@@ -28,7 +28,7 @@ function HistoriaPage() {
       <section className="relative min-h-screen flex flex-col justify-end overflow-hidden">
         <img
           src={hero}
-          alt="AIAHN"
+          alt="SAIL"
           fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover object-[60%_30%]"
         />
@@ -39,7 +39,7 @@ function HistoriaPage() {
           </Reveal>
           <Reveal delay={100}>
             <h1 className="font-display text-[clamp(4rem,16vw,14rem)] uppercase leading-[0.82] text-cream">
-              Dos nombres.<br />
+              Sin mapa.<br />
               Una marca.
             </h1>
           </Reveal>
@@ -53,20 +53,20 @@ function HistoriaPage() {
             <Reveal className="md:col-span-5">
               <p className="text-[10px] uppercase tracking-[0.4em] text-acid mb-6">— El nombre</p>
               <h2 className="font-display text-[clamp(3rem,8vw,7rem)] uppercase leading-[0.88] text-cream">
-                AI<span className="font-serif-it not-italic md:italic">A</span>HN
+                S<span className="font-serif-it not-italic md:italic">A</span>IL
               </h2>
               <p className="mt-6 font-serif-i text-2xl leading-snug text-cream/70">
-                Al<span className="text-cream">ahia</span> + I<span className="text-cream">ahn</span>
+                <span className="text-cream">navegar</span> — zarpar sin permiso
               </p>
             </Reveal>
             <Reveal delay={150} className="md:col-span-6 md:col-start-7">
               <p className="text-base leading-relaxed text-cream/60 mb-6">
-                AIAHN no es un acrónimo de agencia ni el nombre de una tendencia. Es el nombre de dos personas:
-                <span className="text-cream"> Alahia</span> y <span className="text-cream">Iahn</span>.
-                Dos hijos. Una marca fundada por su padre, escrita sobre el pecho como una promesa.
+                SAIL no es un acrónimo de agencia ni el nombre de una tendencia. Es un verbo:
+                <span className="text-cream"> navegar</span>. Zarpar sin mapa, sin puerto fijo, sin permiso.
+                Una marca fundada por un padre, escrita sobre el pecho como una promesa.
               </p>
               <p className="text-base leading-relaxed text-cream/60">
-                Cada prenda lleva esos dos nombres. Cada costura recuerda por qué empezó esto.
+                Cada prenda lleva ese rumbo. Cada costura recuerda por qué empezó esto.
                 No es un proyecto de moda — es un documento de amor con forma de ropa.
               </p>
             </Reveal>
@@ -77,7 +77,7 @@ function HistoriaPage() {
       {/* FOTO SPLIT */}
       <section className="grid grid-cols-1 md:grid-cols-2">
         <div className="aspect-[4/5] overflow-hidden">
-          <img src={look1} alt="AIAHN editorial" className="h-full w-full object-cover hover:scale-105 transition-transform duration-[2s]" />
+          <img src={look1} alt="SAIL editorial" className="h-full w-full object-cover hover:scale-105 transition-transform duration-[2s]" />
         </div>
         <div className="aspect-[4/5] overflow-hidden bg-bone flex items-end p-10 md:p-16">
           <Reveal>
@@ -106,7 +106,7 @@ function HistoriaPage() {
             <div className="md:col-span-7 md:col-start-6 space-y-6">
               <Reveal delay={100}>
                 <p className="text-base leading-relaxed text-cream/60">
-                  AIAHN nace en Medellín — una ciudad que lleva décadas reinventándose sin pedir permiso.
+                  SAIL nace en Medellín — una ciudad que lleva décadas reinventándose sin pedir permiso.
                   No como inspiración turística sino como realidad diaria: la calle, el calor, la actitud
                   de una ciudad que viste con carácter propio.
                 </p>
@@ -162,7 +162,7 @@ function HistoriaPage() {
               {
                 num: "02",
                 title: "Sin género como límite",
-                body: "Los cortes oversize y los telas pesadas no tienen dueño. AIAHN es streetwear masculino porque así empezó — pero el diseño habla más alto que la etiqueta.",
+                body: "Los cortes oversize y los telas pesadas no tienen dueño. SAIL es streetwear masculino porque así empezó — pero el diseño habla más alto que la etiqueta.",
               },
               {
                 num: "03",

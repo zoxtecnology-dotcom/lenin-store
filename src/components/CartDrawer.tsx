@@ -17,7 +17,7 @@ function buildWhatsAppLink(items: CartItem[], total: number, whatsappUrl: string
   });
 
   const message = [
-    "¡Hola AIAHN! 👋 Quiero hacer el siguiente pedido:",
+    "¡Hola SAIL! 👋 Quiero hacer el siguiente pedido:",
     "",
     ...lines,
     "",

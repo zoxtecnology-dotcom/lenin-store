@@ -85,7 +85,7 @@ export function SizeGuideModal({ open, onClose, category }: Props) {
         ) : (
           <div className="p-6 space-y-8">
             <p className="text-sm leading-relaxed text-cream/55">
-              Medidas en centímetros, del cuerpo (no de la prenda). AIAHN usa corte oversize —
+              Medidas en centímetros, del cuerpo (no de la prenda). SAIL usa corte oversize —
               si quieres un fit más ceñido, baja una talla.
             </p>
 

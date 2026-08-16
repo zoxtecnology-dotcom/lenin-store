@@ -22,7 +22,7 @@ export const PACKS: Pack[] = [
     tag: "Más popular",
     discount: 10,
     items: [{ product: find("camiseta-essentials") }, { product: find("gorra-snapback") }],
-    description: "El punto de partida. Camiseta oversize + gorra snapback. El look base de AIAHN.",
+    description: "El punto de partida. Camiseta oversize + gorra snapback. El look base de SAIL.",
   },
   {
     id: "callejero",

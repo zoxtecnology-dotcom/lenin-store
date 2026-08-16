@@ -10,8 +10,8 @@ import { fetchDrops, fetchProductsByDrop, fetchUpcomingDrop } from "@/lib/catalo
 export const Route = createFileRoute("/drops/")({
   head: () => ({
     meta: [
-      { title: "Drops — AIAHN STORE" },
-      { name: "description", content: "Todos los lanzamientos de AIAHN. Ediciones limitadas, streetwear masculino hecho en Medellín." },
+      { title: "Drops — SAIL STORE" },
+      { name: "description", content: "Todos los lanzamientos de SAIL. Ediciones limitadas, streetwear masculino hecho en Medellín." },
     ],
   }),
   loader: async () => {
@@ -61,7 +61,7 @@ function DropsPage() {
       {/* Hero */}
       <section className="relative h-[60vh] min-h-[400px] overflow-hidden">
         {heroImg && (
-          <img src={heroImg} alt="AIAHN Drops" fetchPriority="high"
+          <img src={heroImg} alt="SAIL Drops" fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover object-[60%_30%]" />
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-background" />

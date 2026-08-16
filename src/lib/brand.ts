@@ -1,7 +1,7 @@
 export const BRAND = {
-  name: "AIAHN",
-  store: "AIAHN STORE",
-  legal: "AIAHN Store S.A.S.",
+  name: "SAIL",
+  store: "SAIL STORE",
+  legal: "SAIL Store S.A.S.",
   tagline: "Hecho por amor. Vestido con actitud. Medellín, Colombia.",
   domain: "aiahn.co",
   url: "https://aiahn.co",
@@ -10,7 +10,7 @@ export const BRAND = {
   cityFull: "Medellín, Colombia",
   cityLegal: "Medellín, Antioquia",
   year: "2026",
-  copyright: "© 2026 AIAHN Store S.A.S — Todos los derechos reservados",
+  copyright: "© 2026 SAIL Store S.A.S — Todos los derechos reservados",
   madeIn: "Made with love in Medellín",
   manufacture: "Fabricado en Medellín, Colombia",
 } as const;
@@ -35,7 +35,7 @@ export const DROP = {
   current: "01",
   name: "Essentials",
   season: "SS26",
-  label: "Drop 01 — AIAHN Essentials SS26",
+  label: "Drop 01 — SAIL Essentials SS26",
   short: "Drop 01",
 } as const;
 

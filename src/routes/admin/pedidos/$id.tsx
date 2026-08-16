@@ -132,7 +132,7 @@ function DetallePedido() {
           ${trackingCode ? `<div class="muted">Guía: ${trackingCode}</div>` : ""}
         </div>
         <div style="text-align:right">
-          <strong>AIAHN STORE</strong>
+          <strong>SAIL STORE</strong>
         </div>
       </div>
       <div class="grid">

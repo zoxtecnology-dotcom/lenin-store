@@ -204,7 +204,7 @@ export const products: Product[] = [
   },
   {
     slug: "gorra-snapback",
-    name: "Gorra / Snapback AIAHN",
+    name: "Gorra / Snapback SAIL",
     price: 75000,
     front: p4,
     back: p3,
@@ -213,7 +213,7 @@ export const products: Product[] = [
     category: "Gorras",
     isBestSeller: true,
     shortDescription: "Snapback 6 paneles en twill 100% algodón. Logo bordado en relieve. Talla única.",
-    description: "Seis paneles, frente estructurado, cierre snapback ajustable. Logo AIAHN bordado en 3D.",
+    description: "Seis paneles, frente estructurado, cierre snapback ajustable. Logo SAIL bordado en 3D.",
     details: "100% algodón twill\nEstructura: 6 paneles\nCierre: Snapback\nLavado a mano\nFabricado en Medellín, Colombia",
     colors: [
       { name: "Negro", swatch: "#0a0a0a" },

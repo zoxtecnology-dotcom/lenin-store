@@ -11,7 +11,7 @@ export const Route = createFileRoute("/cambios-devoluciones")({
   head: () => ({
     meta: [
       { title: pageTitle("Cambios y Devoluciones") },
-      { name: "description", content: "Política de cambios y devoluciones de AIAHN. 15 días para cambiar tu prenda, sin complicaciones." },
+      { name: "description", content: "Política de cambios y devoluciones de SAIL. 15 días para cambiar tu prenda, sin complicaciones." },
     ],
   }),
   component: CambiosPage,
@@ -21,7 +21,7 @@ const SECTIONS = [
   {
     num: "01",
     title: "Nuestra política",
-    body: "Dado que AIAHN opera bajo un modelo de drops limitados, no realizamos devoluciones en dinero. Sí ofrecemos cambios de talla o referencia y notas crédito dentro de los plazos establecidos.",
+    body: "Dado que SAIL opera bajo un modelo de drops limitados, no realizamos devoluciones en dinero. Sí ofrecemos cambios de talla o referencia y notas crédito dentro de los plazos establecidos.",
   },
   {
     num: "02",
@@ -201,7 +201,7 @@ function ClaimForm() {
       <div>
         <label className={labelCls}>Número de pedido</label>
         <input required value={form.pedido} onChange={(e) => set("pedido", e.target.value)}
-          placeholder="#AIAHN-0001" className={inputCls} />
+          placeholder="#SAIL-0001" className={inputCls} />
       </div>
 
       <div>
