@@ -4,15 +4,15 @@ import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
 import { fmtCOP } from "@/lib/products";
 import { fetchPacks, type PackData } from "@/lib/catalog";
-import { pageTitle } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/packs/")({
-  head: () => ({
-    meta: [
-      { title: pageTitle("Packs") },
-      { name: "description", content: "Packs SAIL — combina prendas y ahorra. Más look, mejor precio." },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Packs",
+      description: "Packs SAIL — combina prendas y ahorra. Más look, mejor precio.",
+      path: "/packs",
+    }),
   loader: async () => ({ packs: await fetchPacks() }),
   component: PacksPage,
 });

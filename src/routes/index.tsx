@@ -8,19 +8,17 @@ import { fmtCOP } from "@/lib/products";
 import { fetchProductsNewest, fetchPacks, fetchDrops, fetchCollections } from "@/lib/catalog";
 import { imgUrl } from "@/lib/cloudinary";
 import { ProductCard } from "@/components/ProductCard";
+import { seo } from "@/lib/seo";
 
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "SAIL STORE — Hecho por amor, vestido con actitud" },
-      { name: "description", content: "Streetwear premium de Colombia. Drop 01 — SAIL Essentials SS26. Ropa hecha por amor, vestida con actitud." },
-      { property: "og:title", content: "SAIL STORE — Drop 01" },
-      { property: "og:description", content: "Ropa hecha por amor, vestida con actitud. Drop 01 disponible ahora." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () =>
+    seo({
+      rawTitle: "SAIL STORE — Hecho por amor, vestido con actitud",
+      description:
+        "Streetwear premium de Colombia. Drop 01 — SAIL Essentials SS26. Ropa hecha por amor, vestida con actitud.",
+      path: "/",
+    }),
   loader: async () => {
     const [products, packs, drops, collections] = await Promise.all([
       fetchProductsNewest(10), // carrusel: los 10 más nuevos

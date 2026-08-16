@@ -3,16 +3,16 @@ import { Mail, MessageCircle, Instagram } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { pageTitle } from "@/lib/brand";
 import { useSettings } from "@/lib/settings";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/contacto")({
-  head: () => ({
-    meta: [
-      { title: pageTitle("Contacto") },
-      { name: "description", content: "Contáctanos para pedidos, PQRS, prensa o colaboraciones. Respondemos en menos de 24 horas." },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Contacto",
+      description: "Contáctanos para pedidos, PQRS, prensa o colaboraciones. Respondemos en menos de 24 horas.",
+      path: "/contacto",
+    }),
   component: ContactoPage,
 });
 

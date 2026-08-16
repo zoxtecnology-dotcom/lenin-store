@@ -3,15 +3,16 @@ import { MapPin, Clock, Instagram } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { BRAND, SOCIAL, pageTitle } from "@/lib/brand";
+import { BRAND, SOCIAL } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/tiendas")({
-  head: () => ({
-    meta: [
-      { title: pageTitle("Tiendas") },
-      { name: "description", content: `${BRAND.name} es una marca 100% online con pop-ups periódicos en ${BRAND.city}. Encuentra los próximos eventos aquí.` },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Tiendas",
+      description: `${BRAND.name} es una marca 100% online con pop-ups periódicos en ${BRAND.city}. Encuentra los próximos eventos aquí.`,
+      path: "/tiendas",
+    }),
   component: TiendasPage,
 });
 

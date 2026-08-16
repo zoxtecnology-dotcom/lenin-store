@@ -6,14 +6,16 @@ import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
 import { ProductCard } from "@/components/ProductCard";
 import { fetchDrops, fetchProductsByDrop, fetchUpcomingDrop } from "@/lib/catalog";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/drops/")({
-  head: () => ({
-    meta: [
-      { title: "Drops — SAIL STORE" },
-      { name: "description", content: "Todos los lanzamientos de SAIL. Ediciones limitadas, streetwear masculino hecho en Medellín." },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Drops",
+      description:
+        "Todos los lanzamientos de SAIL. Ediciones limitadas, streetwear masculino hecho en Medellín.",
+      path: "/drops",
+    }),
   loader: async () => {
     const [drops, upcoming] = await Promise.all([fetchDrops(), fetchUpcomingDrop()]);
     const drop01 = drops[0] ?? null;

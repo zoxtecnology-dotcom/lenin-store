@@ -4,15 +4,17 @@ import { Plus, Minus } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { BRAND, EMAIL, SOCIAL, pageTitle } from "@/lib/brand";
+import { BRAND, EMAIL, SOCIAL } from "@/lib/brand";
+import { seo, faqSchema } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
 
 export const Route = createFileRoute("/faq")({
-  head: () => ({
-    meta: [
-      { title: pageTitle("Preguntas Frecuentes") },
-      { name: "description", content: `Respuestas a las dudas más comunes sobre pedidos, envíos, tallas y la marca ${BRAND.name}.` },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Preguntas Frecuentes",
+      description: `Respuestas a las dudas más comunes sobre pedidos, envíos, tallas y la marca ${BRAND.name}.`,
+      path: "/faq",
+    }),
   component: FaqPage,
 });
 
@@ -115,6 +117,8 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 function FaqPage() {
   return (
     <main className="bg-background text-foreground min-h-screen">
+      {/* Aplana las categorías: schema.org espera una sola lista de preguntas. */}
+      <JsonLd data={faqSchema(FAQS.flatMap((cat) => cat.items))} />
       <SiteHeader />
 
       <section className="pt-36 pb-20 md:pt-48 md:pb-28 border-b border-border">

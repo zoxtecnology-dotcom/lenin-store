@@ -8,15 +8,13 @@ import { supabase } from "@/lib/supabase";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { pageTitle } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 import { fmtCOP } from "@/lib/products";
 import { createMPPreference } from "@/lib/api/mercadopago.functions";
 import { ArrowLeft, Loader2, MapPin, CreditCard, ShoppingBag, ChevronDown } from "lucide-react";
 
 export const Route = createFileRoute("/checkout")({
-  head: () => ({
-    meta: [{ title: pageTitle("Checkout") }],
-  }),
+  head: () => seo({ title: "Checkout", noindex: true }),
   component: CheckoutPage,
 });
 

@@ -8,14 +8,16 @@ import look1 from "@/assets/look1.jpg";
 import look2 from "@/assets/look2.jpg";
 import look3 from "@/assets/look3.jpg";
 import p1 from "@/assets/p1.jpg";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/historia")({
-  head: () => ({
-    meta: [
-      { title: "Historia — SAIL STORE" },
-      { name: "description", content: "SAIL es un verbo: navegar. Una marca fundada por un padre, escrita sobre el pecho como una promesa. Streetwear masculino hecho en Medellín." },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Historia",
+      description:
+        "SAIL es un verbo: navegar. Una marca fundada por un padre, escrita sobre el pecho como una promesa. Streetwear masculino hecho en Medellín.",
+      path: "/historia",
+    }),
   component: HistoriaPage,
 });
 

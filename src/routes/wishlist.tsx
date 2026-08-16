@@ -6,12 +6,10 @@ import { Reveal } from "@/components/Reveal";
 import { useWishlist } from "@/lib/wishlist";
 import { fetchProducts } from "@/lib/catalog";
 import { ProductCard } from "@/components/ProductCard";
-import { pageTitle } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/wishlist")({
-  head: () => ({
-    meta: [{ title: pageTitle("Guardados") }],
-  }),
+  head: () => seo({ title: "Guardados", noindex: true }),
   loader: async () => ({ products: await fetchProducts() }),
   component: WishlistPage,
 });

@@ -3,6 +3,10 @@ export const BRAND = {
   store: "SAIL STORE",
   legal: "SAIL Store S.A.S.",
   tagline: "Hecho por amor. Vestido con actitud. Medellín, Colombia.",
+  // ⚠️ DOMINIO PENDIENTE DE CONFIRMAR.
+  // De aquí salen los canonical, el sitemap y las og:image de todo el sitio.
+  // Mientras apunte al dominio equivocado, Google indexa las URLs equivocadas.
+  // Cambiar SOLO estas dos líneas cuando el dominio esté definido.
   domain: "aiahn.co",
   url: "https://aiahn.co",
   city: "Medellín",

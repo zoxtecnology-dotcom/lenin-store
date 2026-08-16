@@ -3,12 +3,10 @@ import { useState, useEffect } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
-import { pageTitle } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({
-    meta: [{ title: pageTitle("Iniciar sesión") }],
-  }),
+  head: () => seo({ title: "Iniciar sesión", noindex: true }),
   beforeLoad: ({ context }) => {
     // Si ya está logueado, redirige a /cuenta
   },

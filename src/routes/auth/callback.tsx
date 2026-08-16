@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/auth/callback")({
+  head: () => seo({ title: "Autenticando", noindex: true }),
   component: AuthCallback,
 });
 

@@ -6,8 +6,11 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { FilterDrawer, type Filters, DEFAULT_FILTERS, PRICE_MAX } from "@/components/FilterDrawer";
 import { Reveal } from "@/components/Reveal";
-import { fetchCollection, fetchProducts, fetchProductsIsNew, fetchMostSoldProducts } from "@/lib/catalog";
+import { fetchCollection, fetchProducts, fetchProductsIsNew, fetchMostSoldProducts, type CollectionData } from "@/lib/catalog";
 import { ProductCard } from "@/components/ProductCard";
+import type { Product } from "@/lib/products";
+import { seo, breadcrumbSchema, itemListSchema } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
 
 const searchSchema = z.object({
   talla: z.string().optional(),
@@ -18,14 +21,21 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/collections/$handle")({
   validateSearch: (search) => searchSchema.parse(search),
-  head: ({ loaderData }) => ({
-    meta: loaderData?.collection
-      ? [
-          { title: `${loaderData.collection.name} — SAIL STORE` },
-          { name: "description", content: `Streetwear masculino premium — ${loaderData.collection.name}. ${loaderData.collection.subtitle}` },
-        ]
-      : [{ title: "Colección no encontrada" }],
-  }),
+  head: ({ loaderData }) => {
+    // Cast explícito: sin él la inferencia de `head` y `loader` se vuelve
+    // circular y TypeScript resuelve loaderData como `never`.
+    const collection = (loaderData as { collection?: CollectionData } | undefined)?.collection;
+    if (!collection) return seo({ title: "Colección no encontrada", noindex: true });
+    // El canonical apunta a la URL sin filtros a propósito. Las combinaciones de
+    // talla/color/orden generan cientos de URLs con el mismo contenido; sin esto
+    // Google las trata como duplicados y diluye el ranking de la colección.
+    return seo({
+      title: collection.name,
+      description: `Streetwear masculino premium — ${collection.name}. ${collection.subtitle}`,
+      path: `/collections/${collection.handle}`,
+      image: collection.image || undefined,
+    });
+  },
   loader: async ({ params }) => {
     const collection = await fetchCollection(params.handle);
     if (!collection) throw notFound();
@@ -151,6 +161,17 @@ function CollectionPage() {
 
   return (
     <main className="bg-background text-foreground min-h-screen">
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Inicio", path: "/" },
+          { name: collection.name, path: `/collections/${collection.handle}` },
+        ])}
+      />
+      <JsonLd
+        data={itemListSchema(
+          (collectionProducts as Product[]).map((p) => ({ name: p.name, slug: p.slug }))
+        )}
+      />
       <SiteHeader />
 
       {/* Hero strip */}

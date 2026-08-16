@@ -15,6 +15,9 @@ import { supabase } from "@/lib/supabase";
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
+import { seo, productSchema, breadcrumbSchema } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
+import { BRAND } from "@/lib/brand";
 
 interface SiteSettings {
   free_shipping_threshold: string;
@@ -25,14 +28,19 @@ interface SiteSettings {
 export const Route = createFileRoute("/products/$slug")({
   head: ({ loaderData }) => {
     const product = (loaderData as { product?: Product } | undefined)?.product;
-    return {
-      meta: product
-        ? [
-            { title: `${product.name} — SAIL STORE` },
-            { name: "description", content: product.shortDescription },
-          ]
-        : [{ title: "Producto no encontrado — SAIL STORE" }],
-    };
+    if (!product) {
+      return seo({ title: "Producto no encontrado", noindex: true });
+    }
+    // Una descripción larga posiciona mejor que la corta de la tarjeta.
+    const description =
+      product.description?.trim() || product.shortDescription?.trim() || BRAND.tagline;
+    return seo({
+      title: product.name,
+      description,
+      path: `/products/${product.slug}`,
+      image: product.front || product.images?.[0],
+      type: "product",
+    });
   },
   loader: async ({ params }) => {
     const [product, allProducts, settingsRes] = await Promise.all([
@@ -53,7 +61,38 @@ function ProductPage() {
   const { product, settings } = Route.useLoaderData() as { product: Product; allProducts: Product[]; settings: SiteSettings };
   const isConjunto = product.type === "conjunto" && !!product.conjunto;
 
-  return isConjunto ? <ConjuntoProductPage product={product} settings={settings} /> : <StandardProductPage product={product} settings={settings} />;
+  // El stock total puede venir sin definir; en ese caso lo deducimos de las variantes.
+  const totalStock =
+    product.stock ?? product.variants?.reduce((sum, v) => sum + (v.stock ?? 0), 0) ?? 0;
+
+  return (
+    <>
+      <JsonLd
+        data={productSchema({
+          name: product.name,
+          description: product.description || product.shortDescription,
+          images: [product.front, product.back, ...(product.images ?? [])].filter(Boolean),
+          price: product.price,
+          slug: product.slug,
+          inStock: totalStock > 0,
+          sku: product.id,
+          color: product.colors?.[0]?.name,
+        })}
+      />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Inicio", path: "/" },
+          { name: product.category, path: `/collections/${product.category}` },
+          { name: product.name, path: `/products/${product.slug}` },
+        ])}
+      />
+      {isConjunto ? (
+        <ConjuntoProductPage product={product} settings={settings} />
+      ) : (
+        <StandardProductPage product={product} settings={settings} />
+      )}
+    </>
+  );
 }
 
 /* ─── Standard Product ──────────────────────────────────────── */

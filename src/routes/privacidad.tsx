@@ -2,15 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { BRAND, EMAIL, pageTitle } from "@/lib/brand";
+import { BRAND, EMAIL } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/privacidad")({
-  head: () => ({
-    meta: [
-      { title: pageTitle("Privacidad") },
-      { name: "description", content: `Política de privacidad de ${BRAND.legal}. Cómo recopilamos, usamos y protegemos tu información.` },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Privacidad",
+      description: `Política de privacidad de ${BRAND.legal}. Cómo recopilamos, usamos y protegemos tu información.`,
+      path: "/privacidad",
+    }),
   component: PrivacidadPage,
 });
 

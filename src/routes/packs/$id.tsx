@@ -9,11 +9,21 @@ import { fmtCOP } from "@/lib/products";
 import { fetchPackBySlug } from "@/lib/catalog";
 import { SizeGuideModal } from "@/components/SizeGuideModal";
 import { cn } from "@/lib/utils";
+import { seo } from "@/lib/seo";
+import { BRAND } from "@/lib/brand";
+import type { PackData } from "@/lib/catalog";
 
 export const Route = createFileRoute("/packs/$id")({
-  head: ({ loaderData }) => ({
-    meta: [{ title: loaderData?.pack ? `${loaderData.pack.name} — SAIL STORE` : "Pack — SAIL STORE" }],
-  }),
+  head: ({ loaderData }) => {
+    // Cast explícito: evita la inferencia circular entre head y loader.
+    const pack = (loaderData as { pack?: PackData } | undefined)?.pack;
+    if (!pack) return seo({ title: "Pack", noindex: true });
+    return seo({
+      title: pack.name,
+      description: pack.description || `${pack.name} — ${BRAND.tagline}`,
+      path: `/packs/${pack.slug}`,
+    });
+  },
   loader: async ({ params }) => {
     const { fetchPacks } = await import("@/lib/catalog");
     const [pack, allPacks] = await Promise.all([

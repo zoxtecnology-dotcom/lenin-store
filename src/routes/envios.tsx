@@ -2,15 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { BRAND, EMAIL, SOCIAL, pageTitle } from "@/lib/brand";
+import { BRAND, EMAIL, SOCIAL } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/envios")({
-  head: () => ({
-    meta: [
-      { title: pageTitle("Envíos") },
-      { name: "description", content: `Política de envíos de ${BRAND.name}. Enviamos a toda Colombia con seguimiento en tiempo real.` },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Envíos",
+      description: `Política de envíos de ${BRAND.name}. Enviamos a toda Colombia con seguimiento en tiempo real.`,
+      path: "/envios",
+    }),
   component: EnviosPage,
 });
 

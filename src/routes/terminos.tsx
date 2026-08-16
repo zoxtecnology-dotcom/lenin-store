@@ -2,15 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { BRAND, pageTitle } from "@/lib/brand";
+import { BRAND } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/terminos")({
-  head: () => ({
-    meta: [
-      { title: pageTitle("Términos y Condiciones") },
-      { name: "description", content: `Términos y condiciones de uso de ${BRAND.store}. Compras, drops limitados y propiedad intelectual.` },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Términos y Condiciones",
+      description: `Términos y condiciones de uso de ${BRAND.store}. Compras, drops limitados y propiedad intelectual.`,
+      path: "/terminos",
+    }),
   component: TerminosPage,
 });
 

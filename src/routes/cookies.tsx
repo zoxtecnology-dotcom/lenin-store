@@ -2,15 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { BRAND, EMAIL, pageTitle } from "@/lib/brand";
+import { BRAND, EMAIL } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/cookies")({
-  head: () => ({
-    meta: [
-      { title: pageTitle("Cookies") },
-      { name: "description", content: `Política de cookies de ${BRAND.store}. Qué cookies usamos y cómo gestionarlas.` },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Cookies",
+      description: `Política de cookies de ${BRAND.store}. Qué cookies usamos y cómo gestionarlas.`,
+      path: "/cookies",
+    }),
   component: CookiesPage,
 });
 

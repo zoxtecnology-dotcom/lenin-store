@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
-import { pageTitle } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
 import { fmtCOP } from "@/lib/products";
 import {
@@ -15,9 +15,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/pedido-confirmado")({
-  head: () => ({
-    meta: [{ title: pageTitle("Confirmación de pedido") }],
-  }),
+  head: () => seo({ title: "Confirmación de pedido", noindex: true }),
   component: CheckoutResultPage,
 });
 

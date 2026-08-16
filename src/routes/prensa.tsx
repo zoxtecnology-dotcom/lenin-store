@@ -3,15 +3,16 @@ import { Download } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { BRAND, EMAIL, pageTitle } from "@/lib/brand";
+import { BRAND, EMAIL } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/prensa")({
-  head: () => ({
-    meta: [
-      { title: pageTitle("Prensa") },
-      { name: "description", content: `Kit de prensa y contacto de medios para ${BRAND.store}. Fotos, logos y ficha de marca.` },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Prensa",
+      description: `Kit de prensa y contacto de medios para ${BRAND.store}. Fotos, logos y ficha de marca.`,
+      path: "/prensa",
+    }),
   component: PrensaPage,
 });
 

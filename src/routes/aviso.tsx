@@ -2,15 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { BRAND, EMAIL, pageTitle } from "@/lib/brand";
+import { BRAND, EMAIL } from "@/lib/brand";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/aviso")({
-  head: () => ({
-    meta: [
-      { title: pageTitle("Aviso Legal") },
-      { name: "description", content: `Aviso legal de ${BRAND.legal}. Información de la empresa y condiciones de uso del sitio.` },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Aviso Legal",
+      description: `Aviso legal de ${BRAND.legal}. Información de la empresa y condiciones de uso del sitio.`,
+      path: "/aviso",
+    }),
   component: AvisoPage,
 });
 

@@ -9,8 +9,11 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.png";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/admin")({
+  // El layout marca noindex; todas las subrutas de /admin lo heredan.
+  head: () => seo({ title: "Admin", noindex: true }),
   component: AdminLayout,
 });
 

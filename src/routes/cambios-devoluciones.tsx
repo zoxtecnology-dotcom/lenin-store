@@ -4,16 +4,17 @@ import { Paperclip, Send } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
-import { EMAIL, pageTitle } from "@/lib/brand";
+import { EMAIL } from "@/lib/brand";
 import { cn } from "@/lib/utils";
+import { seo } from "@/lib/seo";
 
 export const Route = createFileRoute("/cambios-devoluciones")({
-  head: () => ({
-    meta: [
-      { title: pageTitle("Cambios y Devoluciones") },
-      { name: "description", content: "Política de cambios y devoluciones de SAIL. 15 días para cambiar tu prenda, sin complicaciones." },
-    ],
-  }),
+  head: () =>
+    seo({
+      title: "Cambios y Devoluciones",
+      description: "Política de cambios y devoluciones de SAIL. 15 días para cambiar tu prenda, sin complicaciones.",
+      path: "/cambios-devoluciones",
+    }),
   component: CambiosPage,
 });
 

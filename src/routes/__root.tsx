@@ -12,12 +12,15 @@ import { useEffect } from "react";
 import appCss from "../styles.css?url";
 import favicon from "@/assets/favicon.png?url";
 import appleTouchIcon from "@/assets/apple-touch-icon.png?url";
+import { seo, organizationSchema, websiteSchema } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
 import { CartProvider } from "@/lib/cart";
 import { CartDrawer } from "@/components/CartDrawer";
 import { WhatsappWidget } from "@/components/WhatsappWidget";
 import { WishlistProvider } from "@/lib/wishlist";
 import { AuthProvider } from "@/lib/auth";
 import { SettingsProvider } from "@/lib/settings";
+import { BRAND } from "@/lib/brand";
 
 
 function NotFoundComponent() {
@@ -88,28 +91,35 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SAIL STORE — Streetwear masculino hecho en Colombia" },
-      { name: "description", content: "Streetwear masculino premium hecho en Colombia. Drop 01 — SAIL Essentials SS26." },
-      { name: "author", content: "SAIL Store" },
-      { property: "og:title", content: "SAIL STORE — Drop 01" },
-      { property: "og:description", content: "Ropa hecha por amor, vestida con actitud. Drop 01 disponible ahora." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@aiahn_store" },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      { rel: "icon", type: "image/png", href: favicon },
-      { rel: "apple-touch-icon", sizes: "180x180", href: appleTouchIcon },
-    ],
-  }),
+  head: () => {
+    // Sin `path` a propósito: el canonical lo define cada ruta.
+    // Si la raíz fijara uno, todas las páginas apuntarían a "/" y Google
+    // dejaría de indexar productos y colecciones.
+    const base = seo({
+      rawTitle: "SAIL STORE — Streetwear masculino hecho en Colombia",
+      description:
+        "Streetwear masculino premium hecho en Colombia. Drops limitados, corte oversize y producción local en Medellín.",
+    });
+    return {
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { name: "author", content: BRAND.store },
+        ...base.meta,
+      ],
+      links: [
+        {
+          rel: "stylesheet",
+          href: appCss,
+        },
+        { rel: "icon", type: "image/png", href: favicon },
+        { rel: "apple-touch-icon", sizes: "180x180", href: appleTouchIcon },
+        // Reduce el tiempo de la primera imagen: Cloudinary sirve todo el catálogo.
+        { rel: "preconnect", href: "https://res.cloudinary.com" },
+        { rel: "dns-prefetch", href: "https://res.cloudinary.com" },
+      ],
+    };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -118,9 +128,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es-CO">
       <head>
         <HeadContent />
+        {/* Identidad de marca: se declara una vez y vale para todo el sitio. */}
+        <JsonLd data={organizationSchema(favicon)} />
+        <JsonLd data={websiteSchema()} />
       </head>
       <body>
         {children}

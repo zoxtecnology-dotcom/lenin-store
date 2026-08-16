@@ -10,13 +10,21 @@ import { fetchDropBySlug, fetchProductsByDrop } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
 import { SizeGuideModal } from "@/components/SizeGuideModal";
 import { cn } from "@/lib/utils";
+import { seo } from "@/lib/seo";
+import { BRAND } from "@/lib/brand";
+import type { DropData } from "@/lib/catalog";
 export const Route = createFileRoute("/drops/$id")({
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: loaderData?.drop ? `${loaderData.drop.name} — ${loaderData.drop.label} — SAIL STORE` : "Drop — SAIL STORE" },
-      { name: "description", content: loaderData?.drop?.editorialBody ?? "" },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    // Cast explícito: evita la inferencia circular entre head y loader.
+    const drop = (loaderData as { drop?: DropData } | undefined)?.drop;
+    if (!drop) return seo({ title: "Drop", noindex: true });
+    return seo({
+      rawTitle: `${drop.name} — ${drop.label} — ${BRAND.store}`,
+      description: drop.editorialBody || `${drop.label} — ${BRAND.tagline}`,
+      path: `/drops/${drop.slug}`,
+      image: drop.editorialImages?.[0],
+    });
+  },
   loader: async ({ params }) => {
     const drop = await fetchDropBySlug(params.id);
     if (!drop) throw notFound();
