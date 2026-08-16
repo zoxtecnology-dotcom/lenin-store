@@ -149,7 +149,7 @@ export async function fetchProducts(): Promise<Product[]> {
     .order("position");
 
   if (error) throw error;
-  return (data as ProductRow[]).map(rowToProduct);
+  return ((data ?? []) as ProductRow[]).filter(Boolean).map(rowToProduct);
 }
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
@@ -174,7 +174,7 @@ export async function fetchProductsNewest(limit?: number): Promise<Product[]> {
 
   const { data, error } = await query;
   if (error) throw error;
-  return (data as ProductRow[]).map(rowToProduct);
+  return ((data ?? []) as ProductRow[]).filter(Boolean).map(rowToProduct);
 }
 
 // is_new = true ordenados por más nuevos primero
@@ -186,7 +186,7 @@ export async function fetchProductsIsNew(): Promise<Product[]> {
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return (data as ProductRow[]).map(rowToProduct);
+  return ((data ?? []) as ProductRow[]).filter(Boolean).map(rowToProduct);
 }
 
 // Más vendidos por ventas reales de order_items
@@ -220,7 +220,7 @@ export async function fetchMostSoldProducts(): Promise<Product[]> {
 
   if (error) throw error;
 
-  const products = (data as ProductRow[]).map(rowToProduct);
+  const products = ((data ?? []) as ProductRow[]).filter(Boolean).map(rowToProduct);
   return sorted
     .map((id) => products.find((p) => (data as ProductRow[]).find((r) => r.slug === p.slug && r.id === id)))
     .filter((p): p is Product => !!p);
@@ -309,9 +309,10 @@ export async function fetchPacks(): Promise<PackData[]> {
     tag: (pack.tag as string) ?? "",
     discount: pack.discount as number,
     description: (pack.description as string) ?? "",
-    items: ((pack.pack_items as { position: number; product: ProductRow }[]) ?? [])
+    items: ((pack.pack_items as { position: number; product: ProductRow | null }[]) ?? [])
+      .filter((pi) => pi.product !== null)
       .sort((a, b) => a.position - b.position)
-      .map((pi) => ({ product: rowToProduct(pi.product) })),
+      .map((pi) => ({ product: rowToProduct(pi.product!) })),
   }));
 }
 
@@ -413,5 +414,5 @@ export async function fetchProductsByDrop(dropId: string): Promise<Product[]> {
     .eq("drop_id", dropId)
     .order("position");
   if (error) throw error;
-  return (data as ProductRow[]).map(rowToProduct);
+  return ((data ?? []) as ProductRow[]).filter(Boolean).map(rowToProduct);
 }
